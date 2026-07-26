@@ -6,8 +6,7 @@
 
 -- 1. Auto-confirm all unconfirmed users in auth.users table
 UPDATE auth.users
-SET email_confirmed_at = COALESCE(email_confirmed_at, NOW()),
-    confirmed_at = COALESCE(confirmed_at, NOW())
+SET email_confirmed_at = COALESCE(email_confirmed_at, NOW())
 WHERE email_confirmed_at IS NULL;
 
 -- 2. Ensure handle_new_user trigger correctly inserts & updates public.profiles
