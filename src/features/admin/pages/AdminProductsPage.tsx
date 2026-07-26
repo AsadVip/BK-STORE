@@ -57,6 +57,7 @@ interface VariantItem {
     price: string; // Selling / Discount Price
     compare_at_price: string; // Real / Original Price
     stock_quantity: string;
+    image_url?: string;
 }
 
 export default function AdminProductsPage() {
@@ -85,6 +86,8 @@ export default function AdminProductsPage() {
         is_new_arrival: false,
         is_best_seller: false,
         is_featured: false,
+        is_men: true,
+        is_women: false,
         images: [] as ImageItem[],
         variants: [] as VariantItem[],
     });
@@ -108,8 +111,10 @@ export default function AdminProductsPage() {
             is_new_arrival: false,
             is_best_seller: false,
             is_featured: false,
+            is_men: true,
+            is_women: false,
             images: [],
-            variants: [{ name: "Standard", sku: "", price: "", compare_at_price: "", stock_quantity: "50" }],
+            variants: [{ name: "Standard", sku: "", price: "", compare_at_price: "", stock_quantity: "50", image_url: "" }],
         });
     };
 
@@ -134,8 +139,9 @@ export default function AdminProductsPage() {
                 price: String(v.price ?? p.base_price ?? ""),
                 compare_at_price: v.compare_at_price ? String(v.compare_at_price) : (p.compare_at_price ? String(p.compare_at_price) : ""),
                 stock_quantity: String(v.stock_quantity ?? 50),
+                image_url: v.image_url || v.option_values?.image_url || "",
             }))
-            : [{ name: "Standard", sku: `${p.slug}-default`, price: String(p.base_price || ""), compare_at_price: p.compare_at_price ? String(p.compare_at_price) : "", stock_quantity: String(p.stock_quantity ?? 50) }];
+            : [{ name: "Standard", sku: `${p.slug}-default`, price: String(p.base_price || ""), compare_at_price: p.compare_at_price ? String(p.compare_at_price) : "", stock_quantity: String(p.stock_quantity ?? 50), image_url: "" }];
 
         setForm({
             name: p.name || "",
@@ -148,6 +154,8 @@ export default function AdminProductsPage() {
             is_new_arrival: !!p.is_new_arrival,
             is_best_seller: !!p.is_best_seller,
             is_featured: !!p.is_featured,
+            is_women: p.is_women === true || p.vendor_id === "women" || (typeof p.meta_description === "string" && p.meta_description.includes('"is_women":true')),
+            is_men: (p.is_women === true || p.vendor_id === "women") ? (p.is_men === true) : true,
             images: existingImages,
             variants: existingVariants,
         });
@@ -220,6 +228,7 @@ export default function AdminProductsPage() {
                     price: f.base_price || "0",
                     compare_at_price: f.compare_at_price || "",
                     stock_quantity: "20",
+                    image_url: "",
                 },
             ],
         }));
@@ -256,6 +265,7 @@ export default function AdminProductsPage() {
             price: v.price ? parseFloat(v.price) : parsedBasePrice,
             compare_at_price: v.compare_at_price ? parseFloat(v.compare_at_price) : parsedComparePrice,
             stock_quantity: v.stock_quantity ? parseInt(v.stock_quantity, 10) : 0,
+            image_url: v.image_url?.trim() || null,
         }));
 
         try {
@@ -272,6 +282,8 @@ export default function AdminProductsPage() {
                     is_new_arrival: form.is_new_arrival,
                     is_best_seller: form.is_best_seller,
                     is_featured: form.is_featured,
+                    is_men: form.is_men,
+                    is_women: form.is_women,
                     images: form.images,
                     variants: preparedVariants,
                 });
@@ -289,6 +301,8 @@ export default function AdminProductsPage() {
                     is_new_arrival: form.is_new_arrival,
                     is_best_seller: form.is_best_seller,
                     is_featured: form.is_featured,
+                    is_men: form.is_men,
+                    is_women: form.is_women,
                     images: form.images,
                     variants: preparedVariants,
                 });
@@ -636,6 +650,41 @@ export default function AdminProductsPage() {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* Target Gender & Category Collection (Men TOP, Women BELOW) */}
+                                <div className="space-y-3 rounded-xl border border-border/80 bg-bg-secondary/40 p-4">
+                                    <div>
+                                        <Label className="text-sm font-bold text-text-primary">Target Audience / Gender Collection</Label>
+                                        <p className="text-[11px] text-text-secondary">Select audience category for this product (Men's collection on top, Women's below):</p>
+                                    </div>
+                                    <div className="space-y-2.5 pt-1">
+                                        {/* Men's (Top) */}
+                                        <div className="flex items-center gap-3 rounded-xl border border-border/80 bg-bg-primary p-3 shadow-2xs hover:border-btn-primary/50 transition-colors">
+                                            <Checkbox
+                                                id="target-men"
+                                                checked={form.is_men}
+                                                onCheckedChange={(c) => setForm((f) => ({ ...f, is_men: c === true, is_women: c === true ? false : f.is_women }))}
+                                            />
+                                            <Label htmlFor="target-men" className="cursor-pointer text-xs font-extrabold text-text-primary flex items-center gap-2">
+                                                <span>Men's Collection / Men's Watch ⌚</span>
+                                                <span className="text-[10px] text-amber-500 font-bold bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">(TOP)</span>
+                                            </Label>
+                                        </div>
+
+                                        {/* Women's (Niche / Below) */}
+                                        <div className="flex items-center gap-3 rounded-xl border border-border/80 bg-bg-primary p-3 shadow-2xs hover:border-btn-primary/50 transition-colors">
+                                            <Checkbox
+                                                id="target-women"
+                                                checked={form.is_women}
+                                                onCheckedChange={(c) => setForm((f) => ({ ...f, is_women: c === true, is_men: c === true ? false : f.is_men }))}
+                                            />
+                                            <Label htmlFor="target-women" className="cursor-pointer text-xs font-extrabold text-text-primary flex items-center gap-2">
+                                                <span>Women's Collection / Women's Watch 💄</span>
+                                                <span className="text-[10px] text-rose-500 font-bold bg-rose-500/10 px-2 py-0.5 rounded-md border border-rose-500/20">(BELOW / NICHE)</span>
+                                            </Label>
+                                        </div>
+                                    </div>
+                                </div>
                             </TabsContent>
 
                             {/* TAB 2: GALLERY IMAGES */}
@@ -748,67 +797,106 @@ export default function AdminProductsPage() {
                                     {form.variants.map((variant, idx) => (
                                         <div
                                             key={idx}
-                                            className="grid grid-cols-12 gap-2 items-center rounded-xl border border-border p-3 bg-bg-secondary/30"
+                                            className="rounded-xl border border-border p-3.5 bg-bg-secondary/30 space-y-3"
                                         >
-                                            <div className="col-span-3 space-y-1">
-                                                <Label className="text-[11px] text-text-secondary">Variant Name</Label>
-                                                <Input
-                                                    placeholder="e.g. Small / Red"
-                                                    value={variant.name}
-                                                    onChange={(e) => handleUpdateVariant(idx, "name", e.target.value)}
-                                                    className="h-8 text-xs font-medium"
-                                                />
+                                            <div className="grid grid-cols-12 gap-2 items-center">
+                                                <div className="col-span-3 space-y-1">
+                                                    <Label className="text-[11px] text-text-secondary">Variant Name</Label>
+                                                    <Input
+                                                        placeholder="e.g. Small / Red"
+                                                        value={variant.name}
+                                                        onChange={(e) => handleUpdateVariant(idx, "name", e.target.value)}
+                                                        className="h-8 text-xs font-medium"
+                                                    />
+                                                </div>
+                                                <div className="col-span-2 space-y-1">
+                                                    <Label className="text-[11px] text-text-secondary">SKU</Label>
+                                                    <Input
+                                                        placeholder="SKU-101"
+                                                        value={variant.sku}
+                                                        onChange={(e) => handleUpdateVariant(idx, "sku", e.target.value)}
+                                                        className="h-8 text-xs font-mono"
+                                                    />
+                                                </div>
+                                                <div className="col-span-2 space-y-1">
+                                                    <Label className="text-[11px] text-text-secondary">Real Price</Label>
+                                                    <Input
+                                                        type="number"
+                                                        placeholder={form.compare_at_price || "Real Price"}
+                                                        value={variant.compare_at_price}
+                                                        onChange={(e) => handleUpdateVariant(idx, "compare_at_price", e.target.value)}
+                                                        className="h-8 text-xs border-dashed text-text-secondary"
+                                                    />
+                                                </div>
+                                                <div className="col-span-2 space-y-1">
+                                                    <Label className="text-[11px] font-bold text-text-primary">Discount Price *</Label>
+                                                    <Input
+                                                        type="number"
+                                                        placeholder={form.base_price || "0"}
+                                                        value={variant.price}
+                                                        onChange={(e) => handleUpdateVariant(idx, "price", e.target.value)}
+                                                        className="h-8 text-xs font-bold"
+                                                    />
+                                                </div>
+                                                <div className="col-span-2 space-y-1">
+                                                    <Label className="text-[11px] text-text-secondary">Stock</Label>
+                                                    <Input
+                                                        type="number"
+                                                        placeholder="20"
+                                                        value={variant.stock_quantity}
+                                                        onChange={(e) => handleUpdateVariant(idx, "stock_quantity", e.target.value)}
+                                                        className="h-8 text-xs font-bold"
+                                                    />
+                                                </div>
+                                                <div className="col-span-1 flex items-end justify-center pt-4">
+                                                    {form.variants.length > 1 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveVariant(idx)}
+                                                            className="text-text-secondary hover:text-red-500 p-1"
+                                                            title="Delete Variant"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div className="col-span-2 space-y-1">
-                                                <Label className="text-[11px] text-text-secondary">SKU</Label>
-                                                <Input
-                                                    placeholder="SKU-101"
-                                                    value={variant.sku}
-                                                    onChange={(e) => handleUpdateVariant(idx, "sku", e.target.value)}
-                                                    className="h-8 text-xs font-mono"
-                                                />
-                                            </div>
-                                            <div className="col-span-2 space-y-1">
-                                                <Label className="text-[11px] text-text-secondary">Real Price</Label>
-                                                <Input
-                                                    type="number"
-                                                    placeholder={form.compare_at_price || "Real Price"}
-                                                    value={variant.compare_at_price}
-                                                    onChange={(e) => handleUpdateVariant(idx, "compare_at_price", e.target.value)}
-                                                    className="h-8 text-xs border-dashed text-text-secondary"
-                                                />
-                                            </div>
-                                            <div className="col-span-2 space-y-1">
-                                                <Label className="text-[11px] font-bold text-text-primary">Discount Price *</Label>
-                                                <Input
-                                                    type="number"
-                                                    placeholder={form.base_price || "0"}
-                                                    value={variant.price}
-                                                    onChange={(e) => handleUpdateVariant(idx, "price", e.target.value)}
-                                                    className="h-8 text-xs font-bold"
-                                                />
-                                            </div>
-                                            <div className="col-span-2 space-y-1">
-                                                <Label className="text-[11px] text-text-secondary">Stock</Label>
-                                                <Input
-                                                    type="number"
-                                                    placeholder="20"
-                                                    value={variant.stock_quantity}
-                                                    onChange={(e) => handleUpdateVariant(idx, "stock_quantity", e.target.value)}
-                                                    className="h-8 text-xs font-bold"
-                                                />
-                                            </div>
-                                            <div className="col-span-1 flex items-end justify-center pt-4">
-                                                {form.variants.length > 1 && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleRemoveVariant(idx)}
-                                                        className="text-text-secondary hover:text-red-500 p-1"
-                                                        title="Delete Variant"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </button>
-                                                )}
+
+                                            {/* Variant Image Selector Row */}
+                                            <div className="flex items-center gap-3 pt-1 border-t border-border/40">
+                                                <div className="h-9 w-9 shrink-0 rounded-lg border border-border bg-bg-secondary flex items-center justify-center overflow-hidden">
+                                                    {variant.image_url ? (
+                                                        <img src={variant.image_url} alt="" className="h-full w-full object-cover" />
+                                                    ) : (
+                                                        <ImagePlus className="h-4 w-4 text-text-secondary" />
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2 items-center">
+                                                    {form.images.length > 0 && (
+                                                        <Select
+                                                            value={variant.image_url || ""}
+                                                            onValueChange={(val) => handleUpdateVariant(idx, "image_url", val)}
+                                                        >
+                                                            <SelectTrigger className="h-8 text-xs">
+                                                                <SelectValue placeholder="Select gallery image for variant" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="none_selected">None / Default</SelectItem>
+                                                                {form.images.map((img, i) => (
+                                                                    <SelectItem key={i} value={img.url}>
+                                                                        Image #{i + 1} {img.is_primary ? "(Primary)" : ""}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    )}
+                                                    <Input
+                                                        placeholder="Or paste direct Variant Image URL…"
+                                                        value={variant.image_url || ""}
+                                                        onChange={(e) => handleUpdateVariant(idx, "image_url", e.target.value === "none_selected" ? "" : e.target.value)}
+                                                        className="h-8 text-xs font-mono"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     ))}

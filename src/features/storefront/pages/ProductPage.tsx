@@ -343,6 +343,85 @@ export default function ProductPage() {
                         </div>
                     </div>
 
+                    {/* Variants selector if available — SHIFTED ABOVE PRICING */}
+                    {(() => {
+                        const displayVariants = (product.variants ?? []).filter(
+                            (v) => v.name && v.name.trim() !== "" && v.name.toLowerCase() !== "default" && v.name.toLowerCase() !== "standard"
+                        );
+                        const hasCustomVariants = displayVariants.length > 0;
+                        const selectableVariants = hasCustomVariants ? displayVariants : product.variants;
+                        const showVariantPicker = product.variants && product.variants.length > 0 && (
+                            product.variants.length > 1 || hasCustomVariants
+                        );
+
+                        if (!showVariantPicker) return null;
+
+                        const handleVariantClick = (v: any, index: number) => {
+                            setSelectedVariantId(v.id);
+                            const variantImgUrl = v.image_url || (v.option_values && typeof v.option_values === "object" ? v.option_values.image_url : null);
+                            if (variantImgUrl) {
+                                const foundIdx = displayImages.findIndex((img) => img.url === variantImgUrl);
+                                if (foundIdx !== -1) {
+                                    setSelectedImage(foundIdx);
+                                } else if (displayImages.length > index) {
+                                    setSelectedImage(index);
+                                }
+                            } else if (displayImages.length > index) {
+                                setSelectedImage(index);
+                            }
+                        };
+
+                        return (
+                            <div className="space-y-3 rounded-2xl border border-border/80 bg-bg-secondary/40 p-4">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs font-extrabold uppercase tracking-wider text-text-primary flex items-center gap-1.5">
+                                        <Layers className="h-4 w-4 text-btn-primary" />
+                                        Select Option / Variant: <span className="text-btn-primary font-bold">{selectedVariant?.name || "Standard"}</span>
+                                    </label>
+                                    {selectedVariant && selectedVariant.stock_quantity > 0 && (
+                                        <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                            {selectedVariant.stock_quantity} in stock
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="flex flex-wrap gap-2.5">
+                                    {selectableVariants.map((v, vIdx) => {
+                                        const isSelected = (selectedVariantId === v.id) || (!selectedVariantId && selectedVariant?.id === v.id);
+                                        const vPrice = v.price ?? product.base_price;
+                                        const vCompare = v.compare_at_price ?? product.compare_at_price;
+                                        const hasDiscount = vCompare && vCompare > vPrice;
+
+                                        return (
+                                            <button
+                                                key={v.id}
+                                                type="button"
+                                                onClick={() => handleVariantClick(v, vIdx)}
+                                                className={cn(
+                                                    "group relative flex items-center gap-2.5 rounded-xl border px-4 py-2.5 text-xs font-bold transition-all shadow-2xs cursor-pointer",
+                                                    isSelected
+                                                        ? "border-btn-primary bg-btn-primary text-white shadow-md ring-2 ring-btn-primary/30"
+                                                        : "border-border/80 text-text-primary bg-bg-primary hover:border-btn-primary/60 hover:bg-bg-secondary"
+                                                )}
+                                            >
+                                                <span className="truncate">{v.name}</span>
+                                                <div className="flex items-center gap-1 text-[11px]">
+                                                    <span className={cn("font-extrabold", isSelected ? "text-white" : "text-btn-primary")}>
+                                                        {formatCurrency(vPrice)}
+                                                    </span>
+                                                    {hasDiscount && (
+                                                        <span className={cn("line-through opacity-75 text-[10px]", isSelected ? "text-white/80" : "text-text-secondary")}>
+                                                            {formatCurrency(vCompare)}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        );
+                    })()}
+
                     {/* Price & Stock Display */}
                     <div className="rounded-2xl border border-border/80 bg-bg-secondary/40 p-4 sm:p-5 space-y-2.5">
                         <div className="flex items-baseline gap-3 flex-wrap">
@@ -377,70 +456,6 @@ export default function ProductPage() {
                             {product.description}
                         </p>
                     )}
-
-                    {/* Variants selector if available */}
-                    {(() => {
-                        const displayVariants = (product.variants ?? []).filter(
-                            (v) => v.name && v.name.trim() !== "" && v.name.toLowerCase() !== "default" && v.name.toLowerCase() !== "standard"
-                        );
-                        const hasCustomVariants = displayVariants.length > 0;
-                        const selectableVariants = hasCustomVariants ? displayVariants : product.variants;
-                        const showVariantPicker = product.variants && product.variants.length > 0 && (
-                            product.variants.length > 1 || hasCustomVariants
-                        );
-
-                        if (!showVariantPicker) return null;
-
-                        return (
-                            <div className="space-y-3 rounded-2xl border border-border/80 bg-bg-secondary/40 p-4">
-                                <div className="flex items-center justify-between">
-                                    <label className="text-xs font-extrabold uppercase tracking-wider text-text-primary flex items-center gap-1.5">
-                                        <Layers className="h-4 w-4 text-btn-primary" />
-                                        Select Option / Variant: <span className="text-btn-primary font-bold">{selectedVariant?.name || "Standard"}</span>
-                                    </label>
-                                    {selectedVariant && selectedVariant.stock_quantity > 0 && (
-                                        <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                                            {selectedVariant.stock_quantity} in stock
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="flex flex-wrap gap-2.5">
-                                    {selectableVariants.map((v) => {
-                                        const isSelected = (selectedVariantId === v.id) || (!selectedVariantId && selectedVariant?.id === v.id);
-                                        const vPrice = v.price ?? product.base_price;
-                                        const vCompare = v.compare_at_price ?? product.compare_at_price;
-                                        const hasDiscount = vCompare && vCompare > vPrice;
-
-                                        return (
-                                            <button
-                                                key={v.id}
-                                                type="button"
-                                                onClick={() => setSelectedVariantId(v.id)}
-                                                className={cn(
-                                                    "group relative flex items-center gap-2.5 rounded-xl border px-4 py-2.5 text-xs font-bold transition-all shadow-2xs",
-                                                    isSelected
-                                                        ? "border-btn-primary bg-btn-primary text-white shadow-md ring-2 ring-btn-primary/30"
-                                                        : "border-border/80 text-text-primary bg-bg-primary hover:border-btn-primary/60 hover:bg-bg-secondary"
-                                                )}
-                                            >
-                                                <span className="truncate">{v.name}</span>
-                                                <div className="flex items-center gap-1 text-[11px]">
-                                                    <span className={cn("font-extrabold", isSelected ? "text-white" : "text-btn-primary")}>
-                                                        {formatCurrency(vPrice)}
-                                                    </span>
-                                                    {hasDiscount && (
-                                                        <span className={cn("line-through opacity-75 text-[10px]", isSelected ? "text-white/80" : "text-text-secondary")}>
-                                                            {formatCurrency(vCompare)}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        );
-                    })()}
 
                     {/* Quantity & Action Buttons */}
                     <div className="space-y-4 pt-2">
@@ -497,11 +512,11 @@ export default function ProductPage() {
                 </div>
             </motion.div>
 
-            {/* 1. WHY PEOPLE CHOOSE BK STORE PAKISTAN (MATCHING SCREENSHOT 1) */}
-            <WhyChooseUsComparison />
-
-            {/* 2. HEAR FROM OUR HAPPY CUSTOMERS SECTION (MATCHING SCREENSHOT 2) */}
+            {/* 1. HEAR FROM OUR HAPPY CUSTOMERS SECTION (HAPPY REVIEWS) */}
             <HearFromCustomers />
+
+            {/* 2. WHY PEOPLE CHOOSE BK STORE PAKISTAN (SHIFTED BELOW HAPPY REVIEWS) */}
+            <WhyChooseUsComparison />
 
             {/* 3. CONTACT INFORMATION CARD SECTION */}
             <motion.div

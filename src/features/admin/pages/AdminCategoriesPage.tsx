@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2, FolderTree } from "lucide-react";
-import { useAdminCategories, useDeleteCategory, useCreateCategory } from "@/features/admin/api";
+import { useAdminCategories, useDeleteCategory, useCreateCategory, useUpdateCategory } from "@/features/admin/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -36,9 +36,12 @@ export default function AdminCategoriesPage() {
     const { data: categories, isLoading } = useAdminCategories();
     const deleteCategory = useDeleteCategory();
     const createCategory = useCreateCategory();
+    const updateCategory = useUpdateCategory();
     const { toast } = useToast();
     const [search, setSearch] = useState("");
     const [open, setOpen] = useState(false);
+    const [editingId, setEditingId] = useState<string | null>(null);
+
     const [form, setForm] = useState({
         name: "",
         slug: "",
@@ -54,11 +57,26 @@ export default function AdminCategoriesPage() {
             c.slug.includes(search.toLowerCase()),
     );
 
-    const resetForm = () =>
+    const resetForm = () => {
+        setEditingId(null);
         setForm({ name: "", slug: "", description: "", image_url: "", sort_order: "0", is_visible: true });
+    };
 
     const openDialog = () => {
         resetForm();
+        setOpen(true);
+    };
+
+    const openEditDialog = (c: any) => {
+        setEditingId(c.id);
+        setForm({
+            name: c.name || "",
+            slug: c.slug || "",
+            description: c.description || "",
+            image_url: c.image_url || "",
+            sort_order: String(c.sort_order ?? 0),
+            is_visible: c.is_visible !== false,
+        });
         setOpen(true);
     };
 
@@ -70,22 +88,35 @@ export default function AdminCategoriesPage() {
         }
         const slug = form.slug.trim() || slugify(form.name);
         try {
-            await createCategory.mutateAsync({
-                name: form.name.trim(),
-                slug,
-                description: form.description.trim() || null,
-                image_url: form.image_url.trim() || null,
-                sort_order: parseInt(form.sort_order, 10) || 0,
-                is_visible: form.is_visible,
-                parent_id: null,
-                deleted_at: null,
-            });
-            toast({ title: "Category created" });
+            if (editingId) {
+                await updateCategory.mutateAsync({
+                    id: editingId,
+                    name: form.name.trim(),
+                    slug,
+                    description: form.description.trim() || null,
+                    image_url: form.image_url.trim() || null,
+                    sort_order: parseInt(form.sort_order, 10) || 0,
+                    is_visible: form.is_visible,
+                });
+                toast({ title: "Category updated successfully!", variant: "success" });
+            } else {
+                await createCategory.mutateAsync({
+                    name: form.name.trim(),
+                    slug,
+                    description: form.description.trim() || null,
+                    image_url: form.image_url.trim() || null,
+                    sort_order: parseInt(form.sort_order, 10) || 0,
+                    is_visible: form.is_visible,
+                    parent_id: null,
+                    deleted_at: null,
+                });
+                toast({ title: "Category created successfully!", variant: "success" });
+            }
             setOpen(false);
             resetForm();
         } catch (err) {
             toast({
-                title: "Failed to create category",
+                title: editingId ? "Failed to update category" : "Failed to create category",
                 description: err instanceof Error ? err.message : "Unknown error",
                 variant: "destructive",
             });
@@ -147,14 +178,19 @@ export default function AdminCategoriesPage() {
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-1">
                                                 <button
-                                                    className="rounded-md p-1.5 text-muted-foreground hover:bg-muted"
-                                                    aria-label="Edit"
+                                                    type="button"
+                                                    onClick={() => openEditDialog(c)}
+                                                    className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-text-primary transition-colors"
+                                                    aria-label="Edit Category"
+                                                    title="Edit Category"
                                                 >
                                                     <Pencil className="h-4 w-4" />
                                                 </button>
                                                 <button
-                                                    className="rounded-md p-1.5 text-muted-foreground hover:bg-state-danger/10 hover:text-state-danger"
-                                                    aria-label="Delete"
+                                                    type="button"
+                                                    className="rounded-md p-1.5 text-muted-foreground hover:bg-state-danger/10 hover:text-state-danger transition-colors"
+                                                    aria-label="Delete Category"
+                                                    title="Delete Category"
                                                     onClick={async () => {
                                                         await deleteCategory.mutateAsync(c.id);
                                                         toast({ title: "Category deleted", variant: "success" });
@@ -186,8 +222,10 @@ export default function AdminCategoriesPage() {
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle>Add Category</DialogTitle>
-                        <DialogDescription>Create a new product category.</DialogDescription>
+                        <DialogTitle>{editingId ? "Edit Category" : "Add Category"}</DialogTitle>
+                        <DialogDescription>
+                            {editingId ? "Modify category details and preferences." : "Create a new product category."}
+                        </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
@@ -199,7 +237,7 @@ export default function AdminCategoriesPage() {
                                     setForm((f) => ({
                                         ...f,
                                         name: e.target.value,
-                                        slug: f.slug ? f.slug : slugify(e.target.value),
+                                        slug: f.slug && editingId ? f.slug : slugify(e.target.value),
                                     }))
                                 }
                                 placeholder="e.g. Electronics"
@@ -255,8 +293,10 @@ export default function AdminCategoriesPage() {
                             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={createCategory.isPending}>
-                                {createCategory.isPending ? "Creating…" : "Create Category"}
+                            <Button type="submit" disabled={createCategory.isPending || updateCategory.isPending}>
+                                {editingId
+                                    ? updateCategory.isPending ? "Updating…" : "Update Category"
+                                    : createCategory.isPending ? "Creating…" : "Create Category"}
                             </Button>
                         </DialogFooter>
                     </form>

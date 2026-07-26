@@ -112,12 +112,13 @@ export function useAdminProducts() {
                 try {
                     const { data: variants } = await supabase
                         .from("product_variants")
-                        .select("id, product_id, name, sku, price, compare_at_price, stock_quantity, is_active")
+                        .select("id, product_id, name, sku, price, compare_at_price, stock_quantity, is_active, option_values")
                         .in("product_id", productIds);
 
                     (variants ?? []).forEach((v: any) => {
                         const list = variantMap.get(v.product_id) || [];
-                        list.push(v);
+                        const variantImg = v.image_url || (typeof v.option_values === "object" && v.option_values !== null ? (v.option_values as any).image_url : null);
+                        list.push({ ...v, image_url: variantImg });
                         variantMap.set(v.product_id, list);
                     });
                 } catch (e) {
@@ -163,8 +164,15 @@ export function useAdminProducts() {
                     ? pVariants.reduce((sum, v) => sum + (Number(v.stock_quantity) || 0), 0)
                     : 50;
 
+                const isWomen = p.is_women === true || p.vendor_id === "women" || (typeof p.meta_description === "string" && p.meta_description.includes('"is_women":true'));
+                const isMen = p.is_men !== undefined && p.is_men !== null
+                    ? !!p.is_men
+                    : (p.vendor_id === "men" || p.vendor_id === "unisex" || (typeof p.meta_description === "string" && p.meta_description.includes('"is_men":true')) || !isWomen);
+
                 return {
                     ...p,
+                    is_men: isMen,
+                    is_women: isWomen,
                     stock_quantity: totalStock,
                     images: pImages,
                     variants: pVariants,
@@ -901,7 +909,10 @@ export function useCreateProduct() {
             const product = data as unknown as Product;
 
             if (product?.id) {
-                // Placement flags
+                const genderTag = `__GENDER:${JSON.stringify({ is_men: !!input.is_men, is_women: !!input.is_women })}__`;
+                const vendorId = input.is_women ? (input.is_men ? "unisex" : "women") : "men";
+
+                // Placement & Gender flags
                 try {
                     await supabase
                         .from("products")
@@ -909,6 +920,10 @@ export function useCreateProduct() {
                             is_new_arrival: !!is_new_arrival,
                             is_best_seller: !!is_best_seller,
                             is_featured: !!is_featured,
+                            is_men: input.is_men !== undefined ? !!input.is_men : true,
+                            is_women: !!input.is_women,
+                            vendor_id: vendorId,
+                            meta_description: genderTag,
                         } as never)
                         .eq("id", product.id);
                 } catch (e) {
@@ -959,6 +974,7 @@ export function useCreateProduct() {
                         compare_at_price: v.compare_at_price ? Number(v.compare_at_price) : (cleanInput.compare_at_price || null),
                         stock_quantity: Number(v.stock_quantity) >= 0 ? Number(v.stock_quantity) : 0,
                         is_active: true,
+                        option_values: v.image_url ? { image_url: v.image_url } : (v.option_values || {}),
                     }));
                     await supabase.from("product_variants").insert(variantInserts as never);
                 } catch (e) {
@@ -1024,7 +1040,10 @@ export function useUpdateProduct() {
                 throw new Error(error.message || "Failed to update product");
             }
 
-            // 2. Placement flags
+            // 2. Placement & Gender flags
+            const genderTag = `__GENDER:${JSON.stringify({ is_men: !!input.is_men, is_women: !!input.is_women })}__`;
+            const vendorId = input.is_women ? (input.is_men ? "unisex" : "women") : "men";
+
             try {
                 await supabase
                     .from("products")
@@ -1032,6 +1051,10 @@ export function useUpdateProduct() {
                         is_new_arrival: !!is_new_arrival,
                         is_best_seller: !!is_best_seller,
                         is_featured: !!is_featured,
+                        is_men: input.is_men !== undefined ? !!input.is_men : true,
+                        is_women: !!input.is_women,
+                        vendor_id: vendorId,
+                        meta_description: genderTag,
                     } as never)
                     .eq("id", id);
             } catch (e) {
@@ -1087,6 +1110,7 @@ export function useUpdateProduct() {
                         compare_at_price: v.compare_at_price ? Number(v.compare_at_price) : (cleanInput.compare_at_price || null),
                         stock_quantity: Number(v.stock_quantity) >= 0 ? Number(v.stock_quantity) : 0,
                         is_active: true,
+                        option_values: v.image_url ? { image_url: v.image_url } : (v.option_values || {}),
                     }));
                     await supabase.from("product_variants").insert(variantInserts as never);
                 } catch (e) {
@@ -1145,6 +1169,42 @@ export function useCreateCategory() {
                     .select()
                     .single();
                 if (retryErr) throw new Error(retryErr.message || "Failed to create category");
+                return retryData;
+            }
+            return data;
+        },
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ["admin-categories"] });
+            qc.invalidateQueries({ queryKey: ["categories"] });
+        },
+    });
+}
+
+/** Update an existing category. */
+export function useUpdateCategory() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: async (input: { id: string; name: string; slug: string; description?: string | null; image_url?: string | null; sort_order?: number; is_visible?: boolean }) => {
+            const basePayload: any = {
+                name: input.name,
+                slug: input.slug,
+                description: input.description ?? null,
+                image_url: input.image_url ?? null,
+                sort_order: input.sort_order ?? 0,
+            };
+            const { data, error } = await (supabase.from("categories") as any)
+                .update({ ...basePayload, is_visible: input.is_visible ?? true })
+                .eq("id", input.id)
+                .select()
+                .single();
+
+            if (error) {
+                const { data: retryData, error: retryErr } = await (supabase.from("categories") as any)
+                    .update(basePayload)
+                    .eq("id", input.id)
+                    .select()
+                    .single();
+                if (retryErr) throw new Error(retryErr.message || "Failed to update category");
                 return retryData;
             }
             return data;

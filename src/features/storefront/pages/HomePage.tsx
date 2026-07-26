@@ -8,7 +8,7 @@ import { ProductGridSkeleton } from "@/components/product/product-card-skeleton"
 import { PromoBanner } from "@/components/storefront/promo-banner";
 import { Reveal } from "@/components/storefront/reveal";
 import { Typewriter } from "@/components/storefront/typewriter";
-import { CustomerReviews } from "@/components/storefront/customer-reviews";
+import { HearFromCustomers } from "@/components/storefront/hear-from-customers";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -303,8 +303,8 @@ export default function HomePage() {
                 </Reveal>
             )}
 
-            {/* ── Customer Reviews ── */}
-            <CustomerReviews />
+            {/* ── Real WhatsApp Customer Reviews Marquee ── */}
+            <HearFromCustomers />
 
             {/* ── Newsletter CTA with Cinematic Background ── */}
             <Reveal as="section" className="relative overflow-hidden py-28">

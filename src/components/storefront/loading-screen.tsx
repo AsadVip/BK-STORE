@@ -53,7 +53,7 @@ export function LoadingScreen() {
                         BK STORE<span className="text-[#8B5E4B]">.</span>
                     </h1>
                     <p className="mt-1.5 text-[10px] font-bold uppercase tracking-[0.3em] text-[#5C5C5C]">
-                        Luxury Watch & Shoes Collection
+                        Watches, Earbuds & Shoes Collection
                     </p>
                 </div>
 

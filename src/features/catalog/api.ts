@@ -85,7 +85,11 @@ export function useProduct(slug: string | undefined) {
             ]);
 
             const catRows = ((categories.data ?? []) as unknown as { category: Category }[]).map((c) => c.category);
-            const variantRows = (variants.data ?? []) as unknown as ProductVariant[];
+            const rawVariantRows = (variants.data ?? []) as unknown as (ProductVariant & { image_url?: string })[];
+            const variantRows = rawVariantRows.map((v) => ({
+                ...v,
+                image_url: v.image_url || (v.option_values && typeof v.option_values === "object" ? (v.option_values as any).image_url : null) || null,
+            }));
             const imageRows = (images.data ?? []) as unknown as ProductImage[];
 
             const primaryImage = imageRows.find((i) => i.is_primary) ?? imageRows[0] ?? null;
