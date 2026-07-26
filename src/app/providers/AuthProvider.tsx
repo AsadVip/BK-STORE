@@ -81,7 +81,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 return { error: null };
             },
             signUp: async (email, password, firstName, lastName) => {
-                // 1. Try standard Supabase signUp
+                // ── STRATEGY: Try RPC first (bypasses rate limits), then standard signUp ──
+
+                // 1. Try custom_register_user RPC FIRST (no rate limit, no email sent)
+                try {
+                    const { data: rpcRes, error: rpcErr } = await (supabase as any).rpc("custom_register_user", {
+                        p_email: email,
+                        p_password: password,
+                        p_first_name: firstName ?? "",
+                        p_last_name: lastName ?? "",
+                    });
+
+                    console.log("[SignUp] RPC result:", JSON.stringify(rpcRes), "error:", rpcErr);
+
+                    if (!rpcErr && rpcRes && (rpcRes as { success?: boolean }).success) {
+                        // User created/updated via RPC — now sign them in
+                        const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
+                        if (!signInErr && signInData?.session) {
+                            return { error: null, session: signInData.session };
+                        }
+                        console.error("[SignUp] RPC succeeded but signIn failed:", signInErr);
+                    }
+                } catch (rpcCatch) {
+                    // RPC function doesn't exist yet — that's OK, fall through to standard signUp
+                    console.warn("[SignUp] RPC not available, falling back to standard signUp:", rpcCatch);
+                }
+
+                // 2. Fallback: Try standard Supabase signUp
                 const { data, error } = await supabase.auth.signUp({
                     email,
                     password,
@@ -91,56 +117,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 if (!error && data?.session) {
                     return { error: null, session: data.session };
                 }
-
                 if (!error && data?.user) {
+                    // User created but needs email confirmation
                     return { error: null, session: null };
                 }
 
-                // 2. If error occurs (500 Internal Error, 429 Rate Limit, etc.), trigger RPC fallback
+                // 3. If signUp also fails, try direct sign in (user might already exist)
                 if (error) {
-                    try {
-                        const { data: rpcRes, error: rpcErr } = await (supabase as any).rpc("custom_register_user", {
-                            p_email: email,
-                            p_password: password,
-                            p_first_name: firstName ?? "",
-                            p_last_name: lastName ?? "",
-                        });
-
-                        if (!rpcErr && rpcRes && (rpcRes as { success?: boolean }).success) {
-                            const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
-                            if (!signInErr && signInData?.session) {
-                                return { error: null, session: signInData.session };
-                            }
-                        }
-                    } catch (e) {
-                        console.error("RPC registration fallback error:", e);
-                    }
-
-                    // 3. Try direct sign in as secondary fallback
                     const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
                     if (!signInErr && signInData?.session) {
                         return { error: null, session: signInData.session };
                     }
 
-                    // 4. Return clean human-readable error text
                     const errMsg = typeof error.message === "string" && error.message.trim().length > 0
-                        ? error.message
-                        : "Registration failed. Please run the SQL script in Supabase SQL Editor to enable direct registration.";
-
-                    if (error.status === 429 || errMsg.toLowerCase().includes("rate limit")) {
-                        return {
-                            error: "Email rate limit exceeded by Supabase. Please run the SQL script in Supabase SQL Editor or wait a few minutes.",
-                            session: null,
-                        };
-                    }
-
-                    if (error.status === 500) {
-                        return {
-                            error: "Supabase database error (500). Please run the SQL script in Supabase SQL Editor to fix database triggers.",
-                            session: null,
-                        };
-                    }
-
+                        ? error.message : "Registration failed";
                     return { error: errMsg, session: null };
                 }
 
