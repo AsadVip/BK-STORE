@@ -67,7 +67,7 @@ export default function LoginPage() {
                         Your Luxury<br />Destination
                     </h2>
                     <p className="mt-3 text-white/60 text-sm leading-relaxed max-w-xs">
-                        Discover authentic watches, luxury shoes, and curated collections delivered to your door.
+                        Discover authentic watches, earbuds, luxury shoes, and curated collections delivered to your door.
                     </p>
 
                     <div className="mt-8 flex items-center gap-4">

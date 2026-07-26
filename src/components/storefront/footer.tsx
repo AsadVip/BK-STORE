@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useBanners } from "@/features/catalog/api";
 import { PromoBanner } from "@/components/storefront/promo-banner";
+import { BkLogo } from "@/components/ui/bk-logo";
 
 function TikTokIcon({ className }: { className?: string }) {
     return (
@@ -62,13 +63,8 @@ export function Footer() {
                 <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
                     {/* Brand + social + Contact */}
                     <div className="space-y-4">
-                        <Link to="/" className="flex items-center gap-2 group">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#8B5E4B] to-[#6B4A3D] text-white font-serif text-sm font-bold shadow-sm">
-                                BK
-                            </div>
-                            <span className="font-serif text-xl font-bold tracking-tight text-text-primary">
-                                BK STORE<span className="text-[#8B5E4B]">.</span>
-                            </span>
+                        <Link to="/">
+                            <BkLogo size="md" variant="full" />
                         </Link>
                         <p className="text-sm leading-relaxed text-text-secondary">
                             A boutique-grade shopping experience — curated for quality and crafted for living.

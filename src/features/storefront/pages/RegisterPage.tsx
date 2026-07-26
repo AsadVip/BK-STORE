@@ -26,9 +26,16 @@ export default function RegisterPage() {
     } = useForm<RegisterValues>({ resolver: zodResolver(registerSchema) });
 
     const onSubmit = async (values: RegisterValues) => {
-        const { error } = await signUp(values.email, values.password, values.first_name, values.last_name);
+        const { error, session } = await signUp(values.email, values.password, values.first_name, values.last_name);
         if (error) {
             toast({ variant: "destructive", title: "Registration failed", description: error });
+        } else if (session) {
+            toast({
+                title: "🎉 Account Created Successfully!",
+                description: "Welcome to BK Store! Your account is active and you are now logged in.",
+                variant: "success",
+            });
+            navigate("/");
         } else {
             setEmailSent(values.email);
             // Big confirmation notification

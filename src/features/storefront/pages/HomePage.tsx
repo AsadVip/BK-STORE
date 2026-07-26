@@ -133,10 +133,10 @@ export default function HomePage() {
                                 <Sparkles className="h-3.5 w-3.5" /> Premium Curated Collection
                             </span>
                             <h1 className="font-serif text-5xl font-extrabold leading-tight text-white sm:text-6xl lg:text-7xl tracking-tight drop-shadow-xl">
-                                Luxury Watches &<br />Shoes Collection
+                                Watches, Earbuds &<br />Shoes Collection
                             </h1>
                             <p className="mx-auto mt-6 max-w-xl text-base text-white/70 leading-relaxed">
-                                Discover a boutique-grade selection of authentic luxury timepieces and footwear, curated for modern living.
+                                Discover a boutique-grade selection of authentic luxury timepieces, wireless earbuds, and footwear, curated for modern living.
                             </p>
                             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
                                 <Button asChild size="lg" className="h-14 px-10 text-base font-bold bg-btn-primary text-white hover:bg-btn-primary-hover shadow-xl rounded-2xl">
