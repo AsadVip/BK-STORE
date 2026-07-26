@@ -2,16 +2,42 @@
   command = "npm run build"
   publish = "dist"
 
+# --- Static SEO files ko pehle serve karo (catch-all se pehle) ---
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/sitemap.xml"
+  status = 200
+
+[[redirects]]
+  from = "/robots.txt"
+  to = "/robots.txt"
+  status = 200
+
+[[redirects]]
+  from = "/google08a651d6ae307e3c.html"
+  to = "/google08a651d6ae307e3c.html"
+  status = 200
+
+# --- SPA Catch-all (ye LAST mein hona chahiye) ---
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+# --- Headers ---
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Content-Type = "application/xml; charset=utf-8"
+    X-Robots-Tag = "all, index, follow"
+    Cache-Control = "public, max-age=3600"
 
 [[headers]]
   for = "/robots.txt"
   [headers.values]
     Content-Type = "text/plain; charset=utf-8"
     X-Robots-Tag = "all, index, follow"
+    Cache-Control = "public, max-age=3600"
 
 [[headers]]
   for = "/*"
