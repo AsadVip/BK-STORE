@@ -1,4 +1,7 @@
 User-agent: *
-Allow: /
+Disallow:
+
+User-agent: Googlebot
+Disallow:
 
 Sitemap: https://bkstore24.com/sitemap.xml

@@ -1,6 +1,6 @@
 /robots.txt
   Content-Type: text/plain; charset=utf-8
-  X-Robots-Tag: all
+  X-Robots-Tag: all, index, follow
 
 /sitemap.xml
   Content-Type: application/xml; charset=utf-8
@@ -9,5 +9,5 @@
   Content-Type: text/html; charset=utf-8
 
 /*
-  X-Robots-Tag: all
+  X-Robots-Tag: all, index, follow
   Access-Control-Allow-Origin: *
