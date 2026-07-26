@@ -80,7 +80,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     password,
                     options: { data: { first_name: firstName, last_name: lastName } },
                 });
-                return { error: error?.message ?? null, session: data?.session ?? null };
+
+                if (error) {
+                    const msg = error.message?.toLowerCase() ?? "";
+                    // If rate limit error occurs, attempt direct login as user might already be registered
+                    if (msg.includes("rate limit") || error.status === 429) {
+                        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+                        if (!signInError && signInData?.session) {
+                            return { error: null, session: signInData.session };
+                        }
+                        return {
+                            error: "Too many sign-up attempts. Please try signing in directly or wait a few minutes.",
+                            session: null,
+                        };
+                    }
+                    return { error: error.message, session: null };
+                }
+
+                return { error: null, session: data?.session ?? null };
             },
             signOut: async () => {
                 await supabase.auth.signOut();
