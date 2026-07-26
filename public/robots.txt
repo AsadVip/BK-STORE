@@ -1,0 +1,8 @@
+# Allow all search engine crawlers for bkstore24.com
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /account/
+
+# Sitemap location
+Sitemap: https://bkstore24.com/sitemap.xml

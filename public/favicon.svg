@@ -1,4 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect width="32" height="32" rx="8" fill="#0F0F10" />
-  <text x="16" y="22" font-family="Playfair Display, serif" font-size="18" font-weight="700" fill="#8B5E4B" text-anchor="middle">BK</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37" />
+      <stop offset="50%" stop-color="#F3E5AB" />
+      <stop offset="100%" stop-color="#AA771C" />
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#141416" />
+      <stop offset="100%" stop-color="#070708" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#bgGrad)" stroke="url(#goldGrad)" stroke-width="2" />
+  <circle cx="32" cy="32" r="26" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" stroke-dasharray="3 2" />
+  <text x="32" y="38" font-family="'Cinzel', 'Playfair Display', serif" font-size="24" font-weight="900" fill="url(#goldGrad)" text-anchor="middle" letter-spacing="1">BK</text>
 </svg>
