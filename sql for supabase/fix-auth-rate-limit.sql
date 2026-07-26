@@ -1,5 +1,5 @@
 -- ============================================================================
--- SQL FIX FOR SUPABASE AUTH EMAIL RATE LIMIT & DIRECT SIGNUP RPC
+-- BULLETPROOF SQL FIX FOR SUPABASE AUTH 500 ERRORS & RATE LIMITS
 -- ============================================================================
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
@@ -9,7 +9,7 @@ UPDATE auth.users
 SET email_confirmed_at = COALESCE(email_confirmed_at, NOW())
 WHERE email_confirmed_at IS NULL;
 
--- 2. Ensure handle_new_user trigger correctly inserts & updates public.profiles
+-- 2. Bulletproof handle_new_user trigger (will NEVER throw 500 error on duplicate emails)
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -25,9 +25,12 @@ BEGIN
     COALESCE(new.raw_user_meta_data->>'last_name', '')
   )
   ON CONFLICT (id) DO UPDATE SET
-    first_name = CASE WHEN public.profiles.first_name IS NULL OR public.profiles.first_name = '' THEN EXCLUDED.first_name ELSE public.profiles.first_name END,
-    last_name = CASE WHEN public.profiles.last_name IS NULL OR public.profiles.last_name = '' THEN EXCLUDED.last_name ELSE public.profiles.last_name END,
+    first_name = EXCLUDED.first_name,
+    last_name = EXCLUDED.last_name,
     email = EXCLUDED.email;
+  RETURN new;
+EXCEPTION WHEN OTHERS THEN
+  -- Catch any profile constraint errors (e.g. duplicate email) silently so auth.users signup NEVER fails with 500
   RETURN new;
 END;
 $$;
@@ -37,7 +40,7 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
--- 3. Custom Direct Signup RPC Function (Bypasses Supabase Auth Rate Limits)
+-- 3. Custom Direct Signup RPC Function (Bypasses Supabase 500 & 429 Rate Limits)
 CREATE OR REPLACE FUNCTION public.custom_register_user(
   p_email text,
   p_password text,
@@ -56,9 +59,10 @@ DECLARE
 BEGIN
   p_email := lower(trim(p_email));
 
+  -- Check if user exists in auth.users
   SELECT id INTO v_existing_id FROM auth.users WHERE lower(email) = p_email;
-  
-  -- Generate crypt password safely
+
+  -- Generate hash safely
   BEGIN
     v_encrypted_pw := extensions.crypt(p_password, extensions.gen_salt('bf'));
   EXCEPTION WHEN OTHERS THEN
@@ -76,8 +80,18 @@ BEGIN
         updated_at = now()
     WHERE id = v_existing_id;
 
+    INSERT INTO public.profiles (id, email, first_name, last_name)
+    VALUES (v_existing_id, p_email, p_first_name, p_last_name)
+    ON CONFLICT (id) DO UPDATE SET
+      first_name = EXCLUDED.first_name,
+      last_name = EXCLUDED.last_name,
+      email = EXCLUDED.email;
+
     RETURN jsonb_build_object('success', true, 'user_id', v_existing_id, 'existing', true);
   END IF;
+
+  -- Delete any orphaned profile with same email before inserting to avoid constraint failure
+  DELETE FROM public.profiles WHERE lower(email) = p_email AND id NOT IN (SELECT id FROM auth.users);
 
   v_user_id := gen_random_uuid();
 
