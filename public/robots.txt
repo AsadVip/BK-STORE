@@ -1,18 +1,6 @@
 User-agent: *
 Allow: /
-Allow: /*.html
-Allow: /*.js
-Allow: /*.css
-Allow: /*.png
-Allow: /*.jpg
-Allow: /*.svg
 Disallow: /admin/
 Disallow: /account/
-
-User-agent: Googlebot
-Allow: /
-
-User-agent: Googlebot-Mobile
-Allow: /
 
 Sitemap: https://bkstore24.com/sitemap.xml
