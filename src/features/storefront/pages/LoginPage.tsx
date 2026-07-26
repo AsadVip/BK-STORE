@@ -16,7 +16,9 @@ export default function LoginPage() {
     const { toast } = useToast();
     const navigate = useNavigate();
     const location = useLocation();
-    const from = (location.state as { from?: string })?.from ?? "/account";
+    const searchParams = new URLSearchParams(location.search);
+    const redirectParam = searchParams.get("redirect");
+    const from = redirectParam || (location.state as { from?: string })?.from || "/account";
     const [showPass, setShowPass] = useState(false);
 
     const {

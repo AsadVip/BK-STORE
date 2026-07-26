@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Minus, Plus, ShoppingBag, Trash2, ArrowRight, ShieldCheck, Tag, Sparkles, Package, Gift } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGuestCart } from "@/lib/cart/guest-cart";
+import { useAuth } from "@/app/providers/AuthProvider";
 import { supabase } from "@/lib/supabase/client";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ export default function CartPage() {
     const [couponInput, setCouponInput] = useState("");
     const [discount, setDiscount] = useState(0);
     const [couponMsg, setCouponMsg] = useState<string | null>(null);
+    const { user } = useAuth();
     const { toast } = useToast();
     const navigate = useNavigate();
 
@@ -255,7 +257,18 @@ export default function CartPage() {
 
                     <Button
                         size="lg"
-                        onClick={() => navigate("/checkout")}
+                        onClick={() => {
+                            if (!user) {
+                                toast({
+                                    title: "Login Required",
+                                    description: "Please log in or sign up to place your order.",
+                                    variant: "destructive",
+                                });
+                                navigate("/login?redirect=/checkout");
+                                return;
+                            }
+                            navigate("/checkout");
+                        }}
                         className="w-full rounded-xl bg-btn-primary text-white font-bold h-13 shadow-md hover:scale-[1.01] transition-transform"
                     >
                         Proceed to Checkout <ArrowRight className="h-4 w-4 ml-2" />

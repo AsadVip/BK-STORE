@@ -36,6 +36,30 @@ export default function CheckoutPage() {
     const shipping = subtotal >= 5000 ? 0 : 250;
     const total = subtotal + shipping;
 
+    if (!user && !orderPlaced) {
+        return (
+            <div className="container-bk py-20 flex justify-center">
+                <div className="max-w-md w-full rounded-3xl border border-border/80 bg-bg-secondary/70 p-8 sm:p-10 text-center shadow-xl">
+                    <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-btn-primary/10 text-btn-primary">
+                        <ShieldCheck className="h-8 w-8" />
+                    </div>
+                    <h2 className="font-serif text-2xl font-extrabold text-text-primary">Login Required for Order Placement</h2>
+                    <p className="mt-2.5 text-xs sm:text-sm text-text-secondary leading-relaxed">
+                        Guest order placement is disabled. Please log in to your BK Store account or create a new account to complete your purchase and track your order delivery.
+                    </p>
+                    <div className="mt-8 space-y-3">
+                        <Button asChild size="lg" className="w-full rounded-2xl bg-btn-primary text-white font-bold h-12 shadow-md hover:scale-[1.01] transition-transform">
+                            <Link to="/login?redirect=/checkout">Log In to Place Order</Link>
+                        </Button>
+                        <Button asChild variant="outline" size="lg" className="w-full rounded-2xl border-border font-bold h-12">
+                            <Link to="/register?redirect=/checkout">Create New Account (Sign Up)</Link>
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     if (items.length === 0 && !orderPlaced) {
         return (
             <div className="container-bk py-20">
