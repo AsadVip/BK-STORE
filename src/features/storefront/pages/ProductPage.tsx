@@ -27,6 +27,7 @@ import { useFlashSaleSetting } from "@/features/admin/api";
 import { useGuestCart } from "@/lib/cart/guest-cart";
 import { useGuestWishlist } from "@/lib/cart/guest-wishlist";
 import { useAuth } from "@/app/providers/AuthProvider";
+import { supabase } from "@/lib/supabase/client";
 import { cn, computeSalePrice, formatCurrency, formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -100,7 +101,7 @@ export default function ProductPage() {
     const { slug } = useParams();
     const navigate = useNavigate();
     const { data: product, isLoading } = useProduct(slug);
-    const { data: reviews } = useProductReviews(product?.id);
+    const { data: reviews, refetch: refetchReviews } = useProductReviews(product?.id);
     const { data: flashSale } = useFlashSaleSetting();
     const { user } = useAuth();
     const addItem = useGuestCart((s) => s.addItem);
