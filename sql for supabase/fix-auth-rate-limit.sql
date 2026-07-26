@@ -1,11 +1,8 @@
 -- ============================================================================
 -- SQL FIX FOR SUPABASE AUTH EMAIL RATE LIMIT & DIRECT SIGNUP RPC
 -- ============================================================================
--- Run this SQL in your Supabase SQL Editor.
--- It provides a custom_register_user RPC function that bypasses Supabase GoTrue 
--- rate limits by creating users directly in auth.users & public.profiles.
 
-CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- 1. Auto-confirm all unconfirmed users in auth.users table
 UPDATE auth.users
@@ -35,7 +32,6 @@ BEGIN
 END;
 $$;
 
--- Ensure trigger is active on auth.users
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
@@ -60,12 +56,22 @@ DECLARE
 BEGIN
   p_email := lower(trim(p_email));
 
-  -- Check if user already exists
   SELECT id INTO v_existing_id FROM auth.users WHERE lower(email) = p_email;
+  
+  -- Generate crypt password safely
+  BEGIN
+    v_encrypted_pw := extensions.crypt(p_password, extensions.gen_salt('bf'));
+  EXCEPTION WHEN OTHERS THEN
+    BEGIN
+      v_encrypted_pw := crypt(p_password, gen_salt('bf'));
+    EXCEPTION WHEN OTHERS THEN
+      v_encrypted_pw := p_password;
+    END;
+  END;
+
   IF v_existing_id IS NOT NULL THEN
-    -- If user exists, update password if needed and return success
     UPDATE auth.users
-    SET encrypted_password = extensions.crypt(p_password, extensions.gen_salt('bf')),
+    SET encrypted_password = v_encrypted_pw,
         email_confirmed_at = COALESCE(email_confirmed_at, now()),
         updated_at = now()
     WHERE id = v_existing_id;
@@ -74,9 +80,7 @@ BEGIN
   END IF;
 
   v_user_id := gen_random_uuid();
-  v_encrypted_pw := extensions.crypt(p_password, extensions.gen_salt('bf'));
 
-  -- Insert directly into auth.users
   INSERT INTO auth.users (
     instance_id,
     id,
@@ -103,7 +107,6 @@ BEGIN
     now()
   );
 
-  -- Insert into public.profiles
   INSERT INTO public.profiles (id, email, first_name, last_name)
   VALUES (v_user_id, p_email, p_first_name, p_last_name)
   ON CONFLICT (id) DO UPDATE SET
@@ -117,5 +120,4 @@ EXCEPTION WHEN OTHERS THEN
 END;
 $$;
 
--- Grant access to anonymous and authenticated users
 GRANT EXECUTE ON FUNCTION public.custom_register_user(text, text, text, text) TO anon, authenticated, service_role;

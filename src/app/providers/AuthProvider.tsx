@@ -82,9 +82,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 });
 
                 if (error) {
-                    const msg = error.message?.toLowerCase() ?? "";
-                    // If rate limit error occurs (429), use custom_register_user RPC to bypass rate limit
-                    if (msg.includes("rate limit") || error.status === 429) {
+                    const errMsg = typeof error.message === "string" && error.message.trim().length > 0 ? error.message : "Registration failed";
+                    const isRateLimit = errMsg.toLowerCase().includes("rate limit") || error.status === 429;
+
+                    if (isRateLimit) {
                         try {
                             const { data: rpcRes, error: rpcErr } = await (supabase as any).rpc("custom_register_user", {
                                 p_email: email,
@@ -107,12 +108,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         if (!signInError && signInData?.session) {
                             return { error: null, session: signInData.session };
                         }
+
                         return {
-                            error: "Too many sign-up attempts. Please try signing in directly or wait a few minutes.",
+                            error: "Email rate limit exceeded by Supabase Auth. Please run the SQL script in Supabase SQL Editor to enable direct signup.",
                             session: null,
                         };
                     }
-                    return { error: error.message, session: null };
+
+                    return { error: errMsg, session: null };
                 }
 
                 return { error: null, session: data?.session ?? null };
