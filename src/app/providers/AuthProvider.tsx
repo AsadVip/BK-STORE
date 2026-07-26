@@ -83,8 +83,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
                 if (error) {
                     const msg = error.message?.toLowerCase() ?? "";
-                    // If rate limit error occurs, attempt direct login as user might already be registered
+                    // If rate limit error occurs (429), use custom_register_user RPC to bypass rate limit
                     if (msg.includes("rate limit") || error.status === 429) {
+                        try {
+                            const { data: rpcRes, error: rpcErr } = await (supabase as any).rpc("custom_register_user", {
+                                p_email: email,
+                                p_password: password,
+                                p_first_name: firstName ?? "",
+                                p_last_name: lastName ?? "",
+                            });
+
+                            if (!rpcErr && rpcRes && (rpcRes as { success?: boolean }).success) {
+                                const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
+                                if (!signInErr && signInData?.session) {
+                                    return { error: null, session: signInData.session };
+                                }
+                            }
+                        } catch (e) {
+                            console.error("RPC registration fallback error:", e);
+                        }
+
                         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
                         if (!signInError && signInData?.session) {
                             return { error: null, session: signInData.session };
