@@ -37,6 +37,19 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
+function toLocalDatetimeString(dateInput: string | Date | number): string {
+    if (!dateInput) return "";
+    const d = new Date(dateInput);
+    if (isNaN(d.getTime())) return "";
+    const pad = (n: number) => (n < 10 ? "0" + n : String(n));
+    const year = d.getFullYear();
+    const month = pad(d.getMonth() + 1);
+    const day = pad(d.getDate());
+    const hours = pad(d.getHours());
+    const minutes = pad(d.getMinutes());
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
 export default function AdminCampaignsPage() {
     const { data: campaigns, isLoading } = useAdminCampaigns();
     const deleteCampaign = useDeleteCampaign();
@@ -61,7 +74,7 @@ export default function AdminCampaignsPage() {
     useEffect(() => {
         if (flashSaleConfig) {
             const dateStr = flashSaleConfig.ends_at
-                ? new Date(flashSaleConfig.ends_at).toISOString().slice(0, 16)
+                ? toLocalDatetimeString(flashSaleConfig.ends_at)
                 : "";
             setSaleForm({ ...flashSaleConfig, ends_at: dateStr });
         }
@@ -70,9 +83,13 @@ export default function AdminCampaignsPage() {
     const handleSaveFlashSale = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            const endsAtIso = saleForm.ends_at
+                ? new Date(saleForm.ends_at).toISOString()
+                : new Date(Date.now() + 3 * 86400000).toISOString();
+
             await updateFlashSale.mutateAsync({
                 ...saleForm,
-                ends_at: saleForm.ends_at ? new Date(saleForm.ends_at).toISOString() : new Date(Date.now() + 3 * 86400000).toISOString(),
+                ends_at: endsAtIso,
             });
             toast({
                 title: "Flash Sale updated successfully!",
