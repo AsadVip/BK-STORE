@@ -72,7 +72,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             loading,
             signIn: async (email, password) => {
                 const { error } = await supabase.auth.signInWithPassword({ email, password });
-                return { error: error?.message ?? null };
+                if (error) {
+                    const msg = typeof error.message === "string" && error.message.trim().length > 0
+                        ? error.message
+                        : "Invalid login credentials or email not confirmed.";
+                    return { error: msg };
+                }
+                return { error: null };
             },
             signUp: async (email, password, firstName, lastName) => {
                 // 1. Try standard Supabase signUp
