@@ -176,7 +176,7 @@ export function Footer() {
 
                 <div className="mt-12 flex flex-col items-center justify-center gap-4 border-t border-border/60 pt-8 sm:flex-row sm:justify-between flex-wrap">
                     <div className="flex items-center gap-3 text-xs text-text-secondary text-center">
-                        <span>© {new Date().getFullYear()} BK Store. All rights reserved.</span>
+                        <span>© {new Date().getFullYear()} BKStore24 (bkstore24.com). All rights reserved.</span>
                     </div>
                     <div className="flex items-center gap-3 sm:gap-4 text-text-secondary text-xs flex-wrap justify-center">
                         <span className="flex items-center gap-1.5"><Banknote className="h-4 w-4 text-btn-primary shrink-0" /> Cash on Delivery</span>
