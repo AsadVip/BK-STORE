@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Check, Truck, Banknote, ShieldCheck, ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
 import { useGuestCart } from "@/lib/cart/guest-cart";
@@ -38,6 +38,17 @@ export default function CheckoutPage() {
 
 
 
+    useEffect(() => {
+        if (user && profile) {
+            setForm((f) => ({
+                ...f,
+                email: user.email || profile.email || f.email,
+                firstName: profile.first_name || f.firstName,
+                lastName: profile.last_name || f.lastName,
+            }));
+        }
+    }, [user, profile]);
+
     if (items.length === 0 && !orderPlaced) {
         return (
             <div className="container-bk py-20">
@@ -57,6 +68,13 @@ export default function CheckoutPage() {
         e.preventDefault();
         if (!form.email || !form.firstName || !form.line1 || !form.city || !form.phone) {
             toast({ title: "Please fill in all required fields", variant: "destructive" });
+            return;
+        }
+
+        const emailClean = form.email.trim().toLowerCase();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailClean)) {
+            toast({ title: "Invalid Email Format", description: "Please enter a valid email address.", variant: "destructive" });
             return;
         }
 
@@ -80,8 +98,8 @@ export default function CheckoutPage() {
             const corePayload: any = {
                 order_number: orderNum,
                 user_id: user?.id ?? null,
-                guest_email: form.email,
-                email: form.email,
+                guest_email: emailClean,
+                email: emailClean,
                 status: "pending",
                 grand_total: total,
                 total_amount: total,
@@ -140,8 +158,8 @@ export default function CheckoutPage() {
                 id: orderData?.id || `local-${Date.now()}`,
                 order_number: orderNum,
                 user_id: user?.id ?? null,
-                guest_email: form.email,
-                email: form.email,
+                guest_email: emailClean,
+                email: emailClean,
                 status: "pending",
                 grand_total: total,
                 total_amount: total,
@@ -276,24 +294,44 @@ export default function CheckoutPage() {
                 <div className="space-y-8">
                     {/* Contact Info */}
                     <div className="rounded-3xl border border-border/80 bg-bg-secondary/40 p-6 space-y-4 shadow-sm">
-                        <h2 className="font-serif font-bold text-lg text-text-primary flex items-center gap-2">
-                            Contact Information
-                        </h2>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-3">
+                            <h2 className="font-serif font-bold text-lg text-text-primary flex items-center gap-2">
+                                Contact Information
+                            </h2>
+                            {user ? (
+                                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                                    ✓ Logged in as <strong className="font-mono">{user.email}</strong>
+                                </span>
+                            ) : (
+                                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-btn-primary bg-btn-primary/10 px-3 py-1 rounded-full border border-btn-primary/20">
+                                    🚀 Guest Checkout (No Login Required)
+                                </span>
+                            )}
+                        </div>
+
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div>
-                                <Label htmlFor="email">Email Address</Label>
+                                <Label htmlFor="email">
+                                    Email Address <span className="text-red-500">*</span>
+                                </Label>
                                 <Input
                                     id="email"
                                     type="email"
                                     value={form.email}
                                     onChange={(e) => update("email", e.target.value)}
-                                    placeholder="name@example.com"
+                                    placeholder="your-email@example.com"
                                     required
-                                    className="mt-1"
+                                    disabled={!!user}
+                                    className="mt-1 font-medium"
                                 />
+                                {!user && (
+                                    <p className="text-[11px] text-text-secondary mt-1">
+                                        Enter your personal email to receive order tracking & status updates.
+                                    </p>
+                                )}
                             </div>
                             <div>
-                                <Label htmlFor="phone">Phone Number (For Delivery Confirmation)</Label>
+                                <Label htmlFor="phone">Phone Number (For Delivery Confirmation) <span className="text-red-500">*</span></Label>
                                 <Input
                                     id="phone"
                                     type="tel"
@@ -301,7 +339,7 @@ export default function CheckoutPage() {
                                     onChange={(e) => update("phone", e.target.value)}
                                     placeholder="+92 300 1234567"
                                     required
-                                    className="mt-1"
+                                    className="mt-1 font-medium"
                                 />
                             </div>
                         </div>
