@@ -286,8 +286,13 @@ export default function RegisterPage() {
                         {/* Terms notice */}
                         <p className="text-xs text-text-secondary leading-relaxed">
                             By creating an account, you agree to our{" "}
-                            <span className="font-medium text-btn-primary">Terms of Service</span> and{" "}
-                            <span className="font-medium text-btn-primary">Privacy Policy</span>.
+                            <Link to="/terms" target="_blank" className="font-medium text-btn-primary hover:underline">
+                                Terms of Service
+                            </Link>{" "}
+                            and{" "}
+                            <Link to="/privacy-policy" target="_blank" className="font-medium text-btn-primary hover:underline">
+                                Privacy Policy
+                            </Link>.
                         </p>
 
                         <Button

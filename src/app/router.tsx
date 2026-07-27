@@ -21,6 +21,7 @@ const RegisterPage = lazy(() => import("@/features/storefront/pages/RegisterPage
 const ForgotPasswordPage = lazy(() => import("@/features/storefront/pages/ForgotPasswordPage"));
 const ResetPasswordPage = lazy(() => import("@/features/storefront/pages/ResetPasswordPage"));
 const StaticPage = lazy(() => import("@/features/storefront/pages/StaticPage"));
+const PrivacyPolicyPage = lazy(() => import("@/features/storefront/pages/PrivacyPolicyPage"));
 const NotFoundPage = lazy(() => import("@/features/storefront/pages/NotFoundPage"));
 
 // ---- Customer Dashboard (lazy) ----
@@ -92,7 +93,7 @@ const router = createBrowserRouter([
             { path: "about", element: <Suspense fallback={<PageFallback />}><StaticPage slug="about" /></Suspense> },
             { path: "contact", element: <Suspense fallback={<PageFallback />}><StaticPage slug="contact" /></Suspense> },
             { path: "faq", element: <Suspense fallback={<PageFallback />}><StaticPage slug="faq" /></Suspense> },
-            { path: "privacy-policy", element: <Suspense fallback={<PageFallback />}><StaticPage slug="privacy-policy" /></Suspense> },
+            { path: "privacy-policy", element: <Suspense fallback={<PageFallback />}><PrivacyPolicyPage /></Suspense> },
             { path: "terms", element: <Suspense fallback={<PageFallback />}><StaticPage slug="terms" /></Suspense> },
             { path: "shipping-policy", element: <Suspense fallback={<PageFallback />}><StaticPage slug="shipping-policy" /></Suspense> },
             { path: "return-policy", element: <Suspense fallback={<PageFallback />}><StaticPage slug="return-policy" /></Suspense> },
