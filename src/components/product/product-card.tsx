@@ -141,7 +141,7 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist, className
                 {/* Details Section */}
                 <div className="mt-2 sm:mt-3 px-0.5 space-y-1.5 flex-1 flex flex-col justify-between">
                     <div>
-                        <div className="flex items-center justify-between gap-1 mb-0.5">
+                        <div className="flex items-center justify-between gap-1 mb-0.5 min-w-0">
                             <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-btn-primary truncate max-w-[110px]">
                                 {product.brand_name || "LUXURY EDITION"}
                             </span>
@@ -157,7 +157,7 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist, className
                     </div>
 
                     {/* Price and Savings Row - Clean Flex without Wrapping Overflow */}
-                    <div className="flex items-center justify-between gap-1 pt-1 border-t border-border/40">
+                    <div className="flex items-center justify-between gap-1 pt-1 border-t border-border/40 flex-wrap min-w-0">
                         <div className="flex items-baseline gap-1.5 min-w-0">
                             <span className={`font-serif text-sm sm:text-base font-extrabold ${isOnSale || (flashSale?.is_active) ? "text-red-600 dark:text-red-400" : "text-text-primary"}`}>
                                 {formatCurrency(salePrice)}

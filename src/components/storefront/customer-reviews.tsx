@@ -110,7 +110,7 @@ export function CustomerReviews() {
                     </p>
 
                     {/* Filters */}
-                    <div className="mt-6 flex items-center gap-2 p-1.5 rounded-full bg-bg-primary border border-border shadow-sm">
+                    <div className="mt-6 flex items-center gap-2 p-1.5 rounded-full bg-bg-primary border border-border shadow-sm flex-wrap justify-center sm:flex-nowrap">
                         <button
                             onClick={() => setFilter("all")}
                             className={`rounded-full px-5 py-2 text-xs font-bold transition-all ${
@@ -158,8 +158,8 @@ export function CustomerReviews() {
                                 className="flex flex-col justify-between rounded-3xl border border-border/80 bg-bg-primary p-6 shadow-sm hover:shadow-md transition-all"
                             >
                                 <div>
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="flex items-center gap-3">
+                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                                        <div className="flex items-center gap-3 min-w-0">
                                             <img
                                                 src={rev.avatar}
                                                 alt={rev.author}

@@ -197,6 +197,44 @@
 /* Smooth scrolling + easing across the whole site */
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100vw;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  /* Prevent pinch-to-zoom gesture while keeping scroll and tap */
+  touch-action: pan-x pan-y;
+  -ms-touch-action: pan-x pan-y;
+}
+
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  position: relative;
+}
+
+/* Prevent ANY element from causing horizontal overflow */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Force images, videos, iframes to stay within their containers */
+img,
+video,
+iframe,
+svg,
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive container fix for very small screens (<360px) */
+@media (max-width: 359px) {
+  .container-bk {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
 }
 
 /* Custom minimal scrollbar */

@@ -93,7 +93,7 @@ export default function ShopPage() {
                 {/* Main */}
                 <div className="min-w-0 flex-1">
                     {/* Toolbar */}
-                    <div className="mb-6 flex items-center justify-between gap-4">
+                    <div className="mb-6 flex items-center justify-between gap-2 sm:gap-4 min-w-0">
                         <p className="text-sm text-text-secondary">
                             {data ? `${data.total} products` : "Loading…"}
                         </p>
@@ -116,7 +116,7 @@ export default function ShopPage() {
                     {isLoading ? (
                         <ProductGridSkeleton count={12} />
                     ) : data && data.items.length > 0 ? (
-                        <div className="grid grid-cols-2 gap-6 md:grid-cols-3">
+                        <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-3">
                             {data.items.map((p) => (
                                 <ProductCard key={p.id} product={p} />
                             ))}

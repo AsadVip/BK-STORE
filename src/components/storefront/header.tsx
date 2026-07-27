@@ -62,7 +62,7 @@ export function Header() {
                     scrolled ? "glass shadow-sm border-b border-border/60 backdrop-blur-md" : "bg-bg-primary/95 backdrop-blur-sm",
                 )}
             >
-                <div className="container-bk flex h-16 items-center justify-between gap-4 lg:h-20">
+                <div className="container-bk flex h-16 items-center justify-between gap-2 sm:gap-4 lg:h-20 min-w-0">
                     {/* Mobile menu toggle */}
                     <button
                         type="button"

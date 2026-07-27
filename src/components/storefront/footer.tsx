@@ -71,7 +71,7 @@ export function Footer() {
                         </p>
 
                         {/* Social Media Links */}
-                        <div className="flex items-center gap-2.5 pt-2">
+                        <div className="flex items-center gap-2.5 pt-2 flex-wrap">
                             <a
                                 href="https://www.facebook.com/share/1DNBpccQJ1/"
                                 target="_blank"
@@ -174,15 +174,15 @@ export function Footer() {
                     </div>
                 </div>
 
-                <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border/60 pt-8 sm:flex-row">
-                    <div className="flex items-center gap-3 text-xs text-text-secondary">
+                <div className="mt-12 flex flex-col items-center justify-center gap-4 border-t border-border/60 pt-8 sm:flex-row sm:justify-between flex-wrap">
+                    <div className="flex items-center gap-3 text-xs text-text-secondary text-center">
                         <span>© {new Date().getFullYear()} BK Store. All rights reserved.</span>
                     </div>
-                    <div className="flex items-center gap-4 text-text-secondary text-xs">
-                        <span className="flex items-center gap-1.5"><Banknote className="h-4 w-4 text-btn-primary" /> Cash on Delivery</span>
-                        <span className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-state-success" /> Secure Checkout</span>
+                    <div className="flex items-center gap-3 sm:gap-4 text-text-secondary text-xs flex-wrap justify-center">
+                        <span className="flex items-center gap-1.5"><Banknote className="h-4 w-4 text-btn-primary shrink-0" /> Cash on Delivery</span>
+                        <span className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-state-success shrink-0" /> Secure Checkout</span>
                     </div>
-                    <div className="flex gap-6">
+                    <div className="flex gap-4 sm:gap-6 flex-wrap justify-center">
                         {LEGAL_LINKS.map((l) => (
                             <Link key={l.to} to={l.to} className="text-xs transition-colors hover:text-text-primary">{l.label}</Link>
                         ))}

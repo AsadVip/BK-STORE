@@ -9,7 +9,7 @@ export function StorefrontLayout() {
     const { data: siteWideBanners } = useBanners("site_wide");
 
     return (
-        <div className="flex min-h-screen flex-col bg-bg-primary">
+        <div className="flex min-h-screen flex-col bg-bg-primary overflow-x-hidden w-full max-w-[100vw]">
             <FlashSaleBar />
             <Header />
             {siteWideBanners && siteWideBanners.length > 0 && (

@@ -72,7 +72,7 @@ export default function HomePage() {
                     <div className="absolute inset-0 bg-gradient-to-br from-[#1a0a00] via-[#2d1a0f] to-[#1a0a00]" />
                 )}
 
-                <div className="container-bk relative flex min-h-[80vh] flex-col items-center justify-center py-24 text-center">
+                <div className="container-bk relative flex min-h-[65vh] sm:min-h-[80vh] flex-col items-center justify-center py-16 sm:py-24 text-center">
                     {heroLoading ? (
                         <div className="flex flex-col items-center gap-6">
                             <Skeleton className="h-4 w-40 bg-white/20" />
@@ -90,7 +90,7 @@ export default function HomePage() {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -16 }}
                                 transition={{ duration: 0.5, ease: "easeOut" }}
-                                className="max-w-4xl mx-auto px-4 relative z-10"
+                                className="max-w-4xl mx-auto px-2 sm:px-4 relative z-10"
                             >
                                 <div className="mb-4 sm:mb-6">
                                     <span className="inline-flex items-center gap-2 rounded-full bg-btn-primary/20 backdrop-blur-md px-4 sm:px-6 py-1.5 text-xs sm:text-sm font-extrabold uppercase tracking-[0.2em] text-amber-300 border border-amber-500/40 shadow-lg">
@@ -98,14 +98,14 @@ export default function HomePage() {
                                         {(heroBanner.text_overlay && heroBanner.title) ? heroBanner.title : "SPECIAL EDITION"}
                                     </span>
                                 </div>
-                                <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight text-white drop-shadow-2xl max-w-3xl mx-auto">
+                                <h1 className="font-serif text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight text-white drop-shadow-2xl max-w-3xl mx-auto">
                                     {heroBanner.text_overlay || heroBanner.title || "WELCOME TO BK STORE"}
                                 </h1>
                                 <p className="mx-auto mt-4 sm:mt-6 max-w-xl text-sm sm:text-base text-white/90 font-medium leading-relaxed drop-shadow-md">
                                     Discover boutique-grade authentic luxury timepieces and footwear, curated for perfection.
                                 </p>
-                                <div className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-                                    <Button asChild size="lg" className="h-12 sm:h-14 px-8 sm:px-10 text-sm sm:text-base font-extrabold bg-btn-primary text-white hover:bg-btn-primary-hover shadow-2xl rounded-2xl border border-btn-primary/50 transition-all hover:scale-105 active:scale-95">
+                                <div className="mt-6 sm:mt-10 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-4">
+                                    <Button asChild size="lg" className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-10 text-sm sm:text-base font-extrabold bg-btn-primary text-white hover:bg-btn-primary-hover shadow-2xl rounded-2xl border border-btn-primary/50 transition-all hover:scale-105 active:scale-95">
                                         {heroCtaInternal ? (
                                             <Link to={heroCtaUrl}>
                                                 {heroBanner.cta_label || (heroBanner as any).button_text || (heroBanner as any).cta_text || "Shop Collection"} <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 ml-1.5" />
@@ -116,7 +116,7 @@ export default function HomePage() {
                                             </a>
                                         )}
                                     </Button>
-                                    <Button asChild size="lg" className="h-12 sm:h-14 px-8 sm:px-10 text-sm sm:text-base font-semibold bg-black/40 backdrop-blur-md text-white hover:bg-black/70 border border-white/30 rounded-2xl shadow-lg transition-all hover:scale-105 active:scale-95">
+                                    <Button asChild size="lg" className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-10 text-sm sm:text-base font-semibold bg-black/40 backdrop-blur-md text-white hover:bg-black/70 border border-white/30 rounded-2xl shadow-lg transition-all hover:scale-105 active:scale-95">
                                         <Link to="/categories">Browse Categories</Link>
                                     </Button>
                                 </div>
@@ -170,9 +170,9 @@ export default function HomePage() {
 
             {/* ── Value Props Bar ── */}
             <section className="border-y border-border/60 bg-gradient-to-r from-bg-secondary via-bg-light to-bg-secondary">
-                <div className="container-bk grid grid-cols-2 gap-4 py-10 lg:grid-cols-4">
+                <div className="container-bk grid grid-cols-2 gap-3 sm:gap-4 py-6 sm:py-10 lg:grid-cols-4">
                     {VALUE_PROPS.map((vp, i) => (
-                        <Reveal key={vp.title} direction="up" delay={i * 80} className="flex items-center gap-3 p-4 rounded-2xl transition-all duration-300 hover:bg-white/60 hover:shadow-sm">
+                        <Reveal key={vp.title} direction="up" delay={i * 80} className="flex items-center gap-2 sm:gap-3 p-2 sm:p-4 rounded-2xl transition-all duration-300 hover:bg-white/60 hover:shadow-sm">
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-btn-primary/10 text-btn-primary shadow-sm">
                                 <vp.icon className="h-5 w-5" />
                             </div>
@@ -198,10 +198,10 @@ export default function HomePage() {
 
             {/* ── Shop by Category ── */}
             <Reveal as="section" className="container-bk py-20">
-                <div className="mb-10 flex items-end justify-between">
+                <div className="mb-6 sm:mb-10 flex items-end justify-between gap-2 min-w-0">
                     <div>
                         <p className="eyebrow mb-2">Explore</p>
-                        <h2 className="font-serif text-3xl font-bold text-text-primary">Shop by Category</h2>
+                        <h2 className="font-serif text-xl sm:text-3xl font-bold text-text-primary">Shop by Category</h2>
                     </div>
                     <Button asChild variant="ghost" size="sm" className="font-semibold text-btn-primary hover:text-btn-primary-hover">
                         <Link to="/categories">View all <ChevronRight className="h-4 w-4" /></Link>
@@ -209,7 +209,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Category Grid with real images */}
-                <div className="grid grid-cols-2 gap-3.5 sm:gap-5 md:grid-cols-4">
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-5 md:grid-cols-4">
                     {categories
                         ? categories.slice(0, 8).map((cat, i) => (
                             <Reveal key={cat.id} direction="up" delay={i * 70}>
@@ -258,17 +258,17 @@ export default function HomePage() {
             {/* ── New Arrivals ── */}
             <Reveal as="section" className="bg-bg-secondary py-20">
                 <div className="container-bk">
-                    <div className="mb-10 flex items-end justify-between">
+                    <div className="mb-6 sm:mb-10 flex items-end justify-between gap-2 min-w-0">
                         <div>
                             <p className="eyebrow mb-2">Just In</p>
-                            <h2 className="font-serif text-3xl font-bold text-text-primary">New Arrivals</h2>
+                            <h2 className="font-serif text-xl sm:text-3xl font-bold text-text-primary">New Arrivals</h2>
                         </div>
                         <Button asChild variant="ghost" size="sm" className="font-semibold text-btn-primary hover:text-btn-primary-hover">
                             <Link to="/shop">View all <ChevronRight className="h-4 w-4" /></Link>
                         </Button>
                     </div>
                     {newArrivals && newArrivals.items.length > 0 ? (
-                        <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">
+                        <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
                             {newArrivals.items.map((p, i) => (
                                 <Reveal key={p.id} direction="up" delay={i * 60}>
                                     <ProductCard product={p} />
@@ -287,13 +287,13 @@ export default function HomePage() {
                     <div className="mb-10 flex items-end justify-between">
                         <div>
                             <p className="eyebrow mb-2">Customer Favorites</p>
-                            <h2 className="font-serif text-3xl font-bold text-text-primary">Best Sellers</h2>
+                            <h2 className="font-serif text-xl sm:text-3xl font-bold text-text-primary">Best Sellers</h2>
                         </div>
                         <Button asChild variant="ghost" size="sm" className="font-semibold text-btn-primary hover:text-btn-primary-hover">
                             <Link to="/shop">View all <ChevronRight className="h-4 w-4" /></Link>
                         </Button>
                     </div>
-                    <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-4">
                         {bestSellers.items.map((p, i) => (
                             <Reveal key={p.id} direction="up" delay={i * 60}>
                                 <ProductCard product={p} />
@@ -333,7 +333,7 @@ export default function HomePage() {
                         <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md px-5 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-300 border border-amber-500/30 mb-6">
                             <Sparkles className="h-3.5 w-3.5" /> Exclusive Members Club
                         </span>
-                        <h2 className="mx-auto max-w-2xl font-serif text-4xl sm:text-5xl font-extrabold text-white leading-tight drop-shadow-xl">
+                        <h2 className="mx-auto max-w-2xl font-serif text-2xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight drop-shadow-xl">
                             Join the BK Store<br />Inner Circle
                         </h2>
                         <p className="mx-auto mt-5 max-w-md text-white/60 text-sm leading-relaxed">
@@ -348,7 +348,7 @@ export default function HomePage() {
                             </Button>
                         </div>
                         {/* Stats */}
-                        <div className="mt-12 flex items-center justify-center gap-8 sm:gap-16">
+                        <div className="mt-8 sm:mt-12 flex items-center justify-center gap-6 sm:gap-16 flex-wrap">
                             {[
                                 { val: "5000+", label: "Happy Customers" },
                                 { val: "500+", label: "Premium Products" },

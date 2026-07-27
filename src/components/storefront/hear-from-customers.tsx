@@ -21,7 +21,7 @@ export function HearFromCustomers() {
     const duplicatedStories = [...WHATSAPP_REVIEWS, ...WHATSAPP_REVIEWS, ...WHATSAPP_REVIEWS];
 
     return (
-        <section className="py-12 sm:py-20 bg-bg-secondary/40 border-y border-border/60 overflow-hidden relative">
+        <section className="py-12 sm:py-20 bg-bg-secondary/40 border-y border-border/60 overflow-hidden relative w-full max-w-[100vw]">
             <div className="container-bk mb-6 sm:mb-12 text-center max-w-2xl mx-auto space-y-2 sm:space-y-3">
                 {/* Stars rating bar */}
                 <div className="flex items-center justify-center gap-1 text-amber-400">

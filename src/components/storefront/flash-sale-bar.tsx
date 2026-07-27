@@ -37,7 +37,7 @@ export function FlashSaleBar() {
             aria-label="Flash Sale Announcement"
             className="relative z-50 w-full overflow-hidden bg-gradient-to-r from-[#7A0000] via-[#A81818] to-[#7A0000] text-white shadow-md border-b border-red-950/40 select-none"
         >
-            <div className="container-bk flex h-11 items-center justify-between gap-2 text-xs font-semibold">
+            <div className="container-bk flex h-11 items-center justify-between gap-1.5 sm:gap-2 text-xs font-semibold overflow-hidden min-w-0">
                 {/* Left claim (Desktop) */}
                 <div className="hidden lg:flex items-center gap-2 text-white/90">
                     <RefreshCw className="h-3.5 w-3.5 text-amber-300 shrink-0" />
@@ -49,10 +49,10 @@ export function FlashSaleBar() {
                 </div>
 
                 {/* Center Flash Sale & Timer (All Viewports) */}
-                <div className="flex flex-1 lg:flex-none items-center justify-center gap-3 mx-auto lg:mx-0">
+                <div className="flex flex-1 lg:flex-none items-center justify-center gap-1.5 sm:gap-3 mx-auto lg:mx-0 min-w-0 overflow-hidden">
                     {/* Trust stars sub-line on mobile */}
-                    <div className="flex items-center gap-2">
-                        <span className="font-extrabold uppercase tracking-widest text-amber-200 flex items-center gap-1">
+                    <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                        <span className="font-extrabold uppercase tracking-widest text-amber-200 flex items-center gap-1 truncate text-[10px] sm:text-xs">
                             <Flame className="h-4 w-4 fill-amber-300 text-amber-300 animate-pulse" />
                             {flashSale.sale_title || "SALE"}
                         </span>
@@ -74,7 +74,7 @@ export function FlashSaleBar() {
                     </div>
 
                     {/* Badge Pill */}
-                    <div className="rounded-full bg-white px-3 py-1 text-[11px] font-black text-[#A81818] shadow-sm uppercase tracking-wide transition-transform hover:scale-105">
+                    <div className="rounded-full bg-white px-2 sm:px-3 py-1 text-[9px] sm:text-[11px] font-black text-[#A81818] shadow-sm uppercase tracking-wide transition-transform hover:scale-105 shrink-0 whitespace-nowrap">
                         {flashSale.badge_text || `Upto ${flashSale.discount_percentage}% OFF`}
                     </div>
                 </div>
