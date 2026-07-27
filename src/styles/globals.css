@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:wght@300;400;500;600;700;800&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -66,14 +66,22 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Plus Jakarta Sans', 'Poppins', system-ui, -apple-system, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
   h1,
   h2,
   h3,
-  h4 {
-    @apply font-serif;
+  h4,
+  h5,
+  h6 {
+    @apply font-sans font-semibold;
+    font-family: 'Plus Jakarta Sans', 'Poppins', system-ui, -apple-system, sans-serif;
+  }
+
+  strong, b {
+    font-weight: 600;
   }
 
   /* Visible focus ring on every focusable element (accessibility) */
@@ -88,6 +96,16 @@
 
   .skip-link:focus {
     @apply not-sr-only fixed left-4 top-4 z-[100] rounded-full bg-btn-primary px-4 py-2 text-sm font-medium text-white !important;
+  }
+}
+
+@layer utilities {
+  .font-extrabold,
+  .font-black {
+    font-weight: 600 !important;
+  }
+  .font-bold {
+    font-weight: 600;
   }
 }
 

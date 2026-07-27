@@ -99,12 +99,12 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist, className
                     {/* Top Badges */}
                     <div className="absolute left-2 sm:left-3 top-2 sm:top-3 flex flex-col gap-1 z-10">
                         {outOfStock && (
-                            <Badge className="bg-red-600/90 backdrop-blur-md text-white font-black text-[10px] sm:text-xs px-2 py-0.5 shadow-md">
+                            <Badge className="bg-red-600/90 backdrop-blur-md text-white font-semibold text-[10px] sm:text-xs px-2 py-0.5 shadow-md">
                                 Out of Stock
                             </Badge>
                         )}
                         {effectiveSalePercent > 0 && !outOfStock && (
-                            <Badge className="bg-red-600 text-white font-black text-[10px] sm:text-xs px-2 py-0.5 shadow-md">
+                            <Badge className="bg-red-600 text-white font-semibold text-[10px] sm:text-xs px-2 py-0.5 shadow-md">
                                 −{effectiveSalePercent}% OFF
                             </Badge>
                         )}
@@ -131,7 +131,7 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist, className
                         <Button
                             onClick={handleQuickAdd}
                             disabled={outOfStock}
-                            className="flex-1 bg-btn-primary/95 hover:bg-btn-primary text-white font-extrabold text-[11px] sm:text-xs h-8 sm:h-10 rounded-lg sm:rounded-xl backdrop-blur-md shadow-lg active:scale-95 transition-transform"
+                            className="flex-1 bg-btn-primary/95 hover:bg-btn-primary text-white font-semibold text-[11px] sm:text-xs h-8 sm:h-10 rounded-lg sm:rounded-xl backdrop-blur-md shadow-lg active:scale-95 transition-transform"
                         >
                             <ShoppingBag className="h-3.5 w-3.5 mr-1" /> Add to Cart
                         </Button>
@@ -142,16 +142,16 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist, className
                 <div className="mt-2 sm:mt-3 px-0.5 space-y-1.5 flex-1 flex flex-col justify-between">
                     <div>
                         <div className="flex items-center justify-between gap-1 mb-0.5 min-w-0">
-                            <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-btn-primary truncate max-w-[110px]">
+                            <span className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-btn-primary truncate max-w-[110px]">
                                 {product.brand_name || "LUXURY EDITION"}
                             </span>
-                            <div className="flex items-center gap-0.5 text-amber-400 text-[10px] sm:text-xs font-bold shrink-0">
+                            <div className="flex items-center gap-0.5 text-amber-400 text-[10px] sm:text-xs font-medium shrink-0">
                                 <Star className="h-3 w-3 fill-amber-400" />
                                 <span>{(product.rating_average || 5.0).toFixed(1)}</span>
                             </div>
                         </div>
 
-                        <h3 className="line-clamp-2 sm:line-clamp-1 font-serif text-xs sm:text-base font-extrabold text-text-primary group-hover:text-btn-primary transition-colors leading-tight">
+                        <h3 className="line-clamp-2 sm:line-clamp-1 font-sans text-xs sm:text-base font-semibold text-text-primary group-hover:text-btn-primary transition-colors leading-tight">
                             {product.name}
                         </h3>
                     </div>
@@ -159,7 +159,7 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist, className
                     {/* Price and Savings Row - Clean Flex without Wrapping Overflow */}
                     <div className="flex items-center justify-between gap-1 pt-1 border-t border-border/40 flex-wrap min-w-0">
                         <div className="flex items-baseline gap-1.5 min-w-0">
-                            <span className={`font-serif text-sm sm:text-base font-extrabold ${isOnSale || (flashSale?.is_active) ? "text-red-600 dark:text-red-400" : "text-text-primary"}`}>
+                            <span className={`font-sans text-sm sm:text-base font-semibold ${isOnSale || (flashSale?.is_active) ? "text-red-600 dark:text-red-400" : "text-text-primary"}`}>
                                 {formatCurrency(salePrice)}
                             </span>
                             {(isOnSale || (flashSale?.is_active && compareAt && compareAt > salePrice)) && compareAt && compareAt > salePrice && (
@@ -169,7 +169,7 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist, className
                             )}
                         </div>
                         {effectiveSalePercent > 0 && !outOfStock && (
-                            <span className="shrink-0 text-[9px] sm:text-[10px] font-extrabold text-red-600 dark:text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded-md border border-red-500/20">
+                            <span className="shrink-0 text-[9px] sm:text-[10px] font-semibold text-red-600 dark:text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded-md border border-red-500/20">
                                 -{effectiveSalePercent}%
                             </span>
                         )}

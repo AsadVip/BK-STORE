@@ -78,7 +78,7 @@ export default {
                 },
             },
             fontFamily: {
-                serif: ["Cinzel", "Playfair Display", "Georgia", "serif"],
+                serif: ["Plus Jakarta Sans", "Poppins", "system-ui", "sans-serif"],
                 sans: ["Plus Jakarta Sans", "Poppins", "system-ui", "sans-serif"],
             },
             fontSize: {
