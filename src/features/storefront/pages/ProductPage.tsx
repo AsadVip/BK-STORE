@@ -606,7 +606,7 @@ export default function ProductPage() {
                         CONTACT INFORMATION
                     </h2>
                     <p className="mt-2 text-xs sm:text-sm text-text-secondary leading-relaxed max-w-xl mx-auto">
-                        We would love to hear from you regarding your order, support or any questions. Please feel free to contact us using the details below.
+                        We would love to hear from you regarding your order, support, or any questions. Please feel free to contact us using the details below.
                     </p>
 
                     <div className="mt-8 grid gap-4 text-left max-w-md mx-auto">
@@ -616,13 +616,13 @@ export default function ProductPage() {
                                 <MapPin className="h-5 w-5" />
                             </div>
                             <span className="text-xs sm:text-sm font-semibold text-text-primary leading-snug">
-                                Al Quresh Phase 2, Sher Shah Road, Multan
+                                Multan Garden Town, Pakistan
                             </span>
                         </div>
 
                         {/* Phone */}
                         <a
-                            href="tel:03286870670"
+                            href="tel:+923286870670"
                             className="flex items-center gap-3.5 rounded-xl border border-border/60 bg-bg-primary p-3.5 shadow-2xs hover:border-btn-primary transition-colors group"
                         >
                             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-btn-primary/10 text-btn-primary">
@@ -635,14 +635,14 @@ export default function ProductPage() {
 
                         {/* Email */}
                         <a
-                            href="mailto:bkstore.hub@gmail.com"
+                            href="mailto:bkstore.watches@gmail.com"
                             className="flex items-center gap-3.5 rounded-xl border border-border/60 bg-bg-primary p-3.5 shadow-2xs hover:border-btn-primary transition-colors group"
                         >
                             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500">
                                 <Mail className="h-5 w-5" />
                             </div>
                             <span className="text-xs sm:text-sm font-semibold text-text-primary group-hover:text-btn-primary">
-                                bkstore.hub@gmail.com
+                                bkstore.watches@gmail.com
                             </span>
                         </a>
 
@@ -652,7 +652,7 @@ export default function ProductPage() {
                                 <Clock className="h-5 w-5" />
                             </div>
                             <span className="text-xs sm:text-sm font-semibold text-text-primary">
-                                Everyday 9:00 – 21:00
+                                Everyday 9:00 – 18:00
                             </span>
                         </div>
                     </div>
