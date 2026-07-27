@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ShoppingCart, Eye, Package, User, MapPin, Phone, Mail, Calendar, DollarSign, Truck, CheckCircle2 } from "lucide-react";
 import { useAdminOrders, useUpdateOrderStatus, useAdminOrderItems } from "@/features/admin/api";
+import { supabase } from "@/lib/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,20 +25,94 @@ const STATUS_VARIANTS: Record<string, "default" | "secondary" | "success" | "war
 };
 
 export default function AdminOrdersPage() {
-    const { data: orders, isLoading } = useAdminOrders();
+    const { data: orders, isLoading, refetch } = useAdminOrders();
     const updateStatus = useUpdateOrderStatus();
     const { toast } = useToast();
 
     const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
     const { data: orderItems, isLoading: itemsLoading } = useAdminOrderItems(selectedOrder?.id ?? null, selectedOrder);
 
-    const handleStatusUpdate = async (orderId: string, newStatus: string) => {
+    // Real-Time Orders Listener (Supabase Realtime + Cross-Tab Events)
+    useEffect(() => {
+        // 1. Supabase Postgres Changes Realtime Listener
+        const channel = supabase
+            .channel("admin-orders-live")
+            .on(
+                "postgres_changes",
+                { event: "*", schema: "public", table: "orders" },
+                (payload) => {
+                    refetch();
+                    if (payload.eventType === "INSERT") {
+                        const newOrder = payload.new as any;
+                        toast({
+                            title: "🔔 New Order Received!",
+                            description: `Order #${newOrder.order_number || "New"} has been received on Admin Panel.`,
+                            variant: "success",
+                        });
+                    }
+                }
+            )
+            .subscribe();
+
+        // 2. BroadcastChannel Listener for instant local/cross-tab updates
+        let bc: BroadcastChannel | null = null;
         try {
-            await updateStatus.mutateAsync({ id: orderId, status: newStatus });
-            if (selectedOrder?.id === orderId) {
+            bc = new BroadcastChannel("bk_orders_channel");
+            bc.onmessage = (event) => {
+                if (event.data?.type === "ORDER_PLACED") {
+                    refetch();
+                    const newOrd = event.data.order;
+                    toast({
+                        title: "🔔 New Order Received!",
+                        description: `Order #${newOrd?.order_number || ""} confirmed.`,
+                        variant: "success",
+                    });
+                }
+            };
+        } catch (e) {}
+
+        // 3. In-tab Custom Event Listener
+        const handleCustomEvent = (e: any) => {
+            if (e.detail?.action === "placed") {
+                refetch();
+                toast({
+                    title: "🔔 New Order Received!",
+                    description: `Order #${e.detail.order?.order_number || ""} received.`,
+                    variant: "success",
+                });
+            }
+        };
+
+        // 4. Cross-tab localStorage Event Listener
+        const handleStorageEvent = (e: StorageEvent) => {
+            if (e.key === "bk_local_orders") {
+                refetch();
+                toast({
+                    title: "🔔 New Order Received!",
+                    description: "A new order was placed and received on Admin Panel.",
+                    variant: "success",
+                });
+            }
+        };
+
+        window.addEventListener("bk_order_event", handleCustomEvent);
+        window.addEventListener("storage", handleStorageEvent);
+
+        return () => {
+            supabase.removeChannel(channel);
+            if (bc) bc.close();
+            window.removeEventListener("bk_order_event", handleCustomEvent);
+            window.removeEventListener("storage", handleStorageEvent);
+        };
+    }, [refetch]);
+
+    const handleStatusUpdate = async (orderId: string, orderNumber: string, newStatus: string) => {
+        try {
+            await updateStatus.mutateAsync({ id: orderId, orderNumber, status: newStatus });
+            if (selectedOrder?.id === orderId || selectedOrder?.order_number === orderNumber) {
                 setSelectedOrder((prev: any) => (prev ? { ...prev, status: newStatus } : null));
             }
-            toast({ title: "Order status updated successfully!", variant: "success" });
+            toast({ title: `Order #${orderNumber} updated to ${newStatus.toUpperCase()}!`, variant: "success" });
         } catch (err) {
             toast({ title: "Failed to update status", variant: "destructive" });
         }
@@ -104,7 +179,7 @@ export default function AdminOrdersPage() {
 
                                                 <Select
                                                     value={o.status}
-                                                    onValueChange={(v) => handleStatusUpdate(o.id, v)}
+                                                    onValueChange={(v) => handleStatusUpdate(o.id, o.order_number, v)}
                                                 >
                                                     <SelectTrigger className="h-8 w-32 text-xs font-semibold">
                                                         <SelectValue />
@@ -252,7 +327,7 @@ export default function AdminOrdersPage() {
                                     <span className="text-xs font-bold text-text-secondary">Update Order Status:</span>
                                     <Select
                                         value={selectedOrder.status}
-                                        onValueChange={(v) => handleStatusUpdate(selectedOrder.id, v)}
+                                        onValueChange={(v) => handleStatusUpdate(selectedOrder.id, selectedOrder.order_number, v)}
                                     >
                                         <SelectTrigger className="h-9 w-40 font-bold text-xs">
                                             <SelectValue />

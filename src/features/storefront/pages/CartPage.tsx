@@ -61,7 +61,7 @@ export default function CartPage() {
         }
     };
 
-    const shipping = subtotal >= 5000 ? 0 : 250;
+    const shipping = 0;
     const total = Math.max(0, subtotal - discount + shipping);
 
     if (items.length === 0) {
@@ -172,26 +172,11 @@ export default function CartPage() {
                         ))}
                     </AnimatePresence>
 
-                    {/* Free shipping progress */}
-                    {shipping > 0 && (
-                        <div className="rounded-2xl bg-amber-50 dark:bg-amber-900/10 border border-amber-200/50 p-4">
-                            <p className="text-xs font-bold text-amber-700 dark:text-amber-400">
-                                🚚 Add {formatCurrency(5000 - subtotal)} more for <strong>FREE shipping!</strong>
-                            </p>
-                            <div className="mt-2 h-1.5 w-full rounded-full bg-amber-200/50 overflow-hidden">
-                                <div
-                                    className="h-full rounded-full bg-amber-500 transition-all duration-500"
-                                    style={{ width: `${Math.min(100, (subtotal / 5000) * 100)}%` }}
-                                />
-                            </div>
-                        </div>
-                    )}
-                    {shipping === 0 && (
-                        <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200/50 p-4 flex items-center gap-3">
-                            <Package className="h-5 w-5 text-emerald-500 shrink-0" />
-                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">You qualify for FREE delivery! 🎉</p>
-                        </div>
-                    )}
+                    {/* Free shipping banner */}
+                    <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200/50 p-4 flex items-center gap-3">
+                        <Package className="h-5 w-5 text-emerald-500 shrink-0" />
+                        <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">FREE Delivery on all orders across Pakistan! 🎉</p>
+                    </div>
                 </div>
 
                 {/* Summary Card */}
@@ -257,18 +242,7 @@ export default function CartPage() {
 
                     <Button
                         size="lg"
-                        onClick={() => {
-                            if (!user) {
-                                toast({
-                                    title: "Login Required",
-                                    description: "Please log in or sign up to place your order.",
-                                    variant: "destructive",
-                                });
-                                navigate("/login?redirect=/checkout");
-                                return;
-                            }
-                            navigate("/checkout");
-                        }}
+                        onClick={() => navigate("/checkout")}
                         className="w-full rounded-xl bg-btn-primary text-white font-bold h-13 shadow-md hover:scale-[1.01] transition-transform"
                     >
                         Proceed to Checkout <ArrowRight className="h-4 w-4 ml-2" />

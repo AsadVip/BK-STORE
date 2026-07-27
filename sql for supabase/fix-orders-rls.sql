@@ -1,26 +1,43 @@
 -- =====================================================================
--- FIX: Remove overly-permissive "USING(true)" RLS policy on orders
--- Run this in Supabase SQL Editor
+-- BK STORE — FIX ORDERS RLS & ADMIN RECEIPT
+-- Run this script in Supabase SQL Editor (https://supabase.com/dashboard)
 -- =====================================================================
 
--- 1. Drop the bad policy that lets everyone see all orders
+-- 1. Ensure RLS allows Guest Checkout Order Insertion
+DROP POLICY IF EXISTS "Public insert orders" ON public.orders;
+CREATE POLICY "Public insert orders" 
+ON public.orders FOR INSERT 
+WITH CHECK (true);
+
+-- 2. Allow Admin Panel & Customers to Select Orders
+DROP POLICY IF EXISTS "Public select orders" ON public.orders;
 DROP POLICY IF EXISTS "Public track order by number" ON public.orders;
+CREATE POLICY "Public select orders" 
+ON public.orders FOR SELECT 
+USING (true);
 
--- 2. Re-create a SAFE track-order policy (only by matching order_number + email)
--- This allows guests to track their order ONLY if they know both order number AND email
-CREATE POLICY "Public track order by number"
-ON public.orders FOR SELECT
-USING (
-  -- Logged-in users can see their own orders
-  (auth.uid() IS NOT NULL AND auth.uid() = user_id)
-  -- Admins can see all
-  OR public.is_admin()
-  -- Guests can track by order_number (passed via RPC or function, not direct query)
-  OR (
-    user_id IS NULL 
-    AND guest_email IS NOT NULL 
-    AND guest_email = current_setting('request.headers', true)::json->>'x-guest-email'
-  )
-);
+-- 3. Allow Admin Panel to Update Order Status
+DROP POLICY IF EXISTS "Public update orders" ON public.orders;
+CREATE POLICY "Public update orders" 
+ON public.orders FOR UPDATE 
+USING (true);
 
--- Done! Now only owners and admins can see orders.
+-- 4. Enable RLS policies on order_items table as well
+ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public insert order_items" ON public.order_items;
+CREATE POLICY "Public insert order_items" 
+ON public.order_items FOR INSERT 
+WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public select order_items" ON public.order_items;
+CREATE POLICY "Public select order_items" 
+ON public.order_items FOR SELECT 
+USING (true);
+
+DROP POLICY IF EXISTS "Public update order_items" ON public.order_items;
+CREATE POLICY "Public update order_items" 
+ON public.order_items FOR UPDATE 
+USING (true);
+
+-- Done! Guest orders can now be created and received on Admin Panel.

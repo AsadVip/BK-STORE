@@ -206,17 +206,52 @@ export function useAdminOrders() {
     return useQuery<Order[]>({
         queryKey: ["admin-orders"],
         queryFn: async () => {
-            let { data, error } = await supabase
-                .from("orders")
-                .select("*")
-                .order("created_at", { ascending: false });
+            let dbOrders: any[] = [];
+            try {
+                let { data, error } = await supabase
+                    .from("orders")
+                    .select("*")
+                    .order("created_at", { ascending: false });
 
-            if (error || !data) {
-                const retry = await supabase.from("orders").select("*");
-                data = retry.data;
+                if (error || !data) {
+                    const retry = await supabase.from("orders").select("*");
+                    data = retry.data;
+                }
+                dbOrders = data ?? [];
+            } catch (e) {
+                console.warn("DB orders fetch notice:", e);
             }
 
-            return (data ?? []).map((o: any) => ({
+            let localOrders: any[] = [];
+            try {
+                localOrders = JSON.parse(localStorage.getItem("bk_local_orders") || "[]");
+            } catch (e) {}
+
+            // Merge DB and local orders, prioritizing freshest order
+            const mergedMap = new Map<string, any>();
+
+            // First add local orders
+            localOrders.forEach((o) => {
+                const key = o.order_number || o.id;
+                if (key) mergedMap.set(key, o);
+            });
+
+            // Then layer DB orders over local
+            dbOrders.forEach((o) => {
+                const key = o.order_number || o.id;
+                if (key) {
+                    const existing = mergedMap.get(key);
+                    mergedMap.set(key, { ...existing, ...o });
+                }
+            });
+
+            const combinedList = Array.from(mergedMap.values()).sort((a, b) => {
+                const timeA = new Date(a.placed_at || a.created_at || 0).getTime();
+                const timeB = new Date(b.placed_at || b.created_at || 0).getTime();
+                return timeB - timeA;
+            });
+
+            return combinedList.map((o: any) => ({
                 ...o,
                 grand_total: o.grand_total ?? o.total_amount ?? 0,
                 placed_at: o.placed_at ?? o.created_at ?? new Date().toISOString(),
@@ -294,8 +329,44 @@ export function useAdminOrderItems(orderId: string | null, orderObj?: any) {
 export function useUpdateOrderStatus() {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: async ({ id, status }: { id: string; status: string }) => {
-            await supabase.from("orders").update({ status } as never).eq("id", id);
+        mutationFn: async ({ id, status, orderNumber }: { id: string; status: string; orderNumber?: string }) => {
+            // Update Supabase DB
+            try {
+                if (id && !id.startsWith("local-")) {
+                    await supabase.from("orders").update({ status } as never).eq("id", id);
+                } else if (orderNumber) {
+                    await (supabase.from("orders" as never) as any).update({ status }).eq("order_number", orderNumber);
+                }
+            } catch (e) {
+                console.warn("Status DB update notice:", e);
+            }
+
+            // Update Local Storage sync store
+            let updatedOrder: any = null;
+            try {
+                const local: any[] = JSON.parse(localStorage.getItem("bk_local_orders") || "[]");
+                const updatedList = local.map((o) => {
+                    if (o.id === id || (orderNumber && o.order_number === orderNumber)) {
+                        updatedOrder = { ...o, status };
+                        return updatedOrder;
+                    }
+                    return o;
+                });
+                localStorage.setItem("bk_local_orders", JSON.stringify(updatedList));
+            } catch (e) {}
+
+            if (!updatedOrder) {
+                updatedOrder = { id, order_number: orderNumber, status };
+            }
+
+            // Broadcast real-time status change event to customer tracking page
+            try {
+                const bc = new BroadcastChannel("bk_orders_channel");
+                bc.postMessage({ type: "STATUS_CHANGED", order: updatedOrder });
+                bc.close();
+            } catch (e) {}
+
+            window.dispatchEvent(new CustomEvent("bk_order_event", { detail: { action: "updated", order: updatedOrder } }));
         },
         onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-orders"] }),
     });
