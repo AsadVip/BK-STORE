@@ -223,7 +223,6 @@ body {
 img,
 video,
 iframe,
-svg,
 canvas {
   max-width: 100%;
   height: auto;

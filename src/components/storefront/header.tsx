@@ -66,7 +66,7 @@ export function Header() {
                     {/* Mobile menu toggle */}
                     <button
                         type="button"
-                        className="flex h-10 w-10 items-center justify-center rounded-xl transition-colors hover:bg-bg-secondary lg:hidden"
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors hover:bg-bg-secondary lg:hidden"
                         aria-label="Open menu"
                         onClick={() => setMobileOpen(true)}
                     >
@@ -74,8 +74,9 @@ export function Header() {
                     </button>
 
                     {/* Logo */}
-                    <Link to="/" className="shrink-0">
-                        <BkLogo size="md" variant="full" />
+                    <Link to="/" className="shrink-0 min-w-0">
+                        <BkLogo size="sm" variant="full" className="sm:hidden" />
+                        <BkLogo size="md" variant="full" className="hidden sm:inline-flex" />
                     </Link>
 
                     {/* Desktop nav */}
@@ -108,7 +109,7 @@ export function Header() {
                     </nav>
 
                     {/* Action buttons */}
-                    <div className="flex items-center gap-0.5 sm:gap-1">
+                    <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
                         <button
                             type="button"
                             aria-label="Search"
