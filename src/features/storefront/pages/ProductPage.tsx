@@ -20,6 +20,10 @@ import {
     MessageCircle,
     ChevronDown,
     Layers,
+    ZoomIn,
+    Eye,
+    ShoppingBag,
+    X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useProduct, useProductReviews } from "@/features/catalog/api";
@@ -40,6 +44,15 @@ import { useToast } from "@/components/ui/use-toast";
 import { WhyChooseUsComparison } from "@/components/storefront/why-choose-us";
 import { HearFromCustomers } from "@/components/storefront/hear-from-customers";
 import { YouMayAlsoLike, recordProductView } from "@/components/product/you-may-also-like";
+import { SimpleLoader } from "@/components/ui/simple-loader";
+
+function WhatsAppIcon({ className = "w-5 h-5" }: { className?: string }) {
+    return (
+        <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+        </svg>
+    );
+}
 
 function AnimatedCounter({ end, duration = 1800, suffix = "" }: { end: number; duration?: number; suffix?: string }) {
     const [count, setCount] = useState(0);
@@ -126,22 +139,29 @@ export default function ProductPage() {
     const [newComment, setNewComment] = useState("");
     const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
-    useEffect(() => {
-        const onScroll = () => {
-            setShowStickyBar(window.scrollY > 380);
+    const [isZoomed, setIsZoomed] = useState(false);
+    const [viewerCount] = useState(() => Math.floor(Math.random() * 15) + 20);
+
+    const deliveryDates = (() => {
+        const today = new Date();
+        const dispatchDate = new Date(today);
+        dispatchDate.setDate(today.getDate() + 1);
+
+        const deliveryDate = new Date(today);
+        deliveryDate.setDate(today.getDate() + 2);
+
+        const formatShortDate = (d: Date) => {
+            return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
         };
-        window.addEventListener("scroll", onScroll);
-        return () => window.removeEventListener("scroll", onScroll);
-    }, []);
 
-    useEffect(() => {
-        if (product) {
-            const categoryIds = (product.categories ?? []).map((c: any) => c.id);
-            recordProductView(product.id, product.slug, categoryIds);
-        }
-    }, [product?.id]);
+        return {
+            order: formatShortDate(today),
+            dispatch: formatShortDate(dispatchDate),
+            delivery: formatShortDate(deliveryDate),
+        };
+    })();
 
-    if (isLoading) return <ProductSkeleton />;
+    if (isLoading) return <SimpleLoader minHeight="min-h-[75vh]" label="Loading product..." />;
     if (!product) {
         return (
             <div className="container-bk py-20">
@@ -197,6 +217,13 @@ export default function ProductPage() {
         }
     };
 
+    const handleWhatsAppOrder = () => {
+        const phoneNumber = "923286870670";
+        const variantStr = selectedVariant?.name ? ` (${selectedVariant.name})` : "";
+        const msg = `Hi BK Store! I want to order:\n*Product:* ${product.name}${variantStr}\n*Price:* ${formatCurrency(salePrice)}\n*Quantity:* ${quantity}`;
+        window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(msg)}`, "_blank");
+    };
+
     const handleReviewSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newComment.trim()) {
@@ -247,69 +274,73 @@ export default function ProductPage() {
         : [];
 
     return (
-        <div className="container-bk py-8 sm:py-10 pb-24 sm:pb-32 space-y-16 sm:space-y-24">
+        <div className="container-bk py-6 sm:py-10 pb-24 sm:pb-32 space-y-12 sm:space-y-20 max-w-6xl mx-auto">
             {/* Breadcrumb */}
-            <nav className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs font-medium text-text-secondary uppercase tracking-wider">
-                <Link to="/" className="hover:text-btn-primary transition-colors">Home</Link>
-                <span>/</span>
-                <Link to="/shop" className="hover:text-btn-primary transition-colors">Shop</Link>
-                {product.categories[0] && (
-                    <>
-                        <span>/</span>
-                        <Link to={`/shop?category=${product.categories[0].id}`} className="hover:text-btn-primary transition-colors">
-                            {product.categories[0].name}
-                        </Link>
-                    </>
-                )}
-                <span>/</span>
-                <span className="text-text-primary font-bold truncate max-w-[180px] sm:max-w-none">{product.name}</span>
+            <nav className="flex items-center gap-1.5 text-xs text-text-secondary font-medium tracking-normal mb-2">
+                <Link to="/" className="hover:text-text-primary transition-colors">Home</Link>
+                <span>&gt;</span>
+                <Link to="/shop" className="hover:text-text-primary transition-colors">All Products</Link>
+                <span>&gt;</span>
+                <span className="text-text-primary font-medium truncate max-w-[200px] sm:max-w-none">{product.name}</span>
             </nav>
 
-            {/* Main Product Hero Grid */}
+            {/* Main Product Hero Section (Desktop & Mobile Layout) */}
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="grid gap-8 lg:gap-12 lg:grid-cols-2 items-start"
+                transition={{ duration: 0.4 }}
+                className="grid gap-6 lg:gap-10 lg:grid-cols-12 items-start"
             >
-                {/* Gallery Section */}
-                <div className="space-y-4">
-                    <div className="relative aspect-square overflow-hidden rounded-2xl sm:rounded-3xl border border-border/60 bg-bg-secondary shadow-lg">
+                {/* Gallery Column (Desktop 6 col, Mobile 12 col) */}
+                <div className="lg:col-span-6 space-y-3">
+                    <div className="relative aspect-square overflow-hidden rounded-xl border border-border/80 bg-white shadow-xs">
                         {displayImages[selectedImage] ? (
                             <motion.img
                                 key={selectedImage}
-                                initial={{ opacity: 0.8, scale: 0.98 }}
-                                animate={{ opacity: 1, scale: 1 }}
+                                initial={{ opacity: 0.8 }}
+                                animate={{ opacity: 1 }}
                                 transition={{ duration: 0.2 }}
                                 src={displayImages[selectedImage].url}
                                 alt={displayImages[selectedImage].alt_text ?? product.name}
-                                className="h-full w-full object-cover"
+                                className="h-full w-full object-cover cursor-pointer"
+                                onClick={() => setIsZoomed(true)}
                             />
                         ) : (
-                            <div className="flex h-full w-full items-center justify-center font-serif text-3xl text-text-secondary">
+                            <div className="flex h-full w-full items-center justify-center font-serif text-2xl text-text-secondary bg-gray-50">
                                 BK STORE
                             </div>
                         )}
-                        {effectiveDiscount > 0 && inStock && (
-                            <div className="absolute left-4 top-4">
-                                <Badge className="bg-red-600 text-white font-black text-xs px-3 py-1 shadow-md">
-                                    −{effectiveDiscount}% OFF
-                                </Badge>
-                            </div>
-                        )}
+
+                        {/* Top-Right Wishlist Heart Button Overlay */}
+                        <button
+                            type="button"
+                            onClick={() => toggleWishlist(product.id)}
+                            className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/90 shadow-sm flex items-center justify-center text-gray-700 hover:text-red-500 transition-colors border border-gray-100"
+                        >
+                            <Heart className={cn("w-4.5 h-4.5", isWishlisted && "fill-red-500 text-red-500")} />
+                        </button>
+
+                        {/* Bottom-Right Zoom Button Overlay */}
+                        <button
+                            type="button"
+                            onClick={() => setIsZoomed(true)}
+                            className="absolute bottom-3 right-3 z-10 w-9 h-9 rounded-full bg-white/90 shadow-sm flex items-center justify-center text-gray-700 hover:bg-white transition-colors border border-gray-100"
+                        >
+                            <ZoomIn className="w-4.5 h-4.5" />
+                        </button>
                     </div>
 
-                    {/* Image Thumbnails */}
+                    {/* Image Thumbnails Row */}
                     {displayImages.length > 1 && (
-                        <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none">
+                        <div className="flex items-center gap-2.5 overflow-x-auto pb-1 scrollbar-none">
                             {displayImages.map((img, i) => (
                                 <button
                                     key={img.id}
                                     type="button"
                                     onClick={() => setSelectedImage(i)}
                                     className={cn(
-                                        "relative aspect-square w-16 sm:w-20 shrink-0 overflow-hidden rounded-xl border-2 transition-all",
-                                        selectedImage === i ? "border-btn-primary ring-2 ring-btn-primary/30" : "border-border/60 opacity-70 hover:opacity-100",
+                                        "relative aspect-square w-16 sm:w-20 shrink-0 overflow-hidden rounded-lg border transition-all cursor-pointer",
+                                        selectedImage === i ? "border-black ring-2 ring-black/80" : "border-gray-200 opacity-70 hover:opacity-100",
                                     )}
                                 >
                                     <img src={img.url} alt="" className="h-full w-full object-cover" />
@@ -319,31 +350,41 @@ export default function ProductPage() {
                     )}
                 </div>
 
-                {/* Product Detail Info Section */}
-                <div className="space-y-6">
+                {/* Product Detail Info Column (Desktop 6 col, Mobile 12 col) */}
+                <div className="lg:col-span-6 space-y-5">
+                    {/* Title */}
                     <div>
-                        {product.brand && (
-                            <p className="text-xs font-bold uppercase tracking-widest text-btn-primary mb-1.5">
-                                {product.brand.name}
-                            </p>
-                        )}
-                        <h1 className="font-serif text-2xl sm:text-4xl font-extrabold text-text-primary tracking-tight leading-tight">
+                        <h1 className="font-serif text-2xl sm:text-3xl font-normal text-text-primary tracking-tight leading-snug">
                             {product.name}
                         </h1>
 
-                        {/* Rating Summary */}
-                        <div className="mt-3 flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
-                            <div className="flex items-center gap-0.5 text-amber-400">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <Star key={i} className={cn("h-4 w-4", i < Math.round(product.rating_average || 5) ? "fill-amber-400" : "text-border")} />
-                                ))}
-                            </div>
-                            <span className="font-bold text-text-primary">{(product.rating_average || 5.0).toFixed(1)}</span>
-                            <span className="text-text-secondary">({product.rating_count || 12} Verified Buyer Reviews)</span>
+                        {/* Price Display */}
+                        <div className="mt-2.5 flex items-center gap-3 flex-wrap">
+                            <span className="font-sans text-xl sm:text-2xl font-bold text-red-600 dark:text-red-500">
+                                {formatCurrency(salePrice)}
+                            </span>
+                            {compareAt && compareAt > salePrice && (
+                                <span className="font-sans text-sm text-gray-400 line-through font-normal">
+                                    {formatCurrency(compareAt)}
+                                </span>
+                            )}
+                            {(compareAt && compareAt > salePrice) && (
+                                <span className="bg-[#e53935] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide">
+                                    SAVERS.{formatCurrency(compareAt - salePrice).replace("Rs.", "").trim()}
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Live Viewer Counter */}
+                        <div className="mt-3.5 flex items-center gap-2 text-xs sm:text-sm font-medium text-text-primary">
+                            <Eye className="w-4 h-4 text-text-primary shrink-0" />
+                            <span>
+                                <strong className="font-bold">{viewerCount} people</strong> are viewing this right now
+                            </span>
                         </div>
                     </div>
 
-                    {/* Variants selector if available — SHIFTED ABOVE PRICING */}
+                    {/* Variant Selector (e.g. Strap Color: Brown / Black) */}
                     {(() => {
                         const displayVariants = (product.variants ?? []).filter(
                             (v) => v.name && v.name.trim() !== "" && v.name.toLowerCase() !== "default" && v.name.toLowerCase() !== "standard"
@@ -372,48 +413,26 @@ export default function ProductPage() {
                         };
 
                         return (
-                            <div className="space-y-3 rounded-2xl border border-border/80 bg-bg-secondary/40 p-4">
-                                <div className="flex items-center justify-between">
-                                    <label className="text-xs font-extrabold uppercase tracking-wider text-text-primary flex items-center gap-1.5">
-                                        <Layers className="h-4 w-4 text-btn-primary" />
-                                        Select Option / Variant: <span className="text-btn-primary font-bold">{selectedVariant?.name || "Standard"}</span>
-                                    </label>
-                                    {selectedVariant && selectedVariant.stock_quantity > 0 && (
-                                        <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                                            {selectedVariant.stock_quantity} in stock
-                                        </span>
-                                    )}
-                                </div>
+                            <div className="space-y-2 pt-1">
+                                <label className="text-xs font-semibold text-text-primary block">
+                                    Strap Color: <span className="font-normal text-text-secondary">{selectedVariant?.name || "Brown"}</span>
+                                </label>
                                 <div className="flex flex-wrap gap-2.5">
                                     {selectableVariants.map((v, vIdx) => {
                                         const isSelected = (selectedVariantId === v.id) || (!selectedVariantId && selectedVariant?.id === v.id);
-                                        const vPrice = v.price ?? product.base_price;
-                                        const vCompare = v.compare_at_price ?? product.compare_at_price;
-                                        const hasDiscount = vCompare && vCompare > vPrice;
-
                                         return (
                                             <button
                                                 key={v.id}
                                                 type="button"
                                                 onClick={() => handleVariantClick(v, vIdx)}
                                                 className={cn(
-                                                    "group relative flex items-center gap-2.5 rounded-xl border px-4 py-2.5 text-xs font-bold transition-all shadow-2xs cursor-pointer",
+                                                    "px-4 py-2 text-xs font-medium rounded-md border transition-all cursor-pointer min-w-[70px] text-center",
                                                     isSelected
-                                                        ? "border-btn-primary bg-btn-primary text-white shadow-md ring-2 ring-btn-primary/30"
-                                                        : "border-border/80 text-text-primary bg-bg-primary hover:border-btn-primary/60 hover:bg-bg-secondary"
+                                                        ? "bg-black text-white border-black font-semibold shadow-2xs"
+                                                        : "bg-white text-black border-gray-300 hover:border-black"
                                                 )}
                                             >
-                                                <span className="truncate">{v.name}</span>
-                                                <div className="flex items-center gap-1 text-[11px]">
-                                                    <span className={cn("font-extrabold", isSelected ? "text-white" : "text-btn-primary")}>
-                                                        {formatCurrency(vPrice)}
-                                                    </span>
-                                                    {hasDiscount && (
-                                                        <span className={cn("line-through opacity-75 text-[10px]", isSelected ? "text-white/80" : "text-text-secondary")}>
-                                                            {formatCurrency(vCompare)}
-                                                        </span>
-                                                    )}
-                                                </div>
+                                                {v.name}
                                             </button>
                                         );
                                     })}
@@ -422,95 +441,152 @@ export default function ProductPage() {
                         );
                     })()}
 
-                    {/* Price & Stock Display */}
-                    <div className="rounded-2xl border border-border/80 bg-bg-secondary/40 p-4 sm:p-5 space-y-2.5">
-                        <div className="flex items-baseline gap-3 flex-wrap">
-                            <span className="font-serif text-2xl sm:text-3xl font-extrabold text-text-primary">
-                                {formatCurrency(salePrice)}
-                            </span>
-                            {compareAt && compareAt > salePrice && (
-                                <span className="text-base sm:text-lg text-text-secondary line-through font-normal">
-                                    {formatCurrency(compareAt)}
-                                </span>
-                            )}
-                        </div>
-
-                        {/* Stock Quantity Badge */}
-                        <div className="flex items-center gap-2">
-                            {inStock ? (
-                                <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                                    <CheckCircle2 className="h-3.5 w-3.5" />
-                                    In Stock • Express Shipping Ready
-                                </div>
-                            ) : (
-                                <div className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 px-3 py-1 text-xs font-bold text-red-600 dark:text-red-400 border border-red-500/20">
-                                    Out of Stock
-                                </div>
-                            )}
+                    {/* Quantity Selector */}
+                    <div className="space-y-2 pt-1">
+                        <label className="text-xs font-semibold text-text-primary block">Quantity</label>
+                        <div className="flex items-center justify-between bg-[#f4f4f4] text-black rounded-md px-3 py-2 w-44 border border-gray-200">
+                            <button
+                                type="button"
+                                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                                disabled={quantity <= 1}
+                                className="p-1 text-black hover:opacity-70 disabled:opacity-30 cursor-pointer"
+                            >
+                                <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="text-sm font-bold text-black">{quantity}</span>
+                            <button
+                                type="button"
+                                onClick={() => setQuantity((q) => Math.min(stockCount, q + 1))}
+                                disabled={quantity >= stockCount}
+                                className="p-1 text-black hover:opacity-70 disabled:opacity-30 cursor-pointer"
+                            >
+                                <Plus className="w-3.5 h-3.5" />
+                            </button>
                         </div>
                     </div>
 
-                    {/* Short Description */}
-                    {product.description && (
-                        <p className="text-xs sm:text-sm leading-relaxed text-text-secondary">
-                            {product.description}
-                        </p>
-                    )}
+                    {/* Action Buttons Stack */}
+                    <div className="space-y-3 pt-2">
+                        {/* Add to Cart: WHITE background, BLACK border, BLACK text */}
+                        <button
+                            type="button"
+                            disabled={!inStock}
+                            onClick={() => handleAddToCart(false)}
+                            className="w-full py-3 px-4 border border-black bg-white text-black hover:bg-gray-50 font-semibold text-sm rounded-md transition-all cursor-pointer shadow-2xs"
+                        >
+                            Add to cart
+                        </button>
 
-                    {/* Quantity & Action Buttons */}
-                    <div className="space-y-4 pt-2">
-                        <div className="flex items-center gap-4">
-                            <label className="text-xs font-bold uppercase tracking-wider text-text-primary">Quantity</label>
-                            <div className="flex items-center rounded-xl border border-border bg-bg-secondary">
-                                <button
-                                    type="button"
-                                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                                    disabled={quantity <= 1}
-                                    className="p-2 text-text-secondary hover:text-text-primary disabled:opacity-30"
-                                >
-                                    <Minus className="h-4 w-4" />
-                                </button>
-                                <span className="w-10 text-center font-bold text-sm text-text-primary">{quantity}</span>
-                                <button
-                                    type="button"
-                                    onClick={() => setQuantity((q) => Math.min(stockCount, q + 1))}
-                                    disabled={quantity >= stockCount}
-                                    className="p-2 text-text-secondary hover:text-text-primary disabled:opacity-30"
-                                >
-                                    <Plus className="h-4 w-4" />
-                                </button>
+                        {/* Buy it now: SOLID BLACK background, WHITE text */}
+                        <button
+                            type="button"
+                            disabled={!inStock}
+                            onClick={() => handleAddToCart(true)}
+                            className="w-full py-3 px-4 bg-black hover:bg-zinc-800 text-white font-bold text-sm rounded-md transition-all cursor-pointer shadow-2xs"
+                        >
+                            Buy it now
+                        </button>
+
+                        {/* Order on WhatsApp: VIBRANT GREEN background, WHITE text */}
+                        <button
+                            type="button"
+                            onClick={handleWhatsAppOrder}
+                            className="w-full py-3.5 px-4 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-sm rounded-md flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
+                        >
+                            <WhatsAppIcon className="w-5 h-5 fill-white" />
+                            Order on WhatsApp
+                        </button>
+                    </div>
+
+                    {/* Fast 3-Day Delivery Process Section (Real-Time Calculated Dates) */}
+                    <div className="mt-8 pt-6 border-t border-gray-200/80 dark:border-zinc-800 space-y-4">
+                        <h3 className="text-xs font-bold text-center uppercase tracking-wider text-text-primary">
+                            Fast 3-Day Delivery Process
+                        </h3>
+                        <div className="flex items-center justify-center gap-2 sm:gap-4 max-w-sm mx-auto py-2">
+                            {/* Order */}
+                            <div className="flex flex-col items-center gap-1.5 text-center">
+                                <div className="w-10 h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center shadow-xs">
+                                    <ShoppingBag className="w-4 h-4" />
+                                </div>
+                                <span className="text-[11px] text-gray-500 dark:text-gray-400 leading-tight font-medium">
+                                    {deliveryDates.order}
+                                </span>
+                                <span className="text-xs font-bold text-text-primary leading-none">
+                                    Order
+                                </span>
                             </div>
-                        </div>
 
-                        <div className="flex flex-col sm:flex-row gap-3">
-                            <Button
-                                size="lg"
-                                disabled={!inStock}
-                                onClick={() => handleAddToCart(false)}
-                                className="flex-1 rounded-xl bg-btn-primary text-white font-bold h-12 shadow-md hover:scale-[1.01] transition-transform"
-                            >
-                                <ShoppingCart className="h-5 w-5 mr-2" /> Add to Cart
-                            </Button>
-                            <Button
-                                size="lg"
-                                disabled={!inStock}
-                                onClick={() => handleAddToCart(true)}
-                                className="flex-1 rounded-xl bg-amber-500 text-black font-bold h-12 shadow-md hover:bg-amber-400"
-                            >
-                                Buy Now
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => toggleWishlist(product.id)}
-                                className="h-12 w-12 rounded-xl shrink-0 border-border"
-                            >
-                                <Heart className={cn("h-5 w-5", isWishlisted && "fill-red-500 text-red-500")} />
-                            </Button>
+                            <div className="h-[1.5px] bg-gray-300 dark:bg-zinc-700 w-8 sm:w-12 mb-5 shrink-0" />
+
+                            {/* Dispatch */}
+                            <div className="flex flex-col items-center gap-1.5 text-center">
+                                <div className="w-10 h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center shadow-xs">
+                                    <Truck className="w-4 h-4" />
+                                </div>
+                                <span className="text-[11px] text-gray-500 dark:text-gray-400 leading-tight font-medium">
+                                    {deliveryDates.dispatch}
+                                </span>
+                                <span className="text-xs font-bold text-text-primary leading-none">
+                                    Dispatch
+                                </span>
+                            </div>
+
+                            <div className="h-[1.5px] bg-gray-300 dark:bg-zinc-700 w-8 sm:w-12 mb-5 shrink-0" />
+
+                            {/* Delivery */}
+                            <div className="flex flex-col items-center gap-1.5 text-center">
+                                <div className="w-10 h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center shadow-xs">
+                                    <MapPin className="w-4 h-4" />
+                                </div>
+                                <span className="text-[11px] text-gray-500 dark:text-gray-400 leading-tight font-medium">
+                                    {deliveryDates.delivery}
+                                </span>
+                                <span className="text-xs font-bold text-text-primary leading-none">
+                                    Delivery
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </motion.div>
+
+            {/* Zoom Image Lightbox Modal */}
+            <AnimatePresence>
+                {isZoomed && displayImages[selectedImage] && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsZoomed(false)}
+                        className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+                    >
+                        <button
+                            type="button"
+                            onClick={() => setIsZoomed(false)}
+                            className="absolute top-4 right-4 z-50 text-white bg-white/20 p-2 rounded-full hover:bg-white/40"
+                        >
+                            <X className="w-6 h-6" />
+                        </button>
+                        <img
+                            src={displayImages[selectedImage].url}
+                            alt=""
+                            className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Floating WhatsApp Quick Action Button */}
+            <a
+                href="https://wa.me/923286870670"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Order on WhatsApp"
+                className="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-[#25D366] text-white shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform"
+            >
+                <WhatsAppIcon className="w-7 h-7 fill-white" />
+            </a>
 
             {/* 1. HEAR FROM OUR HAPPY CUSTOMERS SECTION (HAPPY REVIEWS) */}
             <HearFromCustomers />

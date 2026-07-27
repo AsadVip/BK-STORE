@@ -61,17 +61,10 @@ const AdminAuditLogsPage = lazy(() => import("@/features/admin/pages/AdminAuditL
 const AdminBackupPage = lazy(() => import("@/features/admin/pages/AdminBackupPage"));
 const AdminPlaceholderPage = lazy(() => import("@/features/admin/pages/AdminPlaceholderPage"));
 
+import { SimpleLoader } from "@/components/ui/simple-loader";
+
 function PageFallback() {
-    return (
-        <div className="w-full min-h-[60vh]">
-            <div className="fixed top-0 left-0 right-0 z-50 h-1 overflow-hidden bg-bg-secondary">
-                <div className="h-full w-1/3 animate-[loadingbar_1.2s_ease-in-out_infinite] rounded-full bg-btn-primary" />
-            </div>
-            <div className="container-bk py-12">
-                <ProductGridSkeleton count={8} />
-            </div>
-        </div>
-    );
+    return <SimpleLoader minHeight="min-h-[70vh]" label="Loading page..." />;
 }
 
 
