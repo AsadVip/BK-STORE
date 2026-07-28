@@ -43,7 +43,7 @@ export default function CategoriesPage() {
                                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                                     />
                                 ) : (
-                                    <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-[#8B5E4B]/10 via-transparent to-[#6B4A3D]/10">
+                                    <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-black/10 via-transparent to-black/20">
                                         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-btn-primary/10 text-btn-primary mb-3">
                                             <Sparkles className="h-6 w-6" />
                                         </div>

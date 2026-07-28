@@ -294,22 +294,28 @@ export default function ProductPage() {
                 {/* Gallery Column (Desktop 6 col, Mobile 12 col) */}
                 <div className="lg:col-span-6 space-y-3">
                     <div className="relative aspect-square overflow-hidden rounded-xl border border-border/80 bg-white shadow-xs">
-                        {displayImages[selectedImage] ? (
-                            <motion.img
-                                key={selectedImage}
-                                initial={{ opacity: 0.8 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ duration: 0.2 }}
-                                src={displayImages[selectedImage].url}
-                                alt={displayImages[selectedImage].alt_text ?? product.name}
-                                className="h-full w-full object-cover cursor-pointer"
-                                onClick={() => setIsZoomed(true)}
-                            />
-                        ) : (
-                            <div className="flex h-full w-full items-center justify-center font-serif text-2xl text-text-secondary bg-gray-50">
-                                BK STORE
-                            </div>
-                        )}
+                        {(() => {
+                            const activeMainImage = (selectedVariant as any)?.image_url || displayImages[selectedImage]?.url || product.primary_image_url;
+                            if (!activeMainImage) {
+                                return (
+                                    <div className="flex h-full w-full items-center justify-center font-serif text-2xl text-text-secondary bg-gray-50">
+                                        BK STORE
+                                    </div>
+                                );
+                            }
+                            return (
+                                <motion.img
+                                    key={activeMainImage}
+                                    initial={{ opacity: 0.8 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.2 }}
+                                    src={activeMainImage}
+                                    alt={product.name}
+                                    className="h-full w-full object-cover cursor-pointer"
+                                    onClick={() => setIsZoomed(true)}
+                                />
+                            );
+                        })()}
 
                         {/* Top-Right Wishlist Heart Button Overlay */}
                         <button
@@ -850,13 +856,13 @@ export default function ProductPage() {
                 )}
             </motion.div>
 
-            {/* 5. OUR JOURNEY SO FAR STATS SECTION WITH ANIMATED NUMBERS */}
+            {/* 5. OUR JOURNEY SO FAR STATS SECTION WITH ANIMATED NUMBERS & LUXURY ICONS */}
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.5 }}
-                className="rounded-3xl border border-border bg-bg-secondary/50 p-6 sm:p-12 text-center"
+                className="rounded-3xl border border-border/80 bg-bg-secondary/40 p-6 sm:p-12 text-center shadow-sm"
             >
                 <h2 className="font-serif text-2xl sm:text-4xl font-extrabold text-text-primary tracking-tight">
                     Our Journey So Far
@@ -866,38 +872,66 @@ export default function ProductPage() {
                 </p>
 
                 <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                    <motion.div whileHover={{ scale: 1.03 }} className="rounded-2xl border border-border/80 bg-bg-primary p-5 sm:p-6 shadow-sm">
-                        <span className="font-serif text-2xl sm:text-4xl font-extrabold text-text-primary block">
-                            <AnimatedCounter end={25000} />
+                    <motion.div
+                        whileHover={{ scale: 1.04, y: -4 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex flex-col items-center rounded-2xl border border-border/80 bg-bg-primary p-6 shadow-2xs transition-all hover:shadow-lg hover:border-text-primary/50"
+                    >
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-btn-primary/10 text-btn-primary mb-3">
+                            <ShoppingBag className="h-6 w-6" />
+                        </div>
+                        <span className="font-serif text-2xl sm:text-4xl font-extrabold text-text-primary block tracking-tight">
+                            <AnimatedCounter end={5000} suffix="+" />
                         </span>
-                        <span className="text-xs font-semibold text-text-secondary mt-1 block">
+                        <span className="text-xs font-bold text-text-secondary mt-1.5 uppercase tracking-wider block">
                             Watches Delivered
                         </span>
                     </motion.div>
 
-                    <motion.div whileHover={{ scale: 1.03 }} className="rounded-2xl border border-border/80 bg-bg-primary p-5 sm:p-6 shadow-sm">
-                        <span className="font-serif text-2xl sm:text-4xl font-extrabold text-text-primary block">
-                            <AnimatedCounter end={18000} />
+                    <motion.div
+                        whileHover={{ scale: 1.04, y: -4 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex flex-col items-center rounded-2xl border border-border/80 bg-bg-primary p-6 shadow-2xs transition-all hover:shadow-lg hover:border-text-primary/50"
+                    >
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-btn-primary/10 text-btn-primary mb-3">
+                            <Heart className="h-6 w-6 fill-btn-primary/20" />
+                        </div>
+                        <span className="font-serif text-2xl sm:text-4xl font-extrabold text-text-primary block tracking-tight">
+                            <AnimatedCounter end={4000} suffix="+" />
                         </span>
-                        <span className="text-xs font-semibold text-text-secondary mt-1 block">
+                        <span className="text-xs font-bold text-text-secondary mt-1.5 uppercase tracking-wider block">
                             Happy Customers
                         </span>
                     </motion.div>
 
-                    <motion.div whileHover={{ scale: 1.03 }} className="rounded-2xl border border-border/80 bg-bg-primary p-5 sm:p-6 shadow-sm">
-                        <span className="font-serif text-2xl sm:text-4xl font-extrabold text-text-primary block">
-                            <AnimatedCounter end={350} />
+                    <motion.div
+                        whileHover={{ scale: 1.04, y: -4 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex flex-col items-center rounded-2xl border border-border/80 bg-bg-primary p-6 shadow-2xs transition-all hover:shadow-lg hover:border-text-primary/50"
+                    >
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-btn-primary/10 text-btn-primary mb-3">
+                            <Award className="h-6 w-6" />
+                        </div>
+                        <span className="font-serif text-2xl sm:text-4xl font-extrabold text-text-primary block tracking-tight">
+                            <AnimatedCounter end={350} suffix="+" />
                         </span>
-                        <span className="text-xs font-semibold text-text-secondary mt-1 block">
+                        <span className="text-xs font-bold text-text-secondary mt-1.5 uppercase tracking-wider block">
                             Watch Models
                         </span>
                     </motion.div>
 
-                    <motion.div whileHover={{ scale: 1.03 }} className="rounded-2xl border border-border/80 bg-bg-primary p-5 sm:p-6 shadow-sm">
-                        <span className="font-serif text-2xl sm:text-4xl font-extrabold text-text-primary block">
-                            <AnimatedCounter end={100} />
+                    <motion.div
+                        whileHover={{ scale: 1.04, y: -4 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex flex-col items-center rounded-2xl border border-border/80 bg-bg-primary p-6 shadow-2xs transition-all hover:shadow-lg hover:border-text-primary/50"
+                    >
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-btn-primary/10 text-btn-primary mb-3">
+                            <MapPin className="h-6 w-6" />
+                        </div>
+                        <span className="font-serif text-2xl sm:text-4xl font-extrabold text-text-primary block tracking-tight">
+                            <AnimatedCounter end={100} suffix="+" />
                         </span>
-                        <span className="text-xs font-semibold text-text-secondary mt-1 block">
+                        <span className="text-xs font-bold text-text-secondary mt-1.5 uppercase tracking-wider block">
                             Cities Served
                         </span>
                     </motion.div>

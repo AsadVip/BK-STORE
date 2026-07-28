@@ -12,8 +12,8 @@ import {
 
 const STATUS_COLORS: Record<string, string> = {
     pending: "#FF9800",
-    confirmed: "#8B5E4B",
-    processing: "#6B4A3D",
+    confirmed: "#404040",
+    processing: "#171717",
     shipped: "#2196F3",
     delivered: "#2E7D32",
     cancelled: "#C62828",
@@ -103,7 +103,7 @@ export default function AdminDashboard() {
                                 <XAxis dataKey="date" stroke="#B6B6B6" fontSize={12} />
                                 <YAxis stroke="#B6B6B6" fontSize={12} />
                                 <Tooltip contentStyle={{ background: "#1B1B1D", border: "1px solid #333", borderRadius: 12 }} />
-                                <Line type="monotone" dataKey="revenue" stroke="#8B5E4B" strokeWidth={2} dot={{ fill: "#8B5E4B" }} />
+                                <Line type="monotone" dataKey="revenue" stroke="#0D0D0D" strokeWidth={2} dot={{ fill: "#0D0D0D" }} />
                             </LineChart>
                         </ResponsiveContainer>
                     </CardContent>
@@ -116,7 +116,7 @@ export default function AdminDashboard() {
                             <PieChart>
                                 <Pie data={statusData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
                                     {statusData.map((entry) => (
-                                        <Cell key={entry.name} fill={STATUS_COLORS[entry.name] ?? "#8B5E4B"} />
+                                        <Cell key={entry.name} fill={STATUS_COLORS[entry.name] ?? "#0D0D0D"} />
                                     ))}
                                 </Pie>
                                 <Legend wrapperStyle={{ fontSize: 12 }} />

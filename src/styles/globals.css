@@ -6,56 +6,55 @@
 
 @layer base {
   :root {
-    /* shadcn/ui semantic tokens mapped to BK Store LIGHT palette (default canvas) */
+    /* shadcn/ui semantic tokens mapped to BK Store LUXURY BLACK & WHITE palette */
     --background: 0 0% 100%;
     /* #FFFFFF */
-    --foreground: 0 0% 10%;
-    /* #1A1A1A */
-    --card: 40 27% 97%;
-    /* #FAF8F4 */
-    --card-foreground: 0 0% 10%;
+    --foreground: 0 0% 5%;
+    /* #0D0D0D */
+    --card: 0 0% 98%;
+    /* #FAFAFA */
+    --card-foreground: 0 0% 5%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-    --primary: 21 32% 42%;
-    /* #8B5E4B */
+    --popover-foreground: 0 0% 5%;
+    --primary: 0 0% 5%;
+    /* #0D0D0D Obsidian Black */
     --primary-foreground: 0 0% 100%;
-    --secondary: 40 20% 94%;
-    /* #F4F1EC */
-    --secondary-foreground: 0 0% 10%;
-    --muted: 40 12% 92%;
-    --muted-foreground: 0 0% 36%;
-    /* #5C5C5C */
-    --accent: 18 26% 33%;
-    /* #6B4A3D */
+    --secondary: 0 0% 95%;
+    /* #F2F2F2 */
+    --secondary-foreground: 0 0% 5%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 40%;
+    /* #666666 */
+    --accent: 0 0% 12%;
+    /* #1F1F1F */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 74% 42%;
     /* #C62828 */
     --destructive-foreground: 0 0% 100%;
-    --border: 40 10% 85%;
-    /* light warm border */
-    --input: 40 10% 85%;
-    --ring: 21 32% 42%;
+    --border: 0 0% 88%;
+    /* sleek crisp border */
+    --input: 0 0% 88%;
+    --ring: 0 0% 5%;
     --radius: 0.75rem;
   }
 
   /* Dark surface variant — used on dark hero/banner sections */
   .dark-surface {
-    --background: 240 6% 7%;
-    /* #0F0F10 */
+    --background: 0 0% 4%;
+    /* #0A0A0B */
     --foreground: 0 0% 100%;
     /* #FFFFFF */
-    --card: 240 4% 11%;
-    /* #1B1B1D */
+    --card: 0 0% 9%;
+    /* #171717 */
     --card-foreground: 0 0% 100%;
-    --popover: 240 4% 11%;
+    --popover: 0 0% 9%;
     --popover-foreground: 0 0% 100%;
-    --muted: 240 4% 16%;
-    --muted-foreground: 0 0% 71%;
-    /* #B6B6B6 */
-    --secondary: 240 4% 16%;
+    --muted: 0 0% 14%;
+    --muted-foreground: 0 0% 70%;
+    --secondary: 0 0% 14%;
     --secondary-foreground: 0 0% 100%;
-    --border: 240 4% 20%;
-    --input: 240 4% 20%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
   }
 }
 
@@ -143,7 +142,7 @@
     left: 20%;
     width: 60%;
     height: 60%;
-    background: radial-gradient(circle, rgba(139, 94, 75, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.06) 0%, rgba(255, 255, 255, 0) 70%);
     pointer-events: none;
     z-index: 0;
     filter: blur(40px);
@@ -263,11 +262,11 @@ canvas {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(139, 94, 75, 0.25);
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(139, 94, 75, 0.45);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 @media (prefers-reduced-motion: reduce) {

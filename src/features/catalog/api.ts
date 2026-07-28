@@ -46,6 +46,25 @@ export interface ShopFilters {
     pageSize?: number;
 }
 
+export function normalizeVariantImage(v: any): string | null {
+    if (!v) return null;
+    if (typeof v.image_url === "string" && v.image_url.trim()) return v.image_url.trim();
+    if (typeof v.image === "string" && v.image.trim()) return v.image.trim();
+    let opts = v.option_values;
+    if (opts) {
+        if (typeof opts === "string") {
+            try { opts = JSON.parse(opts); } catch (e) { opts = null; }
+        }
+        if (opts && typeof opts === "object") {
+            if (typeof opts.image_url === "string" && opts.image_url.trim()) return opts.image_url.trim();
+            if (typeof opts.image === "string" && opts.image.trim()) return opts.image.trim();
+            if (typeof opts.img === "string" && opts.img.trim()) return opts.img.trim();
+            if (typeof opts.url === "string" && opts.url.trim()) return opts.url.trim();
+        }
+    }
+    return null;
+}
+
 /**
  * Fetch a single product by slug with all relations.
  */
@@ -88,7 +107,7 @@ export function useProduct(slug: string | undefined) {
             const rawVariantRows = (variants.data ?? []) as unknown as (ProductVariant & { image_url?: string })[];
             const variantRows = rawVariantRows.map((v) => ({
                 ...v,
-                image_url: v.image_url || (v.option_values && typeof v.option_values === "object" ? (v.option_values as any).image_url : null) || null,
+                image_url: normalizeVariantImage(v),
             }));
             const imageRows = (images.data ?? []) as unknown as ProductImage[];
 
@@ -109,6 +128,57 @@ export function useProduct(slug: string | undefined) {
         },
         enabled: !!slug,
         staleTime: 5 * 1000,
+    });
+}
+
+/**
+ * Fetch dynamic product variants by product_id.
+ */
+export function useProductVariantsById(productId: string | undefined) {
+    return useQuery<any[]>({
+        queryKey: ["product_variants", productId],
+        queryFn: async () => {
+            if (!productId) return [];
+            const { data, error } = await supabase
+                .from("product_variants" as any)
+                .select("*")
+                .eq("product_id", productId)
+                .eq("is_active", true)
+                .is("deleted_at", null)
+                .order("created_at", { ascending: true });
+            if (error) {
+                console.warn("Error fetching variants:", error);
+                return [];
+            }
+            const raw = (data ?? []) as any[];
+            return raw.map((v) => ({
+                ...v,
+                image_url: normalizeVariantImage(v),
+            }));
+        },
+        enabled: !!productId,
+        staleTime: 10 * 1000,
+    });
+}
+
+/**
+ * Fetch product details (like full description) by product_id.
+ */
+export function useProductDetailsById(productId: string | undefined) {
+    return useQuery({
+        queryKey: ["product_details_by_id", productId],
+        queryFn: async () => {
+            if (!productId) return null;
+            const { data, error } = await supabase
+                .from("products" as any)
+                .select("*")
+                .eq("id", productId)
+                .maybeSingle();
+            if (error || !data) return null;
+            return data as Product;
+        },
+        enabled: !!productId,
+        staleTime: 10 * 1000,
     });
 }
 

@@ -17,25 +17,26 @@ export default {
         },
         extend: {
             colors: {
-                // BK Store palette tokens — LIGHT theme (inverted from dark)
+                // BK Store palette tokens — LUXURY BLACK & WHITE palette
                 bg: {
                     primary: "#FFFFFF",
-                    secondary: "#F7F5F2",
-                    light: "#F4F1EC",
+                    secondary: "#F5F5F7",
+                    light: "#FAFAFA",
                 },
                 accent: {
-                    brown: "#6B4A3D",
+                    brown: "#171717",
+                    dark: "#0D0D0D",
                 },
                 btn: {
-                    primary: "#8B5E4B",
-                    "primary-hover": "#A46C56",
+                    primary: "#0D0D0D",
+                    "primary-hover": "#262626",
                 },
                 text: {
-                    primary: "#1A1A1A",
-                    secondary: "#5C5C5C",
+                    primary: "#0D0D0D",
+                    secondary: "#525252",
                     // Derived for dark surfaces (AA contrast)
-                    dark: "#1A1A1A",
-                    muted: "#7A7A7A",
+                    dark: "#0D0D0D",
+                    muted: "#737373",
                 },
                 state: {
                     success: "#2E7D32",

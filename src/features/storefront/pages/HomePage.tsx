@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 const VALUE_PROPS = [
-    { icon: Truck, title: "Free Delivery", desc: "On orders over Rs 5,000" },
+    { icon: Truck, title: "Free Delivery", desc: "On all orders across Pakistan" },
     { icon: ShieldCheck, title: "100% Authentic", desc: "Verified luxury products" },
     { icon: RefreshCw, title: "Easy Returns", desc: "30-day hassle-free returns" },
     { icon: Headphones, title: "24/7 Support", desc: "Always here to help" },
@@ -105,7 +105,7 @@ export default function HomePage() {
                                     Discover boutique-grade authentic luxury timepieces and footwear, curated for perfection.
                                 </p>
                                 <div className="mt-6 sm:mt-10 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-4">
-                                    <Button asChild size="lg" className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-10 text-sm sm:text-base font-extrabold bg-btn-primary text-white hover:bg-btn-primary-hover shadow-2xl rounded-2xl border border-btn-primary/50 transition-all hover:scale-105 active:scale-95">
+                                    <Button asChild size="lg" className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-10 text-sm sm:text-base font-extrabold bg-white text-black hover:bg-gray-100 shadow-2xl rounded-2xl border border-white/80 transition-all hover:scale-105 active:scale-95">
                                         {heroCtaInternal ? (
                                             <Link to={heroCtaUrl}>
                                                 {heroBanner.cta_label || (heroBanner as any).button_text || (heroBanner as any).cta_text || "Shop Collection"} <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 ml-1.5" />
@@ -139,7 +139,7 @@ export default function HomePage() {
                                 Discover a boutique-grade selection of authentic luxury timepieces, wireless earbuds, and footwear, curated for modern living.
                             </p>
                             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-                                <Button asChild size="lg" className="h-14 px-10 text-base font-bold bg-btn-primary text-white hover:bg-btn-primary-hover shadow-xl rounded-2xl">
+                                <Button asChild size="lg" className="h-14 px-10 text-base font-bold bg-white text-black hover:bg-gray-100 shadow-xl rounded-2xl">
                                     <Link to="/shop">Shop Collection <ArrowRight className="h-5 w-5 ml-1" /></Link>
                                 </Button>
                                 <Button asChild size="lg" className="h-14 px-10 text-base font-semibold bg-white/10 backdrop-blur-md text-white hover:bg-white/20 border border-white/30 rounded-2xl">

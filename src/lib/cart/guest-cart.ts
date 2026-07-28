@@ -20,6 +20,8 @@ export interface GuestCartItem {
 interface CartState {
     items: GuestCartItem[];
     couponCode: string | null;
+    isDrawerOpen: boolean;
+    setDrawerOpen: (open: boolean) => void;
     addItem: (item: GuestCartItem) => void;
     updateQuantity: (variantId: string, quantity: number) => void;
     removeItem: (variantId: string) => void;
@@ -34,11 +36,14 @@ export const useGuestCart = create<CartState>()(
         (set, get) => ({
             items: [],
             couponCode: null,
+            isDrawerOpen: false,
+            setDrawerOpen: (open) => set({ isDrawerOpen: open }),
             addItem: (item) =>
                 set((state) => {
                     const existing = state.items.find((i) => i.variant_id === item.variant_id);
                     if (existing) {
                         return {
+                            isDrawerOpen: true,
                             items: state.items.map((i) =>
                                 i.variant_id === item.variant_id
                                     ? { ...i, quantity: i.quantity + item.quantity }
@@ -46,7 +51,7 @@ export const useGuestCart = create<CartState>()(
                             ),
                         };
                     }
-                    return { items: [...state.items, item] };
+                    return { isDrawerOpen: true, items: [...state.items, item] };
                 }),
             updateQuantity: (variantId, quantity) =>
                 set((state) => ({
@@ -65,6 +70,9 @@ export const useGuestCart = create<CartState>()(
             subtotal: () => get().items.reduce((sum, i) => sum + i.unit_price * i.quantity, 0),
             count: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
         }),
-        { name: "bk-guest-cart" },
+        {
+            name: "bk-guest-cart",
+            partialize: (state) => ({ items: state.items, couponCode: state.couponCode }),
+        },
     ),
 );

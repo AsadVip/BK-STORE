@@ -26,6 +26,7 @@ export function Header() {
     const navigate = useNavigate();
     const { user, profile, isAdmin } = useAuth();
     const cartCount = useGuestCart((s) => s.count());
+    const setDrawerOpen = useGuestCart((s) => s.setDrawerOpen);
     const wishlistCount = useGuestWishlist((s) => s.productIds.length);
 
     useEffect(() => {
@@ -139,8 +140,9 @@ export function Header() {
                             </AnimatePresence>
                         </Link>
 
-                        <Link
-                            to="/cart"
+                        <button
+                            type="button"
+                            onClick={() => setDrawerOpen(true)}
                             aria-label="Cart"
                             className="relative flex h-9 w-9 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary"
                         >
@@ -157,7 +159,7 @@ export function Header() {
                                     </motion.span>
                                 )}
                             </AnimatePresence>
-                        </Link>
+                        </button>
 
                         {isAdmin && (
                             <Link
@@ -295,9 +297,12 @@ export function Header() {
                             {/* Quick stats */}
                             <div className="px-4 py-4">
                                 <div className="grid grid-cols-2 gap-2">
-                                    <Link
-                                        to="/cart"
-                                        onClick={() => setMobileOpen(false)}
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setMobileOpen(false);
+                                            setDrawerOpen(true);
+                                        }}
                                         className="flex flex-col items-center justify-center gap-1 rounded-xl border border-border/60 bg-bg-secondary/60 py-3 text-center"
                                     >
                                         <div className="relative">
@@ -307,7 +312,7 @@ export function Header() {
                                             )}
                                         </div>
                                         <span className="text-xs font-semibold text-text-secondary">My Cart</span>
-                                    </Link>
+                                    </button>
                                     <Link
                                         to="/wishlist"
                                         onClick={() => setMobileOpen(false)}

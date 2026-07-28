@@ -3,6 +3,8 @@ import { FlashSaleBar } from "@/components/storefront/flash-sale-bar";
 import { Header } from "@/components/storefront/header";
 import { Footer } from "@/components/storefront/footer";
 import { PromoBanner } from "@/components/storefront/promo-banner";
+import { CartDrawer } from "@/components/storefront/cart-drawer";
+import { QuickViewModal } from "@/components/product/quick-view-modal";
 import { useBanners } from "@/features/catalog/api";
 
 export function StorefrontLayout() {
@@ -21,6 +23,8 @@ export function StorefrontLayout() {
                 <Outlet />
             </main>
             <Footer />
+            <CartDrawer />
+            <QuickViewModal />
             
             {/* WhatsApp Floating Button */}
             <a

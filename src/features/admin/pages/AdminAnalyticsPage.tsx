@@ -115,15 +115,15 @@ export default function AdminAnalyticsPage() {
                         <AreaChart data={revenueData}>
                             <defs>
                                 <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#8B5E4B" stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor="#8B5E4B" stopOpacity={0} />
+                                    <stop offset="5%" stopColor="#0D0D0D" stopOpacity={0.3} />
+                                    <stop offset="95%" stopColor="#0D0D0D" stopOpacity={0} />
                                 </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
                             <XAxis dataKey="date" stroke="#888" fontSize={12} />
                             <YAxis stroke="#888" fontSize={12} />
                             <Tooltip contentStyle={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 12 }} />
-                            <Area type="monotone" dataKey="revenue" stroke="#8B5E4B" strokeWidth={2} fill="url(#revGrad)" />
+                            <Area type="monotone" dataKey="revenue" stroke="#0D0D0D" strokeWidth={2} fill="url(#revGrad)" />
                         </AreaChart>
                     </ResponsiveContainer>
                 </CardContent>
@@ -143,7 +143,7 @@ export default function AdminAnalyticsPage() {
                                 <XAxis dataKey="date" stroke="#888" fontSize={12} />
                                 <YAxis stroke="#888" fontSize={12} allowDecimals={false} />
                                 <Tooltip contentStyle={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 12 }} />
-                                <Bar dataKey="orders" fill="#8B5E4B" radius={[6, 6, 0, 0]} />
+                                <Bar dataKey="orders" fill="#0D0D0D" radius={[6, 6, 0, 0]} />
                             </BarChart>
                         </ResponsiveContainer>
                     </CardContent>
