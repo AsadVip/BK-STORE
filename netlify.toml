@@ -2,7 +2,42 @@
   command = "npm run build"
   publish = "dist"
 
-# --- Static SEO files ko pehle serve karo (catch-all se pehle) ---
+# --- Static SEO & Favicon files ko pehle serve karo (catch-all se pehle) ---
+[[redirects]]
+  from = "/favicon.ico"
+  to = "/favicon.ico"
+  status = 200
+
+[[redirects]]
+  from = "/favicon-*.png"
+  to = "/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/favicon.png"
+  to = "/favicon.png"
+  status = 200
+
+[[redirects]]
+  from = "/apple-touch-icon.png"
+  to = "/apple-touch-icon.png"
+  status = 200
+
+[[redirects]]
+  from = "/android-chrome-*.png"
+  to = "/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/site.webmanifest"
+  to = "/site.webmanifest"
+  status = 200
+
+[[redirects]]
+  from = "/logo.png"
+  to = "/logo.png"
+  status = 200
+
 [[redirects]]
   from = "/sitemap.xml"
   to = "/sitemap.xml"
