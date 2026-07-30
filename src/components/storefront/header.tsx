@@ -173,7 +173,7 @@ export function Header() {
                         )}
 
                         <Link
-                            to={user ? "/account" : "/login"}
+                            to={(user || (typeof window !== "undefined" && localStorage.getItem("bk_customer_email"))) ? "/account" : "/login"}
                             aria-label="Account"
                             className="flex h-9 w-9 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary"
                         >

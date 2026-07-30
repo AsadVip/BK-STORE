@@ -1,15 +1,21 @@
-import { useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import {
     LayoutDashboard, Package, FolderTree, Tag, Image as ImageIcon, Boxes,
     ShoppingCart, Users, Star, Ticket, Percent, Truck, CreditCard, Receipt,
     Bell, Settings, Globe, BarChart3, LineChart, ShieldCheck, ScrollText,
-    DatabaseBackup, LogOut, Menu, X, Store,
+    DatabaseBackup, LogOut, Menu, X, Store, Smartphone
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/app/providers/AuthProvider";
+import { useAdminNotificationsCenter } from "@/features/admin/api";
+import { registerServiceWorker } from "@/lib/firebase";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface NavItem {
     to: string;
@@ -39,10 +45,11 @@ const NAV_GROUPS: { label: string | null; items: NavItem[] }[] = [
         ],
     },
     {
-        label: "Sales",
+        label: "Sales & Customers",
         items: [
             { to: "/admin/orders", label: "Orders", icon: ShoppingCart },
-            { to: "/admin/customers", label: "Customers", icon: Users },
+            { to: "/admin/customers", label: "User Management", icon: Users },
+            { to: "/admin/notifications", label: "Notification Center", icon: Bell },
             { to: "/admin/reviews", label: "Reviews", icon: Star },
         ],
     },
@@ -76,7 +83,119 @@ const NAV_GROUPS: { label: string | null; items: NavItem[] }[] = [
 export function AdminLayout() {
     const { signOut } = useAuth();
     const navigate = useNavigate();
+    const { toast } = useToast();
+    const qc = useQueryClient();
     const [open, setOpen] = useState(false);
+
+    const { data: notifications, refetch: refetchNotifs } = useAdminNotificationsCenter();
+    const unreadCount = (notifications ?? []).filter((n: any) => !n.is_read).length;
+
+    useEffect(() => {
+        // Register FCM background service worker & request permission
+        registerServiceWorker();
+        if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
+            Notification.requestPermission();
+        }
+
+        const triggerNativePushNotification = (title: string, body: string) => {
+            if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+                try {
+                    if ("serviceWorker" in navigator) {
+                        navigator.serviceWorker.getRegistration("/").then((reg) => {
+                            if (reg) {
+                                reg.showNotification(title, {
+                                    body: body,
+                                    icon: "/download.png",
+                                    badge: "/download.png",
+                                    tag: "order-" + Date.now(),
+                                    data: { url: "/admin/orders" },
+                                });
+                            } else {
+                                new Notification(title, { body, icon: "/download.png" });
+                            }
+                        });
+                    } else {
+                        new Notification(title, { body, icon: "/download.png" });
+                    }
+                } catch (e) {
+                    console.warn("Native notification notice:", e);
+                }
+            }
+        };
+
+        // 1. Supabase Realtime Listener for new Notifications
+        const channel = supabase
+            .channel("realtime:admin-notifications")
+            .on(
+                "postgres_changes",
+                { event: "INSERT", schema: "public", table: "notifications" },
+                (payload) => {
+                    refetchNotifs();
+                    qc.invalidateQueries({ queryKey: ["admin-orders"] });
+                    qc.invalidateQueries({ queryKey: ["admin-kpis"] });
+                    qc.invalidateQueries({ queryKey: ["admin-notifications-center"] });
+
+                    const newNotif = payload.new as any;
+                    const title = newNotif.title || "🔔 New Order Received!";
+                    const body = newNotif.body || "A new order notification was received.";
+
+                    toast({
+                        title: title,
+                        description: body,
+                        variant: "success",
+                    });
+
+                    triggerNativePushNotification(title, body);
+                }
+            )
+            .subscribe();
+
+        // 2. BroadcastChannel Listener
+        let bc: BroadcastChannel | null = null;
+        try {
+            bc = new BroadcastChannel("bk_orders_channel");
+            bc.onmessage = (event) => {
+                if (event.data?.type === "ORDER_PLACED") {
+                    refetchNotifs();
+                    qc.invalidateQueries({ queryKey: ["admin-orders"] });
+                    qc.invalidateQueries({ queryKey: ["admin-kpis"] });
+                    const title = event.data.notification?.title || "🔔 New Order Received!";
+                    const body = event.data.notification?.body || "A customer placed a new order.";
+                    toast({
+                        title: title,
+                        description: body,
+                        variant: "success",
+                    });
+                    triggerNativePushNotification(title, body);
+                }
+            };
+        } catch (e) {}
+
+        // 3. Custom Event Listener
+        const handleCustomOrderEvent = (evt: any) => {
+            refetchNotifs();
+            qc.invalidateQueries({ queryKey: ["admin-orders"] });
+            qc.invalidateQueries({ queryKey: ["admin-kpis"] });
+            if (evt.detail?.notification) {
+                const title = evt.detail.notification.title || "🔔 New Order Received!";
+                const body = evt.detail.notification.body || "A new order was placed on BK Store.";
+                toast({
+                    title: title,
+                    description: body,
+                    variant: "success",
+                });
+                triggerNativePushNotification(title, body);
+            }
+        };
+
+        window.addEventListener("bk_order_event", handleCustomOrderEvent);
+
+        return () => {
+            supabase.removeChannel(channel);
+            if (bc) bc.close();
+            window.removeEventListener("bk_order_event", handleCustomOrderEvent);
+        };
+    }, [refetchNotifs, qc, toast]);
 
     const SidebarContent = (
         <div className="flex h-full flex-col">
@@ -152,8 +271,22 @@ export function AdminLayout() {
                     <button className="lg:hidden" onClick={() => setOpen(true)} aria-label="Open menu">
                         <Menu className="h-6 w-6" />
                     </button>
-                    <h1 className="font-serif text-lg font-semibold">Admin Panel</h1>
-                    <div className="w-6 lg:hidden" />
+                    <h1 className="font-serif text-lg font-semibold">BK Admin Operations</h1>
+
+                    <div className="flex items-center gap-3">
+                        <Link
+                            to="/admin/notifications"
+                            className="relative p-2 rounded-full hover:bg-muted transition-colors text-text-primary"
+                            title="Notification Center"
+                        >
+                            <Bell className="h-5 w-5" />
+                            {unreadCount > 0 && (
+                                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-600 text-[10px] font-extrabold text-white">
+                                    {unreadCount > 9 ? "9+" : unreadCount}
+                                </span>
+                            )}
+                        </Link>
+                    </div>
                 </header>
                 <main id="main-content" className="p-4 lg:p-8">
                     <Outlet />

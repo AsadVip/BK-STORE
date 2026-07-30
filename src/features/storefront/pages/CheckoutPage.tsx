@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/use-toast";
 
+import { sendAdminOrderPushNotification } from "@/lib/fcm-sender";
+
 export default function CheckoutPage() {
     const items = useGuestCart((s) => s.items);
     const subtotal = useGuestCart((s) => s.subtotal());
@@ -90,6 +92,36 @@ export default function CheckoutPage() {
         }
 
         setSubmitting(true);
+
+        // --- USER BAN SYSTEM ENFORCEMENT CHECK ---
+        try {
+            const { data: profileCheck } = await (supabase.from("profiles" as never) as any)
+                .select("status, ban_type, banned_until")
+                .or(`email.eq.${emailClean}${user?.id ? `,id.eq.${user.id}` : ""}`)
+                .maybeSingle();
+
+            if (profileCheck && profileCheck.status === "banned") {
+                let isBanned = true;
+                if (profileCheck.ban_type === "temporary" && profileCheck.banned_until) {
+                    if (new Date() > new Date(profileCheck.banned_until)) {
+                        isBanned = false;
+                    }
+                }
+                if (isBanned) {
+                    setSubmitting(false);
+                    toast({
+                        title: "Account Restricted",
+                        description: "Your account has been restricted from placing new orders. Please contact support.",
+                        variant: "destructive",
+                        duration: 8000,
+                    });
+                    return;
+                }
+            }
+        } catch (banCheckErr) {
+            console.warn("Ban check notice:", banCheckErr);
+        }
+
         try {
             const orderNum = `BK-${Math.floor(100000 + Math.random() * 900000)}`;
             const nowIso = new Date().toISOString();
@@ -123,10 +155,38 @@ export default function CheckoutPage() {
                     country: form.country,
                 };
 
+            // Save customer email locally for instant order retrieval on customer dashboard
+            localStorage.setItem("bk_customer_email", emailClean);
+            localStorage.setItem("bk_last_order_number", orderNum);
+
+            // Attempt automatic account creation in Supabase Auth if not logged in
+            let assignedUserId = user?.id ?? null;
+            if (!assignedUserId) {
+                try {
+                    const autoPassword = `BK${Math.floor(100000 + Math.random() * 900000)}!`;
+                    const { data: authResult } = await supabase.auth.signUp({
+                        email: emailClean,
+                        password: autoPassword,
+                        options: {
+                            data: {
+                                first_name: form.firstName,
+                                last_name: form.lastName,
+                                phone: form.phone,
+                            },
+                        },
+                    });
+                    if (authResult?.user) {
+                        assignedUserId = authResult.user.id;
+                    }
+                } catch (authErr) {
+                    console.warn("Notice auto signing up customer:", authErr);
+                }
+            }
+
             // Core guaranteed fields on public.orders table
             const corePayload: any = {
                 order_number: orderNum,
-                user_id: user?.id ?? null,
+                user_id: assignedUserId,
                 guest_email: emailClean,
                 email: emailClean,
                 status: "pending",
@@ -162,6 +222,17 @@ export default function CheckoutPage() {
                     .single();
 
                 if (error) {
+                    if (error.message && error.message.includes("restricted from placing new orders")) {
+                        setSubmitting(false);
+                        toast({
+                            title: "Account Restricted",
+                            description: "Your account has been restricted from placing new orders. Please contact support.",
+                            variant: "destructive",
+                            duration: 8000,
+                        });
+                        return;
+                    }
+
                     console.warn("Full payload insert notice:", error);
                     const retryPayload = { ...corePayload };
                     delete retryPayload.items;
@@ -175,12 +246,83 @@ export default function CheckoutPage() {
                     if (!retry.error) {
                         data = retry.data;
                     } else {
+                        if (retry.error.message && retry.error.message.includes("restricted from placing new orders")) {
+                            setSubmitting(false);
+                            toast({
+                                title: "Account Restricted",
+                                description: "Your account has been restricted from placing new orders. Please contact support.",
+                                variant: "destructive",
+                                duration: 8000,
+                            });
+                            return;
+                        }
                         console.error("Supabase order core insert error:", retry.error);
                     }
                 }
                 orderData = data;
-            } catch (e) {
+            } catch (e: any) {
+                if (e?.message && e.message.includes("restricted from placing new orders")) {
+                    setSubmitting(false);
+                    toast({
+                        title: "Account Restricted",
+                        description: "Your account has been restricted from placing new orders. Please contact support.",
+                        variant: "destructive",
+                        duration: 8000,
+                    });
+                    return;
+                }
                 console.warn("Supabase order exception:", e);
+            }
+
+            // Insert rows into order_items table for relational querying
+            if (orderData?.id) {
+                try {
+                    const dbItems = items.map((item: any) => {
+                        const pName = item.product_name || item.name || "Product Item";
+                        const uPrice = Number(item.unit_price || item.price || 0);
+                        const qty = Number(item.quantity || 1);
+                        return {
+                            order_id: orderData.id,
+                            product_id: item.product_id,
+                            variant_id: item.variant_id ?? null,
+                            product_name: pName,
+                            variant_name: item.variant_name ?? null,
+                            quantity: qty,
+                            unit_price: uPrice,
+                            total_price: uPrice * qty,
+                            line_total: uPrice * qty,
+                        };
+                    });
+                    await (supabase.from("order_items" as never) as any).insert(dbItems);
+                } catch (itemsErr) {
+                    console.warn("Notice inserting order_items rows:", itemsErr);
+                }
+            }
+
+            // 1. Ensure Customer Profile in Supabase (Automatic Guest Account / Profile Creation)
+            try {
+                await (supabase.rpc as any)("ensure_customer_profile", {
+                    p_email: emailClean,
+                    p_first_name: form.firstName,
+                    p_last_name: form.lastName,
+                    p_phone: form.phone,
+                });
+            } catch (profErr) {
+                console.warn("Notice updating customer profile:", profErr);
+            }
+
+            // 2. Dispatch FCM Push Notification & Save to Admin Notification Center
+            try {
+                await sendAdminOrderPushNotification({
+                    title: "🔔 New Order Received",
+                    body: `${form.firstName} ${form.lastName} placed Order #${orderNum} for PKR ${total.toLocaleString()}`,
+                    orderNumber: orderNum,
+                    customerName: `${form.firstName} ${form.lastName}`,
+                    totalAmount: total,
+                    url: "/admin/orders",
+                });
+            } catch (notifErr) {
+                console.warn("Notice dispatching FCM push notification:", notifErr);
             }
 
             const savedOrderObj = {

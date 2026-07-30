@@ -236,12 +236,17 @@ export function useAdminOrders() {
                 if (key) mergedMap.set(key, o);
             });
 
-            // Then layer DB orders over local
+            // Then layer DB orders over local, preserving items payload
             dbOrders.forEach((o) => {
                 const key = o.order_number || o.id;
                 if (key) {
                     const existing = mergedMap.get(key);
-                    mergedMap.set(key, { ...existing, ...o });
+                    mergedMap.set(key, {
+                        ...existing,
+                        ...o,
+                        items: o.items || o.order_items || existing?.items || existing?.order_items || null,
+                        order_items: o.order_items || o.items || existing?.order_items || existing?.items || null,
+                    });
                 }
             });
 
@@ -1488,3 +1493,224 @@ export function useImageUpload() {
         },
     });
 }
+
+/**
+ * Ban a customer/user profile.
+ */
+export function useBanUser() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: async ({
+            profileId,
+            reason,
+            banType = "permanent",
+            bannedUntil = null,
+        }: {
+            profileId: string;
+            reason: string;
+            banType?: "permanent" | "temporary";
+            bannedUntil?: string | null;
+        }) => {
+            // Try rpc first
+            const { error: rpcErr } = await (supabase.rpc as any)("ban_user", {
+                p_profile_id: profileId,
+                p_reason: reason,
+                p_ban_type: banType,
+                p_banned_until: bannedUntil,
+            });
+
+            if (rpcErr) {
+                // Fallback to direct update
+                const { error: updateErr } = await (supabase.from("profiles" as never) as any)
+                    .update({
+                        status: "banned",
+                        ban_reason: reason,
+                        ban_type: banType,
+                        banned_at: new Date().toISOString(),
+                        banned_until: bannedUntil,
+                        updated_at: new Date().toISOString(),
+                    })
+                    .eq("id", profileId);
+
+                if (updateErr) throw updateErr;
+            }
+        },
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ["admin-customers"] });
+            qc.invalidateQueries({ queryKey: ["admin-kpis"] });
+        },
+    });
+}
+
+/**
+ * Unban a customer/user profile.
+ */
+export function useUnbanUser() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: async (profileId: string) => {
+            const { error: rpcErr } = await (supabase.rpc as any)("unban_user", {
+                p_profile_id: profileId,
+            });
+
+            if (rpcErr) {
+                const { error: updateErr } = await (supabase.from("profiles" as never) as any)
+                    .update({
+                        status: "active",
+                        ban_reason: null,
+                        ban_type: null,
+                        banned_at: null,
+                        banned_until: null,
+                        updated_at: new Date().toISOString(),
+                    })
+                    .eq("id", profileId);
+
+                if (updateErr) throw updateErr;
+            }
+        },
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ["admin-customers"] });
+            qc.invalidateQueries({ queryKey: ["admin-kpis"] });
+        },
+    });
+}
+
+/**
+ * Super Admin Reset All Orders (Permanent deletion after backup confirmation).
+ */
+export function useResetOrders() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: async () => {
+            // Call RPC or delete all orders
+            const { data, error } = await (supabase.rpc as any)("reset_all_orders");
+            if (error) {
+                // Delete child tables first to avoid FK errors
+                await (supabase.from("order_items" as never) as any).delete().neq("id", "00000000-0000-0000-0000-000000000000");
+                await (supabase.from("payments" as never) as any).delete().neq("id", "00000000-0000-0000-0000-000000000000");
+                await (supabase.from("refunds" as never) as any).delete().neq("id", "00000000-0000-0000-0000-000000000000");
+                await (supabase.from("order_logs" as never) as any).delete().neq("id", "00000000-0000-0000-0000-000000000000");
+
+                const deleteRes = await (supabase.from("orders" as never) as any).delete().neq("id", "00000000-0000-0000-0000-000000000000");
+                if (deleteRes.error) throw deleteRes.error;
+            }
+            // Clear local backup cache
+            try {
+                localStorage.removeItem("bk_local_orders");
+            } catch (e) {}
+            return data;
+        },
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ["admin-orders"] });
+            qc.invalidateQueries({ queryKey: ["admin-kpis"] });
+            qc.invalidateQueries({ queryKey: ["admin-customers"] });
+            qc.invalidateQueries({ queryKey: ["admin-reports"] });
+            qc.invalidateQueries({ queryKey: ["admin-analytics"] });
+            qc.invalidateQueries({ queryKey: ["admin-notifications-center"] });
+            qc.invalidateQueries({ queryKey: ["orders"] });
+        },
+    });
+}
+
+/**
+ * Cancel order (Customer within 4-hour window or Admin override).
+ */
+export function useCancelOrder() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ orderId, reason }: { orderId: string; reason?: string }) => {
+            const { data: rpcData, error: rpcErr } = await (supabase.rpc as any)("cancel_customer_order", {
+                p_order_id: orderId,
+                p_reason: reason || "Customer requested cancellation",
+            });
+
+            if (rpcErr || (rpcData && rpcData.success === false)) {
+                // Fallback manual check
+                const { data: order } = await (supabase.from("orders" as never) as any)
+                    .select("placed_at, created_at, status")
+                    .eq("id", orderId)
+                    .single();
+
+                if (!order) throw new Error("Order not found");
+
+                const placedAt = new Date(order.placed_at || order.created_at).getTime();
+                const hoursDiff = (Date.now() - placedAt) / (1000 * 60 * 60);
+
+                if (hoursDiff > 4) {
+                    throw new Error("Order cancellation window has expired (4 hours limit exceeded).");
+                }
+
+                const { error: updateErr } = await (supabase.from("orders" as never) as any)
+                    .update({
+                        status: "cancelled",
+                        cancelled_at: new Date().toISOString(),
+                        cancellation_reason: reason || "Cancelled within 4 hours",
+                        updated_at: new Date().toISOString(),
+                    })
+                    .eq("id", orderId);
+
+                if (updateErr) throw updateErr;
+            }
+            return rpcData;
+        },
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ["orders"] });
+            qc.invalidateQueries({ queryKey: ["admin-orders"] });
+            qc.invalidateQueries({ queryKey: ["admin-kpis"] });
+        },
+    });
+}
+
+/**
+ * Fetch notifications for Admin Notification Center.
+ */
+export function useAdminNotificationsCenter() {
+    return useQuery<any[]>({
+        queryKey: ["admin-notifications-center"],
+        queryFn: async () => {
+            const { data, error } = await (supabase.from("notifications" as never) as any)
+                .select("*")
+                .order("created_at", { ascending: false });
+
+            if (error) {
+                console.warn("Notice fetching admin notifications:", error);
+                return [];
+            }
+            return data ?? [];
+        },
+        staleTime: 10 * 1000,
+    });
+}
+
+/**
+ * Mark notification as read.
+ */
+export function useMarkNotificationAsRead() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: async (id: string) => {
+            const { error } = await (supabase.from("notifications" as never) as any)
+                .update({ is_read: true, read_at: new Date().toISOString() })
+                .eq("id", id);
+            if (error) throw error;
+        },
+        onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-notifications-center"] }),
+    });
+}
+
+/**
+ * Delete a notification.
+ */
+export function useDeleteNotification() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: async (id: string) => {
+            const { error } = await (supabase.from("notifications" as never) as any)
+                .delete()
+                .eq("id", id);
+            if (error) throw error;
+        },
+        onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-notifications-center"] }),
+    });
+}
+

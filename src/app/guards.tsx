@@ -9,8 +9,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function RequireAuth({ children }: { children: ReactNode }) {
     const { user, loading } = useAuth();
     const location = useLocation();
+    const hasGuestEmail = typeof window !== "undefined" && Boolean(localStorage.getItem("bk_customer_email"));
+
     if (loading) return <FullPageLoader />;
-    if (!user) return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+    if (!user && !hasGuestEmail) return <Navigate to="/login" state={{ from: location.pathname }} replace />;
     return <>{children}</>;
 }
 

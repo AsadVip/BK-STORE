@@ -22,6 +22,9 @@ export default function ProfilePage() {
     const updateProfile = useUpdateProfile();
     const { toast } = useToast();
 
+    const storedEmail = typeof window !== "undefined" ? localStorage.getItem("bk_customer_email") : "";
+    const customerEmail = profile?.email || storedEmail;
+
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ProfileValues>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
@@ -61,7 +64,7 @@ export default function ProfilePage() {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
-                            <Input id="email" value={profile?.email ?? ""} disabled />
+                            <Input id="email" value={customerEmail || ""} disabled />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="phone">Phone</Label>
