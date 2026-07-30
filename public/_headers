@@ -24,6 +24,11 @@
 /google*.html
   Content-Type: text/html; charset=utf-8
 
+/firebase-messaging-sw.js
+  Content-Type: application/javascript; charset=utf-8
+  Service-Worker-Allowed: /
+  Cache-Control: no-cache, no-store, must-revalidate
+
 /*
   X-Robots-Tag: all, index, follow
   Access-Control-Allow-Origin: *

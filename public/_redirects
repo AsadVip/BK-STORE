@@ -9,5 +9,6 @@
 /robots.txt               /robots.txt               200!
 /sitemap.xml              /sitemap.xml              200!
 /google*.html             /:splat                   200!
+/firebase-messaging-sw.js /firebase-messaging-sw.js 200!
 /*                        /index.html               200
 

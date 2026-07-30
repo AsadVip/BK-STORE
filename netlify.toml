@@ -49,6 +49,11 @@
   status = 200
 
 [[redirects]]
+  from = "/firebase-messaging-sw.js"
+  to = "/firebase-messaging-sw.js"
+  status = 200
+
+[[redirects]]
   from = "/google08a651d6ae307e3c.html"
   to = "/google08a651d6ae307e3c.html"
   status = 200
@@ -58,6 +63,14 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# --- Service Worker Header ---
+[[headers]]
+  for = "/firebase-messaging-sw.js"
+  [headers.values]
+    Content-Type = "application/javascript; charset=utf-8"
+    Service-Worker-Allowed = "/"
+    Cache-Control = "no-cache, no-store, must-revalidate"
 
 # --- Headers ---
 [[headers]]
@@ -94,4 +107,4 @@
     # DNS prefetch for performance
     X-DNS-Prefetch-Control = "on"
     # Content Security Policy — restrict all resource loading to trusted sources
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://fonts.googleapis.com https://fonts.gstatic.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://wa.me;"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://*.firebaseapp.com https://*.googleapis.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.firebaseapp.com https://*.googleapis.com https://fcmregistrations.googleapis.com https://firebaseinstallations.googleapis.com https://www.google-analytics.com https://fonts.googleapis.com https://fonts.gstatic.com; worker-src 'self' blob: https://www.gstatic.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://wa.me;"
