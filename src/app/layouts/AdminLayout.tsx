@@ -141,7 +141,7 @@ export function AdminLayout() {
             }
         };
 
-        // 1. Supabase Realtime Listener for new Notifications
+        // 1. Supabase Realtime Listener for new Notifications & Global Order Broadcasts
         const channel = supabase
             .channel("realtime:admin-notifications")
             .on(
@@ -161,6 +161,26 @@ export function AdminLayout() {
                     triggerSingleNotification(notifKey, title, body);
                 }
             )
+            .subscribe();
+
+        // Global Supabase Realtime Broadcast listener (works across all devices and all user accounts)
+        const globalBroadcastChannel = supabase
+            .channel("bk_admin_global_orders")
+            .on("broadcast", { event: "NEW_ORDER_PLACED" }, (evt: any) => {
+                refetchNotifs();
+                qc.invalidateQueries({ queryKey: ["admin-orders"] });
+                qc.invalidateQueries({ queryKey: ["admin-kpis"] });
+                qc.invalidateQueries({ queryKey: ["admin-notifications-center"] });
+
+                const payload = evt.payload;
+                if (payload) {
+                    const notifKey = payload.orderNumber || payload.title || String(Date.now());
+                    const title = payload.title || "🔔 New Order Received!";
+                    const body = payload.body || "A new order was placed.";
+
+                    triggerSingleNotification(notifKey, title, body);
+                }
+            })
             .subscribe();
 
         // 2. BroadcastChannel Listener
@@ -197,6 +217,7 @@ export function AdminLayout() {
 
         return () => {
             supabase.removeChannel(channel);
+            supabase.removeChannel(globalBroadcastChannel);
             if (bc) bc.close();
             window.removeEventListener("bk_order_event", handleCustomOrderEvent);
         };

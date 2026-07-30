@@ -39,12 +39,35 @@ export async function sendAdminOrderPushNotification(payload: PushPayload): Prom
         console.warn("Notice inserting notification into Supabase:", notifErr);
     }
 
-    // 2. Broadcast via Browser BroadcastChannel & In-Tab Event for immediate open tabs
+    // 2. Broadcast via Supabase Realtime Channel & Browser BroadcastChannel for instant cross-device notifications
+    try {
+        const globalChannel = supabase.channel("bk_admin_global_orders");
+        globalChannel.subscribe((status) => {
+            if (status === "SUBSCRIBED") {
+                globalChannel.send({
+                    type: "broadcast",
+                    event: "NEW_ORDER_PLACED",
+                    payload: {
+                        title: notifTitle,
+                        body: notifBody,
+                        orderNumber: payload.orderNumber,
+                        customerName: payload.customerName,
+                        totalAmount: payload.totalAmount,
+                        url: clickUrl,
+                    },
+                });
+                setTimeout(() => supabase.removeChannel(globalChannel), 2000);
+            }
+        });
+    } catch (realtimeErr) {
+        console.warn("Supabase Realtime broadcast notice:", realtimeErr);
+    }
+
     try {
         const bc = new BroadcastChannel("bk_orders_channel");
         bc.postMessage({
             type: "ORDER_PLACED",
-            notification: { title: notifTitle, body: notifBody, url: clickUrl },
+            notification: { title: notifTitle, body: notifBody, url: clickUrl, orderNumber: payload.orderNumber },
         });
         bc.close();
     } catch (bcErr) {
@@ -55,7 +78,7 @@ export async function sendAdminOrderPushNotification(payload: PushPayload): Prom
         new CustomEvent("bk_order_event", {
             detail: {
                 action: "placed",
-                notification: { title: notifTitle, body: notifBody, url: clickUrl },
+                notification: { title: notifTitle, body: notifBody, url: clickUrl, orderNumber: payload.orderNumber },
             },
         })
     );
