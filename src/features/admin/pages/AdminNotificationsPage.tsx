@@ -110,23 +110,46 @@ export default function AdminNotificationsPage() {
     const handleEnablePushNotifications = async () => {
         setFcmRegistering(true);
         try {
+            // Check non-HTTPS warning for mobile network IP testing
+            if (typeof window !== "undefined" && window.location.protocol === "http:" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+                toast({
+                    title: "🔒 HTTPS Required for Mobile Push",
+                    description: "Mobile Chrome/Safari disables Push Notifications over insecure HTTP. Please use HTTPS or http://localhost:5173.",
+                    variant: "destructive",
+                    duration: 9000,
+                });
+                setFcmRegistering(false);
+                return;
+            }
+
             const token = await requestAndSaveFCMToken(user?.id);
             if (typeof window !== "undefined" && "Notification" in window) {
                 setNotificationPermission(Notification.permission);
             }
+
             if (token) {
                 setFcmToken(token);
                 toast({
-                    title: "Push Notifications Enabled!",
+                    title: "Push Notifications Enabled! 🎉",
                     description: "FCM Device Token registered successfully in Supabase.",
                     variant: "success",
                 });
             } else {
-                toast({
-                    title: "Push Notification Setup Notice",
-                    description: "Browser permission was denied or token generation was blocked.",
-                    variant: "destructive",
-                });
+                if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "denied") {
+                    toast({
+                        title: "🚫 Permission Blocked in Browser",
+                        description: "Notifications are blocked in Chrome/Safari settings. Tap Site Settings -> Notifications -> Allow.",
+                        variant: "destructive",
+                        duration: 9000,
+                    });
+                } else {
+                    toast({
+                        title: "Push Notification Setup Notice",
+                        description: "FCM requires HTTPS or localhost. If on iPhone, add site to Home Screen first.",
+                        variant: "destructive",
+                        duration: 9000,
+                    });
+                }
             }
         } catch (e: any) {
             toast({ title: "FCM Error", description: e?.message || "Failed to initialize FCM", variant: "destructive" });
