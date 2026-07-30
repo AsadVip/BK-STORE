@@ -114,45 +114,46 @@ export default function AdminNotificationsPage() {
             if (typeof window !== "undefined" && window.location.protocol === "http:" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
                 toast({
                     title: "🔒 HTTPS Required for Mobile Push",
-                    description: "Mobile Chrome/Safari disables Push Notifications over insecure HTTP. Please use HTTPS or http://localhost:5173.",
+                    description: "Mobile browsers (Chrome/Safari) block Push Notifications over insecure HTTP (e.g. 192.168.x.x). Please use HTTPS (SSL) or http://localhost:5173.",
                     variant: "destructive",
-                    duration: 9000,
+                    duration: 10000,
                 });
                 setFcmRegistering(false);
                 return;
             }
 
-            const token = await requestAndSaveFCMToken(user?.id);
+            const res = await requestAndSaveFCMToken(user?.id);
             if (typeof window !== "undefined" && "Notification" in window) {
                 setNotificationPermission(Notification.permission);
             }
 
-            if (token) {
-                setFcmToken(token);
+            if (res?.token) {
+                setFcmToken(res.token);
                 toast({
                     title: "Push Notifications Enabled! 🎉",
                     description: "FCM Device Token registered successfully in Supabase.",
                     variant: "success",
                 });
             } else {
+                const errorMsg = res?.error || "Unknown FCM setup error";
                 if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "denied") {
                     toast({
                         title: "🚫 Permission Blocked in Browser",
-                        description: "Notifications are blocked in Chrome/Safari settings. Tap Site Settings -> Notifications -> Allow.",
+                        description: "Notifications are blocked in browser site settings. Open Browser Settings -> Site Settings -> Notifications -> Allow.",
                         variant: "destructive",
-                        duration: 9000,
+                        duration: 10000,
                     });
                 } else {
                     toast({
-                        title: "Push Notification Setup Notice",
-                        description: "FCM requires HTTPS or localhost. If on iPhone, add site to Home Screen first.",
+                        title: "Push Notification Setup Error",
+                        description: errorMsg,
                         variant: "destructive",
-                        duration: 9000,
+                        duration: 10000,
                     });
                 }
             }
         } catch (e: any) {
-            toast({ title: "FCM Error", description: e?.message || "Failed to initialize FCM", variant: "destructive" });
+            toast({ title: "FCM Error", description: e?.message || "Failed to initialize FCM", variant: "destructive", duration: 10000 });
         } finally {
             setFcmRegistering(false);
         }
