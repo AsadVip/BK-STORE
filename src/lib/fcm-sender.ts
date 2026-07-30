@@ -11,6 +11,7 @@ interface PushPayload {
 
 /**
  * Dispatch Push Notification to all registered Admin Devices and log notification record in Supabase.
+ * Uses SECURITY DEFINER RPC so even guest/customer checkouts can insert notifications.
  */
 export async function sendAdminOrderPushNotification(payload: PushPayload): Promise<{ success: boolean; sentCount: number; errors: string[] }> {
     const errors: string[] = [];
@@ -20,26 +21,66 @@ export async function sendAdminOrderPushNotification(payload: PushPayload): Prom
     const notifBody = payload.body || `Order #${payload.orderNumber || ""} received for PKR ${payload.totalAmount || 0}`;
     const clickUrl = payload.url || "/admin/orders";
 
-    // 1. Save Notification record in Supabase for Admin Notification Center
+    // ──────────────────────────────────────────────────────────────
+    // 1. Insert notification via SECURITY DEFINER RPC (bypasses RLS)
+    //    This is the CRITICAL step — when this INSERT succeeds,
+    //    the admin's Supabase Realtime postgres_changes listener fires
+    //    and triggers the Chrome native push notification.
+    // ──────────────────────────────────────────────────────────────
+    let notifInserted = false;
     try {
-        await (supabase.from("notifications" as never) as any).insert({
-            type: "order",
-            title: notifTitle,
-            body: notifBody,
-            link: clickUrl,
-            metadata: {
-                order_number: payload.orderNumber,
-                customer_name: payload.customerName,
-                grand_total: payload.totalAmount,
-            },
-            is_read: false,
-            created_at: new Date().toISOString(),
+        // Try RPC first (SECURITY DEFINER — works for ALL users including guests)
+        const { error: rpcErr } = await (supabase as any).rpc("insert_order_notification", {
+            p_title: notifTitle,
+            p_body: notifBody,
+            p_link: clickUrl,
+            p_order_number: payload.orderNumber || null,
+            p_customer_name: payload.customerName || null,
+            p_grand_total: payload.totalAmount || 0,
         });
-    } catch (notifErr) {
-        console.warn("Notice inserting notification into Supabase:", notifErr);
+
+        if (!rpcErr) {
+            notifInserted = true;
+            console.log("✅ Order notification inserted via RPC (SECURITY DEFINER)");
+        } else {
+            console.warn("RPC insert_order_notification failed, trying direct insert:", rpcErr.message);
+        }
+    } catch (rpcCatchErr) {
+        console.warn("RPC call exception:", rpcCatchErr);
     }
 
-    // 2. Broadcast via Supabase Realtime Channel & Browser BroadcastChannel for instant cross-device notifications
+    // Fallback: Direct table insert (only works if user has RLS INSERT permission)
+    if (!notifInserted) {
+        try {
+            const { error: directErr } = await (supabase.from("notifications" as never) as any).insert({
+                type: "order",
+                title: notifTitle,
+                body: notifBody,
+                link: clickUrl,
+                metadata: {
+                    order_number: payload.orderNumber,
+                    customer_name: payload.customerName,
+                    grand_total: payload.totalAmount,
+                },
+                is_read: false,
+            });
+
+            if (!directErr) {
+                notifInserted = true;
+                console.log("✅ Order notification inserted via direct table insert");
+            } else {
+                console.warn("Direct notification insert failed (RLS blocked):", directErr.message);
+                errors.push("Notification insert blocked: " + directErr.message);
+            }
+        } catch (notifErr) {
+            console.warn("Notice inserting notification into Supabase:", notifErr);
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // 2. Supabase Realtime Broadcast (backup cross-device delivery)
+    //    This works even if the notification INSERT failed.
+    // ──────────────────────────────────────────────────────────────
     try {
         const globalChannel = supabase.channel("bk_admin_global_orders");
         globalChannel.subscribe((status) => {
@@ -56,13 +97,17 @@ export async function sendAdminOrderPushNotification(payload: PushPayload): Prom
                         url: clickUrl,
                     },
                 });
-                setTimeout(() => supabase.removeChannel(globalChannel), 2000);
+                setTimeout(() => supabase.removeChannel(globalChannel), 3000);
             }
         });
     } catch (realtimeErr) {
         console.warn("Supabase Realtime broadcast notice:", realtimeErr);
     }
 
+    // ──────────────────────────────────────────────────────────────
+    // 3. Same-browser BroadcastChannel & Custom Event
+    //    Only works if admin has another tab open in the SAME browser.
+    // ──────────────────────────────────────────────────────────────
     try {
         const bc = new BroadcastChannel("bk_orders_channel");
         bc.postMessage({
@@ -70,87 +115,22 @@ export async function sendAdminOrderPushNotification(payload: PushPayload): Prom
             notification: { title: notifTitle, body: notifBody, url: clickUrl, orderNumber: payload.orderNumber },
         });
         bc.close();
-    } catch (bcErr) {
-        console.warn("BroadcastChannel notice:", bcErr);
-    }
+    } catch (_) {}
 
-    window.dispatchEvent(
-        new CustomEvent("bk_order_event", {
-            detail: {
-                action: "placed",
-                notification: { title: notifTitle, body: notifBody, url: clickUrl, orderNumber: payload.orderNumber },
-            },
-        })
-    );
-
-    // 3. Query all active admin device tokens from Supabase (using Security Definer RPC or fallback)
-    let deviceTokens: Array<{ id: string; device_token: string }> = [];
     try {
-        const { data: rpcTokens, error: rpcErr } = await (supabase as any).rpc("get_active_admin_device_tokens");
-        if (!rpcErr && Array.isArray(rpcTokens) && rpcTokens.length > 0) {
-            deviceTokens = rpcTokens;
-        } else {
-            const { data: selectTokens } = await (supabase.from("admin_device_tokens" as never) as any)
-                .select("id, device_token");
-            if (selectTokens) deviceTokens = selectTokens;
-        }
-    } catch (e: any) {
-        console.warn("Notice fetching admin device tokens:", e);
-    }
+        window.dispatchEvent(
+            new CustomEvent("bk_order_event", {
+                detail: {
+                    action: "placed",
+                    notification: { title: notifTitle, body: notifBody, url: clickUrl, orderNumber: payload.orderNumber },
+                },
+            })
+        );
+    } catch (_) {}
 
-    if (!deviceTokens || deviceTokens.length === 0) {
-        console.log("No registered admin device tokens found in Supabase.");
-    }
-
-    // 4. Dispatch FCM push notification to each registered device token
-    const serverKey = import.meta.env.VITE_FIREBASE_SERVER_KEY;
-
-    for (const tokenRow of deviceTokens) {
-        const token = tokenRow.device_token;
-        if (!token) continue;
-
-        // A) If FCM Server Key is configured in environment, send directly via FCM HTTP API
-        if (serverKey) {
-            try {
-                const fcmRes = await fetch("https://fcm.googleapis.com/fcm/send", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `key=${serverKey}`,
-                    },
-                    body: JSON.stringify({
-                        to: token,
-                        notification: {
-                            title: notifTitle,
-                            body: notifBody,
-                            icon: "/download.png",
-                            click_action: clickUrl,
-                        },
-                        data: {
-                            title: notifTitle,
-                            body: notifBody,
-                            url: clickUrl,
-                            order_number: payload.orderNumber,
-                        },
-                        priority: "high",
-                    }),
-                });
-
-                if (fcmRes.ok) {
-                    sentCount++;
-                } else {
-                    const errData = await fcmRes.json().catch(() => ({}));
-                    console.warn(`FCM HTTP API error for token ${token}:`, errData);
-                    errors.push(`Token ${tokenRow.id}: ${JSON.stringify(errData)}`);
-                }
-            } catch (err: any) {
-                console.warn(`Failed to push FCM notification to token ${token}:`, err);
-                errors.push(`Token ${tokenRow.id}: ${err?.message || "Delivery failed"}`);
-            }
-        }
-    }
-
-    // B) Local Service Worker postMessage for same-device open browser
+    // ──────────────────────────────────────────────────────────────
+    // 4. Local Service Worker postMessage (same-device only)
+    // ──────────────────────────────────────────────────────────────
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
         try {
             const registration = await navigator.serviceWorker.getRegistration("/");
@@ -164,8 +144,8 @@ export async function sendAdminOrderPushNotification(payload: PushPayload): Prom
                 });
                 sentCount++;
             }
-        } catch (swErr) {}
+        } catch (_) {}
     }
 
-    return { success: sentCount > 0, sentCount, errors };
+    return { success: notifInserted || sentCount > 0, sentCount, errors };
 }
