@@ -97,7 +97,25 @@ export function AdminLayout() {
             Notification.requestPermission();
         }
 
-        const triggerNativePushNotification = (title: string, body: string) => {
+        // Deduplication tracking to prevent multiple duplicate toasts & popups
+        const processedKeys = new Set<string>();
+
+        const triggerSingleNotification = (keyId: string, title: string, body: string) => {
+            const cleanKey = keyId.trim() || title;
+            if (processedKeys.has(cleanKey)) {
+                return; // Already notified in this tab!
+            }
+            processedKeys.add(cleanKey);
+            setTimeout(() => processedKeys.delete(cleanKey), 10000);
+
+            // 1. Single UI Toast
+            toast({
+                title: title,
+                description: body,
+                variant: "success",
+            });
+
+            // 2. Single Native Browser Notification
             if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
                 try {
                     if ("serviceWorker" in navigator) {
@@ -107,15 +125,15 @@ export function AdminLayout() {
                                     body: body,
                                     icon: "/download.png",
                                     badge: "/download.png",
-                                    tag: "order-" + Date.now(),
+                                    tag: "order-" + cleanKey,
                                     data: { url: "/admin/orders" },
                                 });
                             } else {
-                                new Notification(title, { body, icon: "/download.png" });
+                                new Notification(title, { body, icon: "/download.png", tag: "order-" + cleanKey });
                             }
                         });
                     } else {
-                        new Notification(title, { body, icon: "/download.png" });
+                        new Notification(title, { body, icon: "/download.png", tag: "order-" + cleanKey });
                     }
                 } catch (e) {
                     console.warn("Native notification notice:", e);
@@ -136,16 +154,11 @@ export function AdminLayout() {
                     qc.invalidateQueries({ queryKey: ["admin-notifications-center"] });
 
                     const newNotif = payload.new as any;
+                    const notifKey = newNotif.id || newNotif.metadata?.order_number || newNotif.title || String(Date.now());
                     const title = newNotif.title || "🔔 New Order Received!";
                     const body = newNotif.body || "A new order notification was received.";
 
-                    toast({
-                        title: title,
-                        description: body,
-                        variant: "success",
-                    });
-
-                    triggerNativePushNotification(title, body);
+                    triggerSingleNotification(notifKey, title, body);
                 }
             )
             .subscribe();
@@ -159,14 +172,10 @@ export function AdminLayout() {
                     refetchNotifs();
                     qc.invalidateQueries({ queryKey: ["admin-orders"] });
                     qc.invalidateQueries({ queryKey: ["admin-kpis"] });
+                    const notifKey = event.data.notification?.orderNumber || event.data.notification?.title || String(Date.now());
                     const title = event.data.notification?.title || "🔔 New Order Received!";
                     const body = event.data.notification?.body || "A customer placed a new order.";
-                    toast({
-                        title: title,
-                        description: body,
-                        variant: "success",
-                    });
-                    triggerNativePushNotification(title, body);
+                    triggerSingleNotification(notifKey, title, body);
                 }
             };
         } catch (e) {}
@@ -177,14 +186,10 @@ export function AdminLayout() {
             qc.invalidateQueries({ queryKey: ["admin-orders"] });
             qc.invalidateQueries({ queryKey: ["admin-kpis"] });
             if (evt.detail?.notification) {
+                const notifKey = evt.detail.notification.orderNumber || evt.detail.notification.title || String(Date.now());
                 const title = evt.detail.notification.title || "🔔 New Order Received!";
                 const body = evt.detail.notification.body || "A new order was placed on BK Store.";
-                toast({
-                    title: title,
-                    description: body,
-                    variant: "success",
-                });
-                triggerNativePushNotification(title, body);
+                triggerSingleNotification(notifKey, title, body);
             }
         };
 
