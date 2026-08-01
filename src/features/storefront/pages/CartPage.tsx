@@ -26,17 +26,32 @@ export default function CartPage() {
     const navigate = useNavigate();
 
     const applyCoupon = async () => {
-        if (!couponInput.trim()) return;
+        const code = couponInput.trim().toUpperCase();
+        if (!code) return;
+
+        if (code === "AZADI14" || code.includes("AZADI")) {
+            const azadiDiscount = subtotal * 0.14;
+            setDiscount(azadiDiscount);
+            setCoupon(code);
+            setCouponMsg(`🇵🇰 14th August Azadi Special! Extra 14% OFF — Saving ${formatCurrency(azadiDiscount)}`);
+            toast({
+                title: "🇵🇰 AZADI14 Applied!",
+                description: `Happy Independence Day! 14% Extra OFF — Saved ${formatCurrency(azadiDiscount)}`,
+                variant: "success",
+            });
+            return;
+        }
+
         try {
             const { data, error } = await supabase.rpc("validate_coupon", {
-                p_code: couponInput.trim(),
+                p_code: code,
                 p_cart_subtotal: subtotal,
             } as never);
 
             if (error) {
                 const fallbackDiscount = subtotal * 0.10;
                 setDiscount(fallbackDiscount);
-                setCoupon(couponInput.trim().toUpperCase());
+                setCoupon(code);
                 setCouponMsg(`Promo code applied! You save ${formatCurrency(fallbackDiscount)}`);
                 toast({ title: "Coupon applied!", description: `10% discount — saving ${formatCurrency(fallbackDiscount)}`, variant: "success" });
                 return;
@@ -45,18 +60,18 @@ export default function CartPage() {
             const result = (data as unknown as { is_valid: boolean; discount_amount: number; message: string }[])?.[0];
             if (result?.is_valid) {
                 setDiscount(result.discount_amount);
-                setCoupon(couponInput.trim().toUpperCase());
+                setCoupon(code);
                 setCouponMsg(result.message);
                 toast({ title: "Coupon applied!", description: result.message, variant: "success" });
             } else {
                 setDiscount(subtotal * 0.10);
-                setCoupon(couponInput.trim().toUpperCase());
+                setCoupon(code);
                 setCouponMsg("Promo discount applied!");
                 toast({ title: "Promo applied!", description: "Discount applied to order.", variant: "success" });
             }
         } catch {
             setDiscount(subtotal * 0.10);
-            setCoupon(couponInput.trim().toUpperCase());
+            setCoupon(code);
             setCouponMsg("Promo discount applied!");
         }
     };
@@ -82,7 +97,7 @@ export default function CartPage() {
     }
 
     return (
-        <div className="container-bk py-12">
+        <div className="container-bk py-12 animate-page-fade">
             {/* Step indicator */}
             <div className="mb-10 flex items-center justify-center gap-3 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-text-secondary">
                 <span className="flex items-center gap-1.5 text-btn-primary font-extrabold">

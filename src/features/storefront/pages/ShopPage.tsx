@@ -57,15 +57,17 @@ export default function ShopPage() {
     };
 
     return (
-        <div className="container-bk py-10">
+        <div className="container-bk py-10 animate-page-fade">
             {/* Header */}
-            <div className="mb-8">
-                <p className="eyebrow mb-2">Shop</p>
-                <h1 className="font-serif text-4xl font-semibold">
-                    {activeCategory ? activeCategory.name : "All Products"}
+            <div className="mb-8 space-y-2">
+                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-[#01411C] bg-[#01411C]/10 border border-[#01411C]/20 px-3.5 py-1 rounded-full">
+                    🇵🇰 14th August Azadi Collection
+                </span>
+                <h1 className="font-serif text-3xl sm:text-5xl font-extrabold text-[#01411C]">
+                    {activeCategory ? activeCategory.name : "All Timepieces & Products"}
                 </h1>
                 {activeCategory?.description && (
-                    <p className="mt-2 max-w-2xl text-text-secondary">{activeCategory.description}</p>
+                    <p className="mt-2 max-w-2xl text-text-secondary font-medium text-sm sm:text-base">{activeCategory.description}</p>
                 )}
             </div>
 

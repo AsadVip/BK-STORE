@@ -17,7 +17,7 @@ export default {
         },
         extend: {
             colors: {
-                // BK Store palette tokens — LUXURY BLACK & WHITE palette
+                // BK Store palette tokens — LUXURY PAKISTAN INDEPENDENCE DAY PALETTE
                 bg: {
                     primary: "#FFFFFF",
                     secondary: "#F5F5F7",
@@ -26,10 +26,17 @@ export default {
                 accent: {
                     brown: "#171717",
                     dark: "#0D0D0D",
+                    gold: "#D4AF37",
+                },
+                pak: {
+                    green: "#01411C",
+                    emerald: "#064E3B",
+                    gold: "#D4AF37",
+                    "gold-hover": "#E5C158",
                 },
                 btn: {
-                    primary: "#0D0D0D",
-                    "primary-hover": "#262626",
+                    primary: "#01411C",
+                    "primary-hover": "#D4AF37",
                 },
                 text: {
                     primary: "#0D0D0D",
@@ -37,9 +44,10 @@ export default {
                     // Derived for dark surfaces (AA contrast)
                     dark: "#0D0D0D",
                     muted: "#737373",
+                    pak: "#01411C",
                 },
                 state: {
-                    success: "#2E7D32",
+                    success: "#01411C",
                     danger: "#C62828",
                     warning: "#FF9800",
                 },

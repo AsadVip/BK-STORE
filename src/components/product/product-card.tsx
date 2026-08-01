@@ -59,25 +59,25 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist, className
             whileTap={{ scale: 0.98 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
-                "group relative rounded-2xl sm:rounded-3xl border border-border/80 bg-bg-secondary/40 p-2 sm:p-3 shadow-2xs hover:shadow-xl hover:border-text-primary/60 transition-all duration-300 flex flex-col justify-between overflow-hidden",
+                "group relative rounded-2xl sm:rounded-3xl border border-[#01411C]/15 bg-white p-2.5 sm:p-3.5 shadow-md hover:shadow-2xl hover:shadow-[#01411C]/15 hover:border-[#01411C]/40 transition-all duration-300 flex flex-col justify-between overflow-hidden",
                 className,
             )}
         >
             <Link to={`/product/${product.slug}`} className="block flex-1 flex flex-col">
                 {/* Product Image Container */}
-                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl sm:rounded-2xl bg-bg-primary border border-border/50 shadow-inner">
+                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl sm:rounded-2xl bg-bg-secondary border border-border/40 shadow-inner">
                     {product.primary_image_url ? (
                         <img
                             src={product.primary_image_url}
                             alt={product.name}
                             loading="lazy"
                             className={cn(
-                                "h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-108",
+                                "h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105",
                                 outOfStock && "opacity-60 saturate-50",
                             )}
                         />
                     ) : (
-                        <div className="flex h-full w-full items-center justify-center font-serif text-xl sm:text-2xl text-text-secondary">
+                        <div className="flex h-full w-full items-center justify-center font-serif text-xl sm:text-2xl text-[#01411C]">
                             BK STORE
                         </div>
                     )}
@@ -85,13 +85,13 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist, className
                     {/* Top Badges (Left) */}
                     <div className="absolute left-2 sm:left-3 top-2 sm:top-3 flex flex-col gap-1 z-10">
                         {outOfStock && (
-                            <Badge className="bg-red-600/90 backdrop-blur-md text-white font-semibold text-[10px] sm:text-xs px-2 py-0.5 shadow-md">
+                            <Badge className="bg-slate-900/90 backdrop-blur-md text-white font-bold text-[10px] sm:text-xs px-2.5 py-0.5 shadow-md rounded-full">
                                 Out of Stock
                             </Badge>
                         )}
                         {effectiveSalePercent > 0 && !outOfStock && (
-                            <Badge className="bg-red-600 text-white font-semibold text-[10px] sm:text-xs px-2 py-0.5 shadow-md">
-                                −{effectiveSalePercent}% OFF
+                            <Badge className="bg-[#01411C] text-[#D4AF37] font-extrabold text-[10px] sm:text-xs px-2.5 py-0.5 border border-[#D4AF37]/50 shadow-md rounded-full flex items-center gap-1">
+                                <span role="img" aria-label="Pakistan Flag">🇵🇰</span> AZADI −{effectiveSalePercent}%
                             </Badge>
                         )}
                     </div>
@@ -106,21 +106,21 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist, className
                                 onToggleWishlist(product.id);
                             }}
                             aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-                            className="absolute right-2 sm:right-3 top-2 sm:top-3 z-10 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all hover:bg-black hover:scale-110 active:scale-90 shadow-md"
+                            className="absolute right-2 sm:right-3 top-2 sm:top-3 z-10 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white/90 text-[#01411C] backdrop-blur-md transition-all hover:bg-[#01411C] hover:text-[#D4AF37] hover:scale-110 active:scale-90 shadow-md border border-[#01411C]/20"
                         >
-                            <Heart className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", isWishlisted && "fill-red-500 text-red-500")} />
+                            <Heart className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", isWishlisted && "fill-[#01411C] text-[#01411C]")} />
                         </button>
                     )}
 
                     {/* Desktop Hover Full-Width Slide Button Bar — "Select options" */}
-                    <div className="hidden sm:flex absolute inset-x-0 bottom-0 opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out z-20">
+                    <div className="hidden sm:flex absolute inset-x-2 bottom-2 opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out z-20">
                         <button
                             type="button"
                             onClick={handleQuickView}
                             disabled={outOfStock}
-                            className="w-full bg-white hover:bg-black text-black hover:text-white font-bold text-xs sm:text-sm py-2.5 sm:py-3 text-center transition-colors duration-300 shadow-md tracking-normal flex items-center justify-center cursor-pointer border-t border-border/20"
+                            className="w-full bg-[#01411C] hover:bg-[#D4AF37] text-white hover:text-[#01411C] font-extrabold text-xs sm:text-sm py-2.5 rounded-[12px] text-center transition-all duration-300 shadow-lg tracking-wide flex items-center justify-center cursor-pointer border border-[#D4AF37]/40"
                         >
-                            Select options
+                            Select Options
                         </button>
                     </div>
 
@@ -133,7 +133,7 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist, className
                             onClick={handleQuickView}
                             aria-label="Quick View options & cart"
                             title="Select options"
-                            className="flex h-9 w-9 items-center justify-center rounded-full bg-black text-white shadow-lg shadow-black/30 border border-white/20 transition-all active:scale-90"
+                            className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-[#01411C] text-white shadow-lg border border-[#D4AF37]/40 transition-all active:scale-90"
                         >
                             <ShoppingBag className="h-4 w-4 text-white" />
                         </motion.button>
@@ -141,37 +141,37 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist, className
                 </div>
 
                 {/* Details Section */}
-                <div className="mt-2 sm:mt-3 px-0.5 space-y-1.5 flex-1 flex flex-col justify-between">
+                <div className="mt-2.5 sm:mt-3.5 px-0.5 space-y-1.5 flex-1 flex flex-col justify-between">
                     <div>
-                        <div className="flex items-center justify-between gap-1 mb-0.5 min-w-0">
-                            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-text-secondary truncate max-w-[110px]">
-                                {product.brand_name || "LUXURY EDITION"}
+                        <div className="flex items-center justify-between gap-1 mb-1 min-w-0">
+                            <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest text-[#01411C] truncate max-w-[120px]">
+                                {product.brand_name || "LUXURY TIMEPIECE"}
                             </span>
-                            <div className="flex items-center gap-0.5 text-amber-400 text-[10px] sm:text-xs font-medium shrink-0">
-                                <Star className="h-3 w-3 fill-amber-400" />
+                            <div className="flex items-center gap-0.5 text-[#D4AF37] text-[10px] sm:text-xs font-bold shrink-0">
+                                <Star className="h-3 w-3 fill-[#D4AF37] text-[#D4AF37]" />
                                 <span>{(product.rating_average || 5.0).toFixed(1)}</span>
                             </div>
                         </div>
 
-                        <h3 className="line-clamp-2 sm:line-clamp-1 font-sans text-xs sm:text-base font-semibold text-text-primary group-hover:text-text-primary/80 transition-colors leading-tight">
+                        <h3 className="line-clamp-2 sm:line-clamp-1 font-sans text-xs sm:text-base font-bold text-text-primary group-hover:text-[#01411C] transition-colors leading-snug">
                             {product.name}
                         </h3>
                     </div>
 
                     {/* Price and Savings Row */}
-                    <div className="flex items-center justify-between gap-1 pt-1.5 border-t border-border/40 flex-wrap min-w-0">
+                    <div className="flex items-center justify-between gap-1 pt-2 border-t border-slate-100 flex-wrap min-w-0">
                         <div className="flex items-baseline gap-1.5 min-w-0">
-                            <span className={`font-sans text-sm sm:text-base font-bold ${isOnSale || (flashSale?.is_active) ? "text-red-600 dark:text-red-400" : "text-text-primary"}`}>
+                            <span className="font-sans text-sm sm:text-base font-extrabold text-[#01411C]">
                                 {formatCurrency(salePrice)}
                             </span>
                             {(isOnSale || (flashSale?.is_active && compareAt && compareAt > salePrice)) && compareAt && compareAt > salePrice && (
-                                <span className="text-[10px] sm:text-xs text-text-secondary line-through decoration-red-400">
+                                <span className="text-[10px] sm:text-xs text-slate-400 line-through decoration-slate-400 font-medium">
                                     {formatCurrency(compareAt)}
                                 </span>
                             )}
                         </div>
                         {effectiveSalePercent > 0 && !outOfStock && (
-                            <span className="shrink-0 text-[9px] sm:text-[10px] font-bold text-red-600 dark:text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded-md border border-red-500/20">
+                            <span className="shrink-0 text-[9px] sm:text-[10px] font-extrabold text-[#01411C] bg-[#D4AF37]/20 px-2 py-0.5 rounded-md border border-[#D4AF37]/50">
                                 -{effectiveSalePercent}%
                             </span>
                         )}

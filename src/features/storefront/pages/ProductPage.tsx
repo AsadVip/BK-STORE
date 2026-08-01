@@ -274,7 +274,7 @@ export default function ProductPage() {
         : [];
 
     return (
-        <div className="container-bk py-6 sm:py-10 pb-24 sm:pb-32 space-y-12 sm:space-y-20 max-w-6xl mx-auto">
+        <div className="container-bk py-6 sm:py-10 pb-24 sm:pb-32 space-y-12 sm:space-y-20 max-w-6xl mx-auto animate-page-fade">
             {/* Breadcrumb */}
             <nav className="flex items-center gap-1.5 text-xs text-text-secondary font-medium tracking-normal mb-2">
                 <Link to="/" className="hover:text-text-primary transition-colors">Home</Link>
@@ -366,7 +366,7 @@ export default function ProductPage() {
 
                         {/* Price Display */}
                         <div className="mt-2.5 flex items-center gap-3 flex-wrap">
-                            <span className="font-sans text-xl sm:text-2xl font-bold text-red-600 dark:text-red-500">
+                            <span className="font-sans text-xl sm:text-2xl font-extrabold text-[#01411C]">
                                 {formatCurrency(salePrice)}
                             </span>
                             {compareAt && compareAt > salePrice && (
@@ -375,10 +375,16 @@ export default function ProductPage() {
                                 </span>
                             )}
                             {(compareAt && compareAt > salePrice) && (
-                                <span className="bg-[#e53935] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide">
-                                    SAVERS.{formatCurrency(compareAt - salePrice).replace("Rs.", "").trim()}
+                                <span className="bg-[#01411C] text-[#D4AF37] text-[11px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wide border border-[#D4AF37]/40 flex items-center gap-1 shadow-xs">
+                                    <span role="img" aria-label="Pakistan Flag">🇵🇰</span> AZADI SAVE {formatCurrency(compareAt - salePrice)}
                                 </span>
                             )}
+                        </div>
+
+                        {/* 14th August Azadi Voucher Tag */}
+                        <div className="mt-3 inline-flex items-center gap-2 rounded-xl bg-[#01411C]/10 border border-[#01411C]/20 px-3.5 py-1.5 text-xs font-bold text-[#01411C]">
+                            <span role="img" aria-label="Pakistan Flag">🇵🇰</span>
+                            <span>AZADI SPECIAL: Use Code <strong className="text-[#01411C] underline font-extrabold">AZADI14</strong> for Extra 14% OFF</span>
                         </div>
 
                         {/* Live Viewer Counter */}

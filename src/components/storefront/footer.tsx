@@ -53,34 +53,34 @@ export function Footer() {
     };
 
     return (
-        <footer className="mt-24 border-t border-border/60 bg-bg-secondary text-text-secondary">
+        <footer className="mt-24 border-t border-[#D4AF37]/35 bg-gradient-to-b from-[#01411C]/5 via-[#F8FAFC] to-[#F1F5F9] text-text-secondary">
             {footerBanners && footerBanners.length > 0 && (
                 <div className="container-bk pt-8">
                     <PromoBanner banner={footerBanners[0]} variant="compact" />
                 </div>
             )}
-            <div className="container-bk py-16">
-                <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
+            <div className="container-bk py-16 sm:py-20">
+                <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
                     {/* Brand + social + Contact */}
                     <div className="space-y-4">
                         <Link to="/">
                             <BkLogo size="md" variant="full" />
                         </Link>
                         <p className="text-sm leading-relaxed text-text-secondary">
-                            A boutique-grade shopping experience — curated for quality and crafted for living.
+                            Pakistan's premier destination for authentic luxury timepieces and boutique lifestyle products.
                         </p>
 
                         {/* Social Media Links */}
-                        <div className="flex items-center gap-2.5 pt-2 flex-wrap">
+                        <div className="flex items-center gap-2.5 pt-3 flex-wrap">
                             <a
                                 href="https://www.facebook.com/share/1DNBpccQJ1/"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="Facebook"
                                 title="Facebook Page"
-                                className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-bg-primary text-text-secondary transition-all hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2] hover:scale-105"
+                                className="flex h-10 w-10 items-center justify-center rounded-[12px] border border-[#01411C]/20 bg-white text-[#01411C] transition-all hover:bg-[#01411C] hover:text-[#D4AF37] hover:border-[#D4AF37] hover:scale-105 shadow-sm"
                             >
-                                <Facebook className="h-4 w-4" />
+                                <Facebook className="h-4.5 w-4.5" />
                             </a>
                             <a
                                 href="https://www.instagram.com/bkstore.hub?igsh=am9tZGNzOHlicHdu"
@@ -88,9 +88,9 @@ export function Footer() {
                                 rel="noopener noreferrer"
                                 aria-label="Instagram"
                                 title="Instagram @bkstore.hub"
-                                className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-bg-primary text-text-secondary transition-all hover:bg-gradient-to-tr hover:from-amber-500 hover:via-rose-500 hover:to-purple-600 hover:text-white hover:border-transparent hover:scale-105"
+                                className="flex h-10 w-10 items-center justify-center rounded-[12px] border border-[#01411C]/20 bg-white text-[#01411C] transition-all hover:bg-[#01411C] hover:text-[#D4AF37] hover:border-[#D4AF37] hover:scale-105 shadow-sm"
                             >
-                                <Instagram className="h-4 w-4" />
+                                <Instagram className="h-4.5 w-4.5" />
                             </a>
                             <a
                                 href="https://tiktok.com/@bkstore.hub"
@@ -98,9 +98,9 @@ export function Footer() {
                                 rel="noopener noreferrer"
                                 aria-label="TikTok"
                                 title="TikTok @bkstore.hub"
-                                className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-bg-primary text-text-secondary transition-all hover:bg-black hover:text-white hover:border-black dark:hover:bg-white dark:hover:text-black hover:scale-105"
+                                className="flex h-10 w-10 items-center justify-center rounded-[12px] border border-[#01411C]/20 bg-white text-[#01411C] transition-all hover:bg-[#01411C] hover:text-[#D4AF37] hover:border-[#D4AF37] hover:scale-105 shadow-sm"
                             >
-                                <TikTokIcon className="h-4 w-4" />
+                                <TikTokIcon className="h-4.5 w-4.5" />
                             </a>
                             <a
                                 href="https://wa.me/923286870670"
@@ -108,20 +108,20 @@ export function Footer() {
                                 rel="noopener noreferrer"
                                 aria-label="WhatsApp"
                                 title="WhatsApp 03286870670"
-                                className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-bg-primary text-text-secondary transition-all hover:bg-[#25D366] hover:text-white hover:border-[#25D366] hover:scale-105"
+                                className="flex h-10 w-10 items-center justify-center rounded-[12px] border border-[#01411C]/20 bg-white text-[#01411C] transition-all hover:bg-[#01411C] hover:text-[#D4AF37] hover:border-[#D4AF37] hover:scale-105 shadow-sm"
                             >
-                                <WhatsAppIcon className="h-4 w-4" />
+                                <WhatsAppIcon className="h-4.5 w-4.5" />
                             </a>
                         </div>
                     </div>
 
                     {/* Shop links */}
                     <div>
-                        <h4 className="mb-4 font-sans text-xs font-bold uppercase tracking-wider text-text-primary">Quick Navigation</h4>
-                        <ul className="space-y-2.5">
+                        <h4 className="mb-4 font-sans text-xs font-extrabold uppercase tracking-widest text-[#01411C]">Quick Navigation</h4>
+                        <ul className="space-y-3">
                             {SHOP_LINKS.map((l) => (
                                 <li key={l.to}>
-                                    <Link to={l.to} className="text-sm transition-colors hover:text-text-primary">{l.label}</Link>
+                                    <Link to={l.to} className="text-sm font-medium transition-colors hover:text-[#01411C]">{l.label}</Link>
                                 </li>
                             ))}
                         </ul>
@@ -129,31 +129,31 @@ export function Footer() {
 
                     {/* Contact & Support */}
                     <div>
-                        <h4 className="mb-4 font-sans text-xs font-bold uppercase tracking-wider text-text-primary">Contact & Support</h4>
-                        <ul className="space-y-3 text-sm">
+                        <h4 className="mb-4 font-sans text-xs font-extrabold uppercase tracking-widest text-[#01411C]">Contact & Support</h4>
+                        <ul className="space-y-3.5 text-sm">
                             <li className="flex items-start gap-2.5">
-                                <Phone className="h-4 w-4 text-btn-primary shrink-0 mt-0.5" />
+                                <Phone className="h-4 w-4 text-[#01411C] shrink-0 mt-0.5" />
                                 <div>
-                                    <span className="block text-xs font-semibold text-text-primary">Call / WhatsApp</span>
-                                    <a href="tel:03286870670" className="hover:underline hover:text-btn-primary transition-colors font-medium">
+                                    <span className="block text-xs font-bold text-text-primary">Call / WhatsApp</span>
+                                    <a href="tel:03286870670" className="hover:underline hover:text-[#01411C] transition-colors font-medium">
                                         0328 6870670
                                     </a>
                                 </div>
                             </li>
                             <li className="flex items-start gap-2.5">
-                                <WhatsAppIcon className="h-4 w-4 text-[#25D366] shrink-0 mt-0.5" />
+                                <WhatsAppIcon className="h-4 w-4 text-[#01411C] shrink-0 mt-0.5" />
                                 <div>
-                                    <span className="block text-xs font-semibold text-text-primary">WhatsApp Direct</span>
-                                    <a href="https://wa.me/923286870670" target="_blank" rel="noopener noreferrer" className="hover:underline text-[#25D366] font-medium">
+                                    <span className="block text-xs font-bold text-text-primary">WhatsApp Direct</span>
+                                    <a href="https://wa.me/923286870670" target="_blank" rel="noopener noreferrer" className="hover:underline text-[#01411C] font-semibold">
                                         +92 328 6870670
                                     </a>
                                 </div>
                             </li>
                             <li className="flex items-start gap-2.5">
-                                <MapPin className="h-4 w-4 text-btn-primary shrink-0 mt-0.5" />
+                                <MapPin className="h-4 w-4 text-[#01411C] shrink-0 mt-0.5" />
                                 <div>
-                                    <span className="block text-xs font-semibold text-text-primary">Store Location</span>
-                                    <span className="text-xs leading-snug text-text-secondary block">
+                                    <span className="block text-xs font-bold text-text-primary">Store Location</span>
+                                    <span className="text-xs leading-snug text-text-secondary block font-medium">
                                         Al Quresh Phase 2, Sher Shah Road, Multan
                                     </span>
                                 </div>
@@ -163,28 +163,38 @@ export function Footer() {
 
                     {/* Newsletter */}
                     <div>
-                        <h4 className="mb-4 font-sans text-xs font-bold uppercase tracking-wider text-text-primary">Stay Connected</h4>
-                        <p className="mb-4 text-sm text-text-secondary">Join our community for curated drops and exclusive offers.</p>
-                        <form onSubmit={onSubscribe} className="flex flex-col gap-2.5">
-                            <Input type="email" required placeholder="Enter your email" aria-label="Email address" className="bg-bg-primary border-border" />
-                            <Button type="submit" size="sm" className="bg-btn-primary text-white hover:bg-btn-primary-hover shadow-sm">
+                        <h4 className="mb-4 font-sans text-xs font-extrabold uppercase tracking-widest text-[#01411C]">Stay Connected</h4>
+                        <p className="mb-4 text-sm text-text-secondary font-medium">Join our exclusive circle for curated 14th August offers and drops.</p>
+                        <form onSubmit={onSubscribe} className="flex flex-col gap-3">
+                            <Input
+                                type="email"
+                                required
+                                placeholder="Enter your email"
+                                aria-label="Email address"
+                                className="bg-white border-[#01411C]/30 rounded-[12px] h-11 focus-visible:ring-[#01411C] focus-visible:border-[#D4AF37] text-sm placeholder:text-slate-400"
+                            />
+                            <Button
+                                type="submit"
+                                size="sm"
+                                className="h-11 rounded-[12px] bg-[#01411C] text-white hover:bg-[#D4AF37] hover:text-[#01411C] font-extrabold transition-all duration-300 border border-[#D4AF37]/40 shadow-md"
+                            >
                                 Subscribe
                             </Button>
                         </form>
                     </div>
                 </div>
 
-                <div className="mt-12 flex flex-col items-center justify-center gap-4 border-t border-border/60 pt-8 sm:flex-row sm:justify-between flex-wrap">
-                    <div className="flex items-center gap-3 text-xs text-text-secondary text-center">
+                <div className="mt-14 flex flex-col items-center justify-center gap-4 border-t border-[#01411C]/15 pt-8 sm:flex-row sm:justify-between flex-wrap">
+                    <div className="flex items-center gap-3 text-xs text-text-secondary text-center font-medium">
                         <span>© {new Date().getFullYear()} BKStore24 (bkstore24.com). All rights reserved.</span>
                     </div>
-                    <div className="flex items-center gap-3 sm:gap-4 text-text-secondary text-xs flex-wrap justify-center">
-                        <span className="flex items-center gap-1.5"><Banknote className="h-4 w-4 text-btn-primary shrink-0" /> Cash on Delivery</span>
-                        <span className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-state-success shrink-0" /> Secure Checkout</span>
+                    <div className="flex items-center gap-3 sm:gap-5 text-text-secondary text-xs flex-wrap justify-center font-medium">
+                        <span className="flex items-center gap-1.5"><Banknote className="h-4 w-4 text-[#01411C] shrink-0" /> Cash on Delivery</span>
+                        <span className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-[#01411C] shrink-0" /> Secure Checkout</span>
                     </div>
-                    <div className="flex gap-4 sm:gap-6 flex-wrap justify-center">
+                    <div className="flex gap-4 sm:gap-6 flex-wrap justify-center font-medium">
                         {LEGAL_LINKS.map((l) => (
-                            <Link key={l.to} to={l.to} className="text-xs transition-colors hover:text-text-primary">{l.label}</Link>
+                            <Link key={l.to} to={l.to} className="text-xs transition-colors hover:text-[#01411C]">{l.label}</Link>
                         ))}
                     </div>
                 </div>

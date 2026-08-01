@@ -298,3 +298,129 @@ canvas {
     transform: translateX(200%);
   }
 }
+
+/* Soft Fireworks & Sparkle Animations */
+@keyframes fireworkBurst {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@keyframes floatParticle {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-40px) rotate(180deg);
+    opacity: 0.1;
+  }
+}
+
+@keyframes goldGlowPulse {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.2), inset 0 0 10px rgba(212, 175, 55, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.45), inset 0 0 15px rgba(212, 175, 55, 0.2);
+  }
+}
+
+.animate-firework {
+  animation: fireworkBurst 3.5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.animate-particle {
+  animation: floatParticle 6s ease-in-out infinite;
+}
+
+.gold-glow-pulse {
+  animation: goldGlowPulse 4s ease-in-out infinite;
+}
+
+/* Luxury Green & Gold Utilities */
+.bg-pak-green {
+  background-color: #01411C;
+}
+
+.text-pak-green {
+  color: #01411C;
+}
+
+.border-pak-gold {
+  border-color: rgba(212, 175, 55, 0.4);
+}
+
+.text-pak-gold {
+  color: #D4AF37;
+}
+
+/* Luxury 12px Rounded Button Base */
+.btn-pak-primary {
+  background-color: #01411C;
+  color: #FFFFFF;
+  border-radius: 12px;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(1, 65, 28, 0.25);
+}
+
+.btn-pak-primary:hover {
+  background-color: #D4AF37;
+  color: #01411C;
+  border-color: #D4AF37;
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
+  transform: translateY(-2px);
+}
+
+.btn-pak-secondary {
+  background-color: rgba(1, 65, 28, 0.15);
+  color: #FFFFFF;
+  border-radius: 12px;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  backdrop-filter: blur(12px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-pak-secondary:hover {
+  background-color: rgba(212, 175, 55, 0.2);
+  color: #D4AF37;
+  border-color: #D4AF37;
+  transform: translateY(-2px);
+}
+
+/* Page & Element Transition Smooth Animations */
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-fade {
+  animation: pageFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.smooth-card-hover {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.smooth-card-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 36px -8px rgba(1, 65, 28, 0.22);
+}
