@@ -29,18 +29,7 @@ export default function CartPage() {
         const code = couponInput.trim().toUpperCase();
         if (!code) return;
 
-        if (code === "AZADI14" || code.includes("AZADI")) {
-            const azadiDiscount = subtotal * 0.14;
-            setDiscount(azadiDiscount);
-            setCoupon(code);
-            setCouponMsg(`🇵🇰 14th August Azadi Special! Extra 14% OFF — Saving ${formatCurrency(azadiDiscount)}`);
-            toast({
-                title: "🇵🇰 AZADI14 Applied!",
-                description: `Happy Independence Day! 14% Extra OFF — Saved ${formatCurrency(azadiDiscount)}`,
-                variant: "success",
-            });
-            return;
-        }
+
 
         try {
             const { data, error } = await supabase.rpc("validate_coupon", {

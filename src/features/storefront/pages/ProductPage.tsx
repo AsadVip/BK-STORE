@@ -376,15 +376,9 @@ export default function ProductPage() {
                             )}
                             {(compareAt && compareAt > salePrice) && (
                                 <span className="bg-[#01411C] text-[#D4AF37] text-[11px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wide border border-[#D4AF37]/40 flex items-center gap-1 shadow-xs">
-                                    <span role="img" aria-label="Pakistan Flag">🇵🇰</span> AZADI SAVE {formatCurrency(compareAt - salePrice)}
+                                    SAVE {formatCurrency(compareAt - salePrice)}
                                 </span>
                             )}
-                        </div>
-
-                        {/* 14th August Azadi Voucher Tag */}
-                        <div className="mt-3 inline-flex items-center gap-2 rounded-xl bg-[#01411C]/10 border border-[#01411C]/20 px-3.5 py-1.5 text-xs font-bold text-[#01411C]">
-                            <span role="img" aria-label="Pakistan Flag">🇵🇰</span>
-                            <span>AZADI SPECIAL: Use Code <strong className="text-[#01411C] underline font-extrabold">AZADI14</strong> for Extra 14% OFF</span>
                         </div>
 
                         {/* Live Viewer Counter */}

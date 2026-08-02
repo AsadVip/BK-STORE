@@ -91,7 +91,7 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist, className
                         )}
                         {effectiveSalePercent > 0 && !outOfStock && (
                             <Badge className="bg-[#01411C] text-[#D4AF37] font-extrabold text-[10px] sm:text-xs px-2.5 py-0.5 border border-[#D4AF37]/50 shadow-md rounded-full flex items-center gap-1">
-                                <span role="img" aria-label="Pakistan Flag">🇵🇰</span> AZADI −{effectiveSalePercent}%
+                                −{effectiveSalePercent}% OFF
                             </Badge>
                         )}
                     </div>

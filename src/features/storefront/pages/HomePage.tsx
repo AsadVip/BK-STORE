@@ -159,13 +159,6 @@ export default function HomePage() {
                                         <Link to="/categories">Explore Collection</Link>
                                     </Button>
                                 </div>
-
-                                {/* Promo Coupon Box */}
-                                <div className="mt-6 sm:mt-8 inline-flex items-center gap-2 rounded-2xl bg-black/60 backdrop-blur-md px-4 sm:px-6 py-2.5 text-xs sm:text-sm font-bold text-white border border-[#D4AF37]/60 shadow-xl">
-                                    <Tag className="h-4 w-4 text-[#D4AF37] shrink-0" />
-                                    <span className="text-[#D4AF37] font-extrabold uppercase">AZADI OFFER:</span>
-                                    <span className="text-white/90">Use Code <strong className="text-[#D4AF37] underline decoration-[#D4AF37] font-extrabold">AZADI14</strong> for Extra 14% OFF + Free Gift Box</span>
-                                </div>
                             </motion.div>
                         </AnimatePresence>
                     )}
