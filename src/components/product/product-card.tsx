@@ -30,18 +30,11 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist, className
     const { data: flashSale } = useFlashSaleSetting();
     const openQuickView = useQuickView((s) => s.openQuickView);
 
-    let price = product.base_price;
-    let compareAt = product.compare_at_price;
-
-    // Apply global Flash Sale if active
-    if (flashSale?.is_active && flashSale?.discount_percentage) {
-        const discountRatio = (100 - flashSale.discount_percentage) / 100;
-        compareAt = compareAt ?? product.base_price;
-        price = product.base_price * discountRatio;
-    }
-
-    const { isOnSale, salePrice, discountPercent } = computeSalePrice(price, compareAt);
-    const effectiveSalePercent = flashSale?.is_active ? flashSale.discount_percentage : discountPercent;
+    const { isOnSale, salePrice, compareAt, discountPercent } = computeSalePrice(
+        product.base_price,
+        product.compare_at_price,
+        flashSale,
+    );
     const outOfStock = !product.in_stock;
 
     const handleQuickView = (e: React.MouseEvent) => {
@@ -89,9 +82,9 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist, className
                                 Out of Stock
                             </Badge>
                         )}
-                        {effectiveSalePercent > 0 && !outOfStock && (
+                        {discountPercent > 0 && !outOfStock && (
                             <Badge className="bg-[#01411C] text-[#D4AF37] font-extrabold text-[10px] sm:text-xs px-2.5 py-0.5 border border-[#D4AF37]/50 shadow-md rounded-full flex items-center gap-1">
-                                −{effectiveSalePercent}% OFF
+                                −{discountPercent}% OFF
                             </Badge>
                         )}
                     </div>
@@ -164,15 +157,15 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist, className
                             <span className="font-sans text-sm sm:text-base font-extrabold text-[#01411C]">
                                 {formatCurrency(salePrice)}
                             </span>
-                            {(isOnSale || (flashSale?.is_active && compareAt && compareAt > salePrice)) && compareAt && compareAt > salePrice && (
+                            {isOnSale && compareAt && compareAt > salePrice && (
                                 <span className="text-[10px] sm:text-xs text-slate-400 line-through decoration-slate-400 font-medium">
                                     {formatCurrency(compareAt)}
                                 </span>
                             )}
                         </div>
-                        {effectiveSalePercent > 0 && !outOfStock && (
+                        {discountPercent > 0 && !outOfStock && (
                             <span className="shrink-0 text-[9px] sm:text-[10px] font-extrabold text-[#01411C] bg-[#D4AF37]/20 px-2 py-0.5 rounded-md border border-[#D4AF37]/50">
-                                -{effectiveSalePercent}%
+                                -{discountPercent}%
                             </span>
                         )}
                     </div>

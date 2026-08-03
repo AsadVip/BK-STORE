@@ -5,6 +5,7 @@ import { X, Plus, Minus, ShoppingBag, ShieldCheck, Check } from "lucide-react";
 import { useQuickView } from "@/lib/cart/use-quick-view-store";
 import { useGuestCart } from "@/lib/cart/guest-cart";
 import { useProductVariantsById, useProductDetailsById } from "@/features/catalog/api";
+import { useFlashSaleSetting } from "@/features/admin/api";
 import { computeSalePrice, formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -14,6 +15,7 @@ export function QuickViewModal() {
     const addItem = useGuestCart((s) => s.addItem);
     const { toast } = useToast();
     const navigate = useNavigate();
+    const { data: flashSale } = useFlashSaleSetting();
 
     const [quantity, setQuantity] = useState(1);
     const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
@@ -39,11 +41,11 @@ export function QuickViewModal() {
 
     // Price, compareAt, SKU, Image, and Stock computation
     const basePrice = activeVariant?.price ?? product.base_price;
-    const compareAt = activeVariant?.compare_at_price ?? product.compare_at_price;
+    const rawCompareAt = activeVariant?.compare_at_price ?? product.compare_at_price;
     const activeImage = activeVariant?.image_url || product.primary_image_url;
     const activeSku = activeVariant?.sku || `${product.slug}-default`;
 
-    const { isOnSale, salePrice, discountPercent } = computeSalePrice(basePrice, compareAt);
+    const { isOnSale, salePrice, compareAt, discountPercent } = computeSalePrice(basePrice, rawCompareAt, flashSale);
 
     // Stock checking
     const outOfStock = activeVariant

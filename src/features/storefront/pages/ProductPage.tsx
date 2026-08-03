@@ -176,17 +176,11 @@ export default function ProductPage() {
     }
 
     const selectedVariant = product.variants.find((v) => v.id === selectedVariantId) ?? product.variants[0] ?? null;
-    let basePrice = selectedVariant?.price ?? product.base_price;
-    let compareAt = selectedVariant?.compare_at_price ?? product.compare_at_price;
+    const basePrice = selectedVariant?.price ?? product.base_price;
+    const rawCompareAt = selectedVariant?.compare_at_price ?? product.compare_at_price;
 
-    // Flash Sale integration
-    if (flashSale?.is_active && flashSale?.discount_percentage) {
-        compareAt = compareAt ?? basePrice;
-        basePrice = basePrice * ((100 - flashSale.discount_percentage) / 100);
-    }
-
-    const { isOnSale, salePrice, discountPercent } = computeSalePrice(basePrice, compareAt);
-    const effectiveDiscount = flashSale?.is_active ? flashSale.discount_percentage : discountPercent;
+    const { isOnSale, salePrice, compareAt, discountPercent } = computeSalePrice(basePrice, rawCompareAt, flashSale);
+    const effectiveDiscount = discountPercent;
     const stockCount = (selectedVariant && selectedVariant.stock_quantity > 0) ? selectedVariant.stock_quantity : 500;
     const inStock = true;
 

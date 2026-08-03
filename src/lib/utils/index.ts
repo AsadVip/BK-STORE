@@ -58,19 +58,42 @@ export function truncate(text: string, max: number): string {
 
 /**
  * Compute the discounted price of a product/variant.
+ * Handles both explicit compare_at_price and global flash sale percentage seamlessly without double discounting.
  */
 export function computeSalePrice(
-    price: number,
-    compareAtPrice: number | null | undefined,
-): { isOnSale: boolean; salePrice: number; discountPercent: number } {
-    if (compareAtPrice && compareAtPrice > price) {
+    basePrice: number,
+    compareAtPrice?: number | null,
+    flashSaleConfig?: { is_active?: boolean; discount_percentage?: number } | null,
+): { isOnSale: boolean; salePrice: number; compareAt: number | null; discountPercent: number } {
+    let effectiveCompareAt = compareAtPrice && compareAtPrice > basePrice ? compareAtPrice : null;
+    let salePrice = basePrice;
+
+    const flashActive = Boolean(flashSaleConfig?.is_active) && (flashSaleConfig?.discount_percentage ?? 0) > 0;
+    const flashPct = flashActive ? (flashSaleConfig?.discount_percentage ?? 0) : 0;
+
+    if (flashActive && flashPct > 0) {
+        const original = effectiveCompareAt ?? basePrice;
+        const calculatedFlashPrice = Math.round(original * ((100 - flashPct) / 100));
+        salePrice = Math.min(basePrice, calculatedFlashPrice);
+        effectiveCompareAt = original;
+    }
+
+    if (effectiveCompareAt && effectiveCompareAt > salePrice) {
+        const discountPercent = Math.round(((effectiveCompareAt - salePrice) / effectiveCompareAt) * 100);
         return {
             isOnSale: true,
-            salePrice: price,
-            discountPercent: Math.round(((compareAtPrice - price) / compareAtPrice) * 100),
+            salePrice,
+            compareAt: effectiveCompareAt,
+            discountPercent,
         };
     }
-    return { isOnSale: false, salePrice: price, discountPercent: 0 };
+
+    return {
+        isOnSale: false,
+        salePrice: basePrice,
+        compareAt: effectiveCompareAt,
+        discountPercent: 0,
+    };
 }
 
 /**
