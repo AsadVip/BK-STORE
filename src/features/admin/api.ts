@@ -76,6 +76,7 @@ export function useAdminProducts() {
                 .from("products")
                 .select("*")
                 .is("deleted_at", null)
+                .order("sort_order" as any, { ascending: true })
                 .order("created_at", { ascending: false });
 
             if (error || !products) {
@@ -1213,6 +1214,28 @@ export function useUpdateProduct() {
         },
         onSuccess: () => {
             qc.invalidateQueries();
+        },
+    });
+}
+
+/** Batch update product sort_order (Manual Drag & Drop). */
+export function useUpdateProductOrder() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: async (items: { id: string; sort_order: number }[]) => {
+            const updates = items.map(({ id, sort_order }) =>
+                supabase.from("products").update({ sort_order } as never).eq("id", id)
+            );
+            const results = await Promise.all(updates);
+            const firstErr = results.find((r) => r.error);
+            if (firstErr?.error) {
+                console.error("Batch sort_order update error:", firstErr.error);
+                throw firstErr.error;
+            }
+        },
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ["admin-products"] });
+            qc.invalidateQueries({ queryKey: ["products"] });
         },
     });
 }

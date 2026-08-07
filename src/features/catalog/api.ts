@@ -190,18 +190,40 @@ export function useProducts(filters: ShopFilters = {}) {
     return useQuery<{ items: ProductListItem[]; total: number; pages: number }>({
         queryKey: ["products", filters],
         queryFn: async () => {
+            let categoryProductIds: string[] | null = null;
+            if (category) {
+                const { data: links, error: linkErr } = await supabase
+                    .from("product_categories")
+                    .select("product_id")
+                    .eq("category_id", category);
+                if (linkErr) throw linkErr;
+                categoryProductIds = ((links ?? []) as unknown as { product_id: string }[]).map((l) => l.product_id);
+                if (categoryProductIds.length === 0) {
+                    return { items: [], total: 0, pages: 0 };
+                }
+            }
+
             let query = supabase
                 .from("products")
                 .select(`*, brand:brands(name)`, { count: "exact" })
                 .eq("status", "published")
                 .is("deleted_at", null);
 
+            if (categoryProductIds) {
+                query = query.in("id", categoryProductIds);
+            }
+
+            if (brand) {
+                query = query.eq("brand_id", brand);
+            }
+
             if (placement === "new_arrival") query = query.eq("is_new_arrival", true);
             else if (placement === "best_seller") query = query.eq("is_best_seller", true);
             else if (placement === "featured") query = query.eq("is_featured", true);
 
-            if (search) {
-                query = query.textSearch("search_document", search, { type: "websearch" });
+            if (search && search.trim()) {
+                const term = search.trim();
+                query = query.or(`name.ilike.%${term}%,description.ilike.%${term}%,slug.ilike.%${term}%`);
             }
             if (minPrice !== undefined) query = query.gte("base_price", minPrice);
             if (maxPrice !== undefined) query = query.lte("base_price", maxPrice);
@@ -211,30 +233,45 @@ export function useProducts(filters: ShopFilters = {}) {
                 case "price_desc": query = query.order("base_price", { ascending: false }); break;
                 case "popular": query = query.order("rating_count", { ascending: false }); break;
                 case "rating": query = query.order("rating_average", { ascending: false }); break;
-                default: query = query.order("created_at", { ascending: false });
+                default: query = query.order("sort_order" as any, { ascending: true }).order("created_at", { ascending: false });
             }
 
-            const from = (page - 1) * pageSize;
+            const safePage = Math.max(1, page);
+            const from = (safePage - 1) * pageSize;
             const to = from + pageSize - 1;
             query = query.range(from, to);
 
-            const { data, error, count } = await query;
-            if (error) throw error;
+            let { data, error, count } = await query;
+            if (error) {
+                console.warn("Product query error, executing safe fallback without sort_order:", error);
+                let fallbackQuery = supabase
+                    .from("products")
+                    .select(`*, brand:brands(name)`, { count: "exact" })
+                    .eq("status", "published")
+                    .is("deleted_at", null);
 
-            let products = (data ?? []) as unknown as (Product & { brand: { name: string } | null })[];
+                if (categoryProductIds) fallbackQuery = fallbackQuery.in("id", categoryProductIds);
+                if (brand) fallbackQuery = fallbackQuery.eq("brand_id", brand);
+                if (placement === "new_arrival") fallbackQuery = fallbackQuery.eq("is_new_arrival", true);
+                else if (placement === "best_seller") fallbackQuery = fallbackQuery.eq("is_best_seller", true);
+                else if (placement === "featured") fallbackQuery = fallbackQuery.eq("is_featured", true);
 
-            // Filter by category via join if requested.
-            if (category) {
-                const { data: links } = await supabase
-                    .from("product_categories")
-                    .select("product_id")
-                    .eq("category_id", category);
-                const ids = ((links ?? []) as unknown as { product_id: string }[]).map((l) => l.product_id);
-                products = products.filter((p) => ids.includes(p.id));
+                if (search && search.trim()) {
+                    const term = search.trim();
+                    fallbackQuery = fallbackQuery.or(`name.ilike.%${term}%,description.ilike.%${term}%,slug.ilike.%${term}%`);
+                }
+                if (minPrice !== undefined) fallbackQuery = fallbackQuery.gte("base_price", minPrice);
+                if (maxPrice !== undefined) fallbackQuery = fallbackQuery.lte("base_price", maxPrice);
+
+                fallbackQuery = fallbackQuery.order("created_at", { ascending: false }).range(from, to);
+                const res = await fallbackQuery;
+                data = res.data;
+                error = res.error;
+                count = res.count;
+                if (error) throw error;
             }
-            if (brand) {
-                products = products.filter((p) => p.brand_id === brand);
-            }
+
+            const products = (data ?? []) as unknown as (Product & { brand: { name: string } | null })[];
 
             // Fetch primary images & stock availability for the page safely.
             const productIds = products.map((p) => p.id);
@@ -287,7 +324,8 @@ export function useProducts(filters: ShopFilters = {}) {
                 };
             });
 
-            return { items, total: count ?? 0, pages: Math.ceil((count ?? 0) / pageSize) };
+            const total = count ?? 0;
+            return { items, total, pages: Math.max(1, Math.ceil(total / pageSize)) };
         },
         staleTime: 5 * 1000,
     });

@@ -22,7 +22,8 @@ const VALUE_PROPS = [
 
 export default function HomePage() {
     const { data: categories } = useCategories();
-    const { data: newArrivals } = useProducts({ placement: "new_arrival", pageSize: 8 });
+    const { data: newArrivals, isLoading: loadingNewArrivals } = useProducts({ placement: "new_arrival", pageSize: 8 });
+    const { data: allProducts, isLoading: loadingAllProducts } = useProducts({ pageSize: 8 });
     const { data: bestSellers } = useProducts({ placement: "best_seller", pageSize: 4 });
     const { data: heroBanners, isLoading: heroLoading } = useBanners("home_hero");
     const { data: secondaryBanners } = useBanners("home_secondary");
@@ -291,7 +292,9 @@ export default function HomePage() {
                             <Link to="/shop">View all <ChevronRight className="h-4 w-4 ml-0.5" /></Link>
                         </Button>
                     </div>
-                    {newArrivals && newArrivals.items.length > 0 ? (
+                    {loadingNewArrivals && loadingAllProducts ? (
+                        <ProductGridSkeleton count={8} />
+                    ) : newArrivals && newArrivals.items.length > 0 ? (
                         <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
                             {newArrivals.items.map((p, i) => (
                                 <Reveal key={p.id} direction="up" delay={i * 60}>
@@ -299,8 +302,16 @@ export default function HomePage() {
                                 </Reveal>
                             ))}
                         </div>
+                    ) : allProducts && allProducts.items.length > 0 ? (
+                        <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
+                            {allProducts.items.map((p, i) => (
+                                <Reveal key={p.id} direction="up" delay={i * 60}>
+                                    <ProductCard product={p} />
+                                </Reveal>
+                            ))}
+                        </div>
                     ) : (
-                        <ProductGridSkeleton count={8} />
+                        <p className="text-center text-text-secondary py-8">No products available at the moment.</p>
                     )}
                 </div>
             </Reveal>

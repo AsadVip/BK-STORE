@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { SlidersHorizontal, X, Grid2X2, Grid3X3, RotateCcw } from "lucide-react";
 
@@ -37,6 +37,10 @@ export default function ShopPage() {
     const [filterOpen, setFilterOpen] = useState(false);
     const [selectedBrand, setSelectedBrand] = useState<string | undefined>(undefined);
     const [maxPrice, setMaxPrice] = useState<number | undefined>(undefined);
+
+    useEffect(() => {
+        setPage(1);
+    }, [categorySlug, selectedBrand, maxPrice, sort]);
 
     const filters: ShopFilters = {
         category: activeCategory?.id,

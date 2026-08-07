@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { Plus, Pencil, Trash2, Package, Star, ImagePlus, Layers, UploadCloud, Tag } from "lucide-react";
-import { useAdminProducts, useDeleteProduct, useCreateProduct, useUpdateProduct, useImageUpload } from "@/features/admin/api";
+import { useState, useEffect } from "react";
+import { Plus, Pencil, Trash2, Package, Star, ImagePlus, Layers, UploadCloud, Tag, GripVertical, LayoutList, ArrowUpDown } from "lucide-react";
+import { motion, Reorder } from "framer-motion";
+import { useAdminProducts, useDeleteProduct, useCreateProduct, useUpdateProduct, useUpdateProductOrder, useImageUpload } from "@/features/admin/api";
 import { useCategories } from "@/features/catalog/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -66,14 +67,45 @@ export default function AdminProductsPage() {
     const deleteProduct = useDeleteProduct();
     const createProduct = useCreateProduct();
     const updateProduct = useUpdateProduct();
+    const updateProductOrder = useUpdateProductOrder();
     const uploadImage = useImageUpload();
     const { toast } = useToast();
 
     const [search, setSearch] = useState("");
+    const [viewMode, setViewMode] = useState<"table" | "reorder">("table");
+    const [orderedProducts, setOrderedProducts] = useState<any[]>([]);
     const [open, setOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState("general");
     const [manualImageUrl, setManualImageUrl] = useState("");
+
+    useEffect(() => {
+        if (products) {
+            setOrderedProducts(products);
+        }
+    }, [products]);
+
+    const handleReorder = async (newOrder: any[]) => {
+        setOrderedProducts(newOrder);
+        try {
+            const payload = newOrder.map((item, idx) => ({
+                id: item.id,
+                sort_order: idx,
+            }));
+            await updateProductOrder.mutateAsync(payload);
+            toast({
+                title: "Product order saved!",
+                description: "Display position updated permanently in database.",
+                variant: "success",
+            });
+        } catch (err) {
+            toast({
+                title: "Failed to save product order",
+                description: err instanceof Error ? err.message : "Database error",
+                variant: "destructive",
+            });
+        }
+    };
 
     const [form, setForm] = useState({
         name: "",
@@ -326,50 +358,217 @@ export default function AdminProductsPage() {
         ? Math.round(((realPriceNum - discountPriceNum) / realPriceNum) * 100)
         : 0;
 
+    const filteredReorderList = (orderedProducts.length > 0 ? orderedProducts : products ?? []).filter((p) =>
+        (p?.name || "").toLowerCase().includes(search.toLowerCase()) || (p?.slug || "").toLowerCase().includes(search.toLowerCase()),
+    );
+
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="font-serif text-2xl font-semibold">Products</h1>
+                    <h1 className="font-serif text-2xl font-semibold">Products Catalog</h1>
                     <p className="text-sm text-text-secondary">{products?.length ?? 0} total products in catalog</p>
                 </div>
-                <Button onClick={openDialog} className="gap-2">
-                    <Plus className="h-4 w-4" /> Add Product
-                </Button>
+                <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center rounded-lg border border-border p-1 bg-bg-secondary/60 shadow-2xs">
+                        <Button
+                            variant={viewMode === "table" ? "secondary" : "ghost"}
+                            size="sm"
+                            className="h-8 gap-1.5 text-xs font-bold"
+                            onClick={() => setViewMode("table")}
+                        >
+                            <LayoutList className="h-3.5 w-3.5" /> Table List
+                        </Button>
+                        <Button
+                            variant={viewMode === "reorder" ? "secondary" : "ghost"}
+                            size="sm"
+                            className="h-8 gap-1.5 text-xs font-bold text-btn-primary"
+                            onClick={() => setViewMode("reorder")}
+                        >
+                            <GripVertical className="h-3.5 w-3.5" /> Drag & Drop Order
+                        </Button>
+                    </div>
+                    <Button onClick={openDialog} className="gap-2">
+                        <Plus className="h-4 w-4" /> Add Product
+                    </Button>
+                </div>
             </div>
 
-            <Card>
-                <CardContent className="p-6">
-                    <Input
-                        placeholder="Search products by name or slug…"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="mb-4 max-w-sm"
-                    />
-                    {isLoading ? (
-                        <div className="space-y-2">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                                <Skeleton key={i} className="h-12 w-full" />
-                            ))}
+            {viewMode === "table" ? (
+                <Card>
+                    <CardContent className="p-6">
+                        <Input
+                            placeholder="Search products by name or slug…"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="mb-4 max-w-sm"
+                        />
+                        {isLoading ? (
+                            <div className="space-y-2">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                    <Skeleton key={i} className="h-12 w-full" />
+                                ))}
+                            </div>
+                        ) : filtered.length > 0 ? (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Product</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead>Pricing (Real vs Discount)</TableHead>
+                                        <TableHead>Images</TableHead>
+                                        <TableHead>Variants</TableHead>
+                                        <TableHead>Total Stock</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {filtered.map((p) => {
+                                        const primaryImg = p.images?.find((img) => img.is_primary)?.url || p.images?.[0]?.url;
+                                        const variantCount = p.variants?.length || 0;
+                                        const imageCount = p.images?.length || 0;
+                                        const realPrice = p.compare_at_price;
+                                        const discountPrice = p.base_price;
+                                        const discountPct = (realPrice && realPrice > discountPrice)
+                                            ? Math.round(((realPrice - discountPrice) / realPrice) * 100)
+                                            : 0;
+
+                                        return (
+                                            <TableRow key={p.id}>
+                                                <TableCell>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-border bg-bg-secondary flex items-center justify-center">
+                                                            {primaryImg ? (
+                                                                <img src={primaryImg} alt={p.name} className="h-full w-full object-cover" />
+                                                            ) : (
+                                                                <Package className="h-5 w-5 text-text-secondary" />
+                                                            )}
+                                                        </div>
+                                                        <div>
+                                                            <div className="font-medium text-text-primary">{p.name}</div>
+                                                            <div className="text-xs text-text-secondary font-mono">{p.slug}</div>
+                                                        </div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant={STATUS_VARIANTS[p.status] ?? "secondary"}>
+                                                        {p.status}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="space-y-0.5">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-bold text-text-primary">
+                                                                {formatCurrency(discountPrice)}
+                                                            </span>
+                                                            {discountPct > 0 && (
+                                                                <Badge className="bg-red-500/10 text-red-600 dark:text-red-400 font-extrabold text-[10px] px-1.5 py-0 border border-red-500/20">
+                                                                    −{discountPct}%
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+                                                        {realPrice && realPrice > discountPrice && (
+                                                            <div className="text-xs text-text-secondary line-through">
+                                                                Real: {formatCurrency(realPrice)}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant="outline" className="gap-1 font-normal">
+                                                        <ImagePlus className="h-3 w-3" /> {imageCount} {imageCount === 1 ? "image" : "images"}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant="outline" className="gap-1 font-normal">
+                                                        <Layers className="h-3 w-3" /> {variantCount} {variantCount === 1 ? "variant" : "variants"}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="font-semibold">
+                                                    {p.stock_quantity} pcs
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <div className="flex justify-end gap-1">
+                                                        <button
+                                                            onClick={() => openEditDialog(p)}
+                                                            className="rounded-md p-1.5 text-muted-foreground hover:bg-muted transition-colors"
+                                                            aria-label="Edit product"
+                                                        >
+                                                            <Pencil className="h-4 w-4" />
+                                                        </button>
+                                                        <button
+                                                            className="rounded-md p-1.5 text-muted-foreground hover:bg-state-danger/10 hover:text-state-danger transition-colors"
+                                                            aria-label="Delete product"
+                                                            onClick={async () => {
+                                                                await deleteProduct.mutateAsync(p.id);
+                                                                toast({ title: "Product deleted" });
+                                                            }}
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                </TableBody>
+                            </Table>
+                        ) : (
+                            <EmptyState
+                                icon={Package}
+                                title="No products found"
+                                description="Add your first product with real/discount pricing, variants & gallery images to get started."
+                                action={
+                                    <Button onClick={openDialog} className="gap-2">
+                                        <Plus className="h-4 w-4" /> Add Product
+                                    </Button>
+                                }
+                            />
+                        )}
+                    </CardContent>
+                </Card>
+            ) : (
+                /* REORDER DRAG & DROP MODE */
+                <Card>
+                    <CardContent className="p-6 space-y-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-btn-primary/30 bg-btn-primary/5 p-4">
+                            <div className="flex items-center gap-3">
+                                <div className="rounded-lg bg-btn-primary/10 p-2.5 text-btn-primary shrink-0">
+                                    <GripVertical className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-extrabold text-text-primary flex items-center gap-2">
+                                        <span>Manual Product Ordering (Drag & Drop)</span>
+                                        <Badge className="bg-btn-primary text-white text-[10px] font-bold">PERSISTENT DB</Badge>
+                                    </h3>
+                                    <p className="text-xs text-text-secondary mt-0.5">
+                                        Drag any product card or handle to reorder. The new display sequence is immediately saved and visible to store customers.
+                                    </p>
+                                </div>
+                            </div>
+                            <Input
+                                placeholder="Filter list…"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="max-w-xs h-9 text-xs"
+                            />
                         </div>
-                    ) : filtered.length > 0 ? (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Product</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Pricing (Real vs Discount)</TableHead>
-                                    <TableHead>Images</TableHead>
-                                    <TableHead>Variants</TableHead>
-                                    <TableHead>Total Stock</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filtered.map((p) => {
-                                    const primaryImg = p.images?.find((img) => img.is_primary)?.url || p.images?.[0]?.url;
-                                    const variantCount = p.variants?.length || 0;
-                                    const imageCount = p.images?.length || 0;
+
+                        {isLoading ? (
+                            <div className="space-y-3">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                    <Skeleton key={i} className="h-16 w-full rounded-xl" />
+                                ))}
+                            </div>
+                        ) : filteredReorderList.length > 0 ? (
+                            <Reorder.Group
+                                axis="y"
+                                values={filteredReorderList}
+                                onReorder={handleReorder}
+                                className="space-y-2.5"
+                            >
+                                {filteredReorderList.map((p, idx) => {
+                                    const primaryImg = p.images?.find((img: any) => img.is_primary)?.url || p.images?.[0]?.url;
                                     const realPrice = p.compare_at_price;
                                     const discountPrice = p.base_price;
                                     const discountPct = (realPrice && realPrice > discountPrice)
@@ -377,99 +576,70 @@ export default function AdminProductsPage() {
                                         : 0;
 
                                     return (
-                                        <TableRow key={p.id}>
-                                            <TableCell>
-                                                <div className="flex items-center gap-3">
-                                                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-border bg-bg-secondary flex items-center justify-center">
-                                                        {primaryImg ? (
-                                                            <img src={primaryImg} alt={p.name} className="h-full w-full object-cover" />
-                                                        ) : (
-                                                            <Package className="h-5 w-5 text-text-secondary" />
-                                                        )}
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-medium text-text-primary">{p.name}</div>
-                                                        <div className="text-xs text-text-secondary font-mono">{p.slug}</div>
-                                                    </div>
+                                        <Reorder.Item
+                                            key={p.id}
+                                            value={p}
+                                            className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-bg-primary p-3 sm:p-4 shadow-2xs hover:border-btn-primary/50 hover:shadow-md transition-all cursor-grab active:cursor-grabbing select-none"
+                                            whileDrag={{
+                                                scale: 1.02,
+                                                boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)",
+                                                zIndex: 50,
+                                                borderColor: "#01411C"
+                                            }}
+                                        >
+                                            <div className="flex items-center gap-3 min-w-0">
+                                                <div className="rounded-lg p-1.5 text-text-secondary group-hover:text-btn-primary group-hover:bg-bg-secondary transition-colors shrink-0">
+                                                    <GripVertical className="h-5 w-5" />
                                                 </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant={STATUS_VARIANTS[p.status] ?? "secondary"}>
+                                                <Badge variant="outline" className="font-mono text-xs font-bold px-2 py-0.5 shrink-0 bg-bg-secondary border-border/80">
+                                                    #{idx + 1}
+                                                </Badge>
+                                                <div className="h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-border bg-bg-secondary flex items-center justify-center">
+                                                    {primaryImg ? (
+                                                        <img src={primaryImg} alt={p.name} className="h-full w-full object-cover" />
+                                                    ) : (
+                                                        <Package className="h-5 w-5 text-text-secondary" />
+                                                    )}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <div className="font-bold text-text-primary text-sm truncate">{p.name}</div>
+                                                    <div className="text-xs text-text-secondary font-mono truncate">{p.slug}</div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+                                                <Badge variant={STATUS_VARIANTS[p.status] ?? "secondary"} className="hidden sm:inline-flex">
                                                     {p.status}
                                                 </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="space-y-0.5">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="font-bold text-text-primary">
-                                                            {formatCurrency(discountPrice)}
-                                                        </span>
-                                                        {discountPct > 0 && (
-                                                            <Badge className="bg-red-500/10 text-red-600 dark:text-red-400 font-extrabold text-[10px] px-1.5 py-0 border border-red-500/20">
-                                                                −{discountPct}%
-                                                            </Badge>
-                                                        )}
+                                                <div className="text-right">
+                                                    <div className="font-bold text-sm text-text-primary">
+                                                        {formatCurrency(discountPrice)}
                                                     </div>
-                                                    {realPrice && realPrice > discountPrice && (
-                                                        <div className="text-xs text-text-secondary line-through">
-                                                            Real: {formatCurrency(realPrice)}
+                                                    {discountPct > 0 && (
+                                                        <div className="text-[10px] font-bold text-red-600 dark:text-red-400">
+                                                            −{discountPct}% OFF
                                                         </div>
                                                     )}
                                                 </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="outline" className="gap-1 font-normal">
-                                                    <ImagePlus className="h-3 w-3" /> {imageCount} {imageCount === 1 ? "image" : "images"}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="outline" className="gap-1 font-normal">
-                                                    <Layers className="h-3 w-3" /> {variantCount} {variantCount === 1 ? "variant" : "variants"}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="font-semibold">
-                                                {p.stock_quantity} pcs
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-1">
-                                                    <button
-                                                        onClick={() => openEditDialog(p)}
-                                                        className="rounded-md p-1.5 text-muted-foreground hover:bg-muted transition-colors"
-                                                        aria-label="Edit product"
-                                                    >
-                                                        <Pencil className="h-4 w-4" />
-                                                    </button>
-                                                    <button
-                                                        className="rounded-md p-1.5 text-muted-foreground hover:bg-state-danger/10 hover:text-state-danger transition-colors"
-                                                        aria-label="Delete product"
-                                                        onClick={async () => {
-                                                            await deleteProduct.mutateAsync(p.id);
-                                                            toast({ title: "Product deleted" });
-                                                        }}
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </button>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => { e.stopPropagation(); openEditDialog(p); }}
+                                                    className="rounded-md p-1.5 text-muted-foreground hover:bg-muted transition-colors"
+                                                    title="Edit product details"
+                                                >
+                                                    <Pencil className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                        </Reorder.Item>
                                     );
                                 })}
-                            </TableBody>
-                        </Table>
-                    ) : (
-                        <EmptyState
-                            icon={Package}
-                            title="No products found"
-                            description="Add your first product with real/discount pricing, variants & gallery images to get started."
-                            action={
-                                <Button onClick={openDialog} className="gap-2">
-                                    <Plus className="h-4 w-4" /> Add Product
-                                </Button>
-                            }
-                        />
-                    )}
-                </CardContent>
-            </Card>
+                            </Reorder.Group>
+                        ) : (
+                            <EmptyState icon={Package} title="No products found" description="Try adjusting your filter term." />
+                        )}
+                    </CardContent>
+                </Card>
+            )}
 
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">

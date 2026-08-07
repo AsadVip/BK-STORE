@@ -1,16 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#021E0D" />
+      <stop offset="100%" stop-color="#000D05" />
+    </linearGradient>
     <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#D4AF37" />
-      <stop offset="50%" stop-color="#F3E5AB" />
+      <stop offset="0%" stop-color="#F5D77F" />
+      <stop offset="50%" stop-color="#D4AF37" />
       <stop offset="100%" stop-color="#AA771C" />
     </linearGradient>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#141416" />
-      <stop offset="100%" stop-color="#070708" />
+    <linearGradient id="silverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#D1D5DB" />
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="16" fill="url(#bgGrad)" stroke="url(#goldGrad)" stroke-width="2" />
-  <circle cx="32" cy="32" r="26" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" stroke-dasharray="3 2" />
-  <text x="32" y="38" font-family="'Cinzel', 'Playfair Display', serif" font-size="24" font-weight="900" fill="url(#goldGrad)" text-anchor="middle" letter-spacing="1">BK</text>
+  
+  <!-- Outer Rounded Container -->
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="url(#bgGrad)" stroke="url(#goldGrad)" stroke-width="12" />
+  
+  <!-- Subtle Inner Border Accent -->
+  <rect x="36" y="36" width="440" height="440" rx="76" fill="none" stroke="url(#goldGrad)" stroke-width="2" stroke-opacity="0.3" />
+
+  <!-- Monogram BK Path Group -->
+  <g fill="url(#silverGrad)">
+    <!-- Letter B -->
+    <!-- Vertical Stem -->
+    <rect x="96" y="112" width="44" height="288" rx="8" />
+    <!-- Top Bowl -->
+    <path d="M 130 112 H 220 C 265 112 265 232 220 232 H 130 Z M 140 148 V 196 H 215 C 235 196 235 148 215 148 Z" fill-rule="evenodd" />
+    <!-- Bottom Bowl -->
+    <path d="M 130 224 H 230 C 280 224 280 400 230 400 H 130 Z M 140 260 V 364 H 225 C 248 364 248 260 225 260 Z" fill-rule="evenodd" />
+
+    <!-- Letter K -->
+    <!-- Vertical Stem -->
+    <rect x="300" y="112" width="44" height="288" rx="8" />
+    <!-- Top Arm -->
+    <path d="M 330 230 L 405 125 C 412 115 428 115 435 125 L 440 132 C 447 142 444 156 432 170 L 372 250 Z" />
+    <!-- Bottom Arm -->
+    <path d="M 355 220 L 434 372 C 442 386 438 400 426 405 L 418 407 C 406 409 396 402 388 388 L 325 266 Z" />
+  </g>
+  
+  <!-- Central Gold Divider / Accent Dot -->
+  <circle cx="282" cy="256" r="8" fill="url(#goldGrad)" />
 </svg>

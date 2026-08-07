@@ -153,6 +153,7 @@ export interface Database {
                     is_new_arrival: boolean;
                     is_best_seller: boolean;
                     is_featured: boolean;
+                    sort_order: number;
                     created_at: string;
                     updated_at: string;
                     deleted_at: string | null;
@@ -162,6 +163,7 @@ export interface Database {
                     is_new_arrival?: boolean;
                     is_best_seller?: boolean;
                     is_featured?: boolean;
+                    sort_order?: number;
                 };
                 Update: Partial<Database["public"]["Tables"]["products"]["Insert"]>;
             };
