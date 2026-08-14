@@ -14,13 +14,23 @@
   status = 200
 
 [[redirects]]
+  from = "/icon-*.png"
+  to = "/:splat"
+  status = 200
+
+[[redirects]]
   from = "/favicon.png"
   to = "/favicon.png"
   status = 200
 
 [[redirects]]
-  from = "/apple-touch-icon.png"
-  to = "/apple-touch-icon.png"
+  from = "/favicon.svg"
+  to = "/favicon.svg"
+  status = 200
+
+[[redirects]]
+  from = "/apple-touch-icon*.png"
+  to = "/:splat"
   status = 200
 
 [[redirects]]
