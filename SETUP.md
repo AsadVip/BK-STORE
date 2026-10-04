@@ -28,13 +28,13 @@ The SDK is initialized inside `src/lib/firebase.ts` and `public/firebase-messagi
 
 ```typescript
 export const firebaseConfig = {
-  apiKey: "AIzaSyA6inpBytKQiD9M5OdP-8adbV9VlcMj0j4",
-  authDomain: "bk-store-notificatoin-push.firebaseapp.com",
-  projectId: "bk-store-notificatoin-push",
-  storageBucket: "bk-store-notificatoin-push.firebasestorage.app",
-  messagingSenderId: "138901384869",
-  appId: "1:138901384869:web:e4f0c8f158766f0924274c",
-  measurementId: "G-00NMY80L3X"
+  apiKey: "YOUR_FIREBASE_API_KEY",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project.firebasestorage.app",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID",
+  measurementId: "YOUR_MEASUREMENT_ID"
 };
 ```
 
@@ -42,12 +42,12 @@ export const firebaseConfig = {
 If you wish to override these variables per environment, add them to `.env.local`:
 
 ```env
-VITE_FIREBASE_API_KEY=AIzaSyA6inpBytKQiD9M5OdP-8adbV9VlcMj0j4
-VITE_FIREBASE_AUTH_DOMAIN=bk-store-notificatoin-push.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=bk-store-notificatoin-push
-VITE_FIREBASE_STORAGE_BUCKET=bk-store-notificatoin-push.firebasestorage.app
-VITE_FIREBASE_MESSAGING_SENDER_ID=138901384869
-VITE_FIREBASE_APP_ID=1:138901384869:web:e4f0c8f158766f0924274c
+VITE_FIREBASE_API_KEY=YOUR_FIREBASE_API_KEY
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=YOUR_SENDER_ID
+VITE_FIREBASE_APP_ID=YOUR_APP_ID
 VITE_FIREBASE_VAPID_KEY=YOUR_PUBLIC_VAPID_KEY_HERE
 ```
 
