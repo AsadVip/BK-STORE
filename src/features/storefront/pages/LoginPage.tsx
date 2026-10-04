@@ -46,27 +46,27 @@ export default function LoginPage() {
                     alt="BK Store"
                     className="absolute inset-0 h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 bg-black/70" />
-                <div className="absolute inset-0 bg-gradient-to-br from-[#5C3D2E]/60 via-transparent to-black/60" />
+                <div className="absolute inset-0 bg-black/75" />
+                <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/50 to-black/90" />
 
                 {/* Logo */}
                 <div className="relative z-10 flex items-center gap-3">
                     <img src="/logo.png" alt="BK Store" className="h-10 w-10 rounded-xl object-contain" />
                     <div>
                         <div className="font-serif text-lg font-bold text-white">BK Store</div>
-                        <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-400">Luxury Collection</div>
+                        <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-300">Luxury Collection</div>
                     </div>
                 </div>
 
                 {/* Center quote */}
                 <div className="relative z-10">
-                    <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-300 border border-amber-400/30 mb-5">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white border border-white/20 mb-5">
                         <Sparkles className="h-3 w-3" /> Premium Experience
                     </span>
                     <h2 className="font-serif text-3xl font-extrabold text-white leading-tight">
                         Your Luxury<br />Destination
                     </h2>
-                    <p className="mt-3 text-white/60 text-sm leading-relaxed max-w-xs">
+                    <p className="mt-3 text-white/70 text-sm leading-relaxed max-w-xs font-medium">
                         Discover authentic watches, earbuds, luxury shoes, and curated collections delivered to your door.
                     </p>
 
@@ -77,22 +77,22 @@ export default function LoginPage() {
                             { val: "100%", label: "Authentic" },
                         ].map((s) => (
                             <div key={s.label} className="text-center">
-                                <div className="font-serif text-xl font-extrabold text-amber-400">{s.val}</div>
-                                <div className="text-[10px] text-white/50">{s.label}</div>
+                                <div className="font-serif text-xl font-extrabold text-white">{s.val}</div>
+                                <div className="text-[10px] text-white/60 font-semibold">{s.label}</div>
                             </div>
                         ))}
                     </div>
                 </div>
 
                 {/* Trust badge */}
-                <div className="relative z-10 flex items-center gap-2 text-white/50 text-xs">
+                <div className="relative z-10 flex items-center gap-2 text-white/70 text-xs font-medium">
                     <ShieldCheck className="h-4 w-4 text-emerald-400" />
                     Secure & encrypted login
                 </div>
             </div>
 
             {/* Right Panel — Form */}
-            <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 bg-bg-primary">
+            <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 bg-white">
                 <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -103,25 +103,25 @@ export default function LoginPage() {
                     <div className="lg:hidden flex items-center gap-2 mb-8">
                         <img src="/logo.png" alt="BK Store" className="h-9 w-9 rounded-xl object-contain" />
                         <div>
-                            <div className="font-serif text-base font-bold text-text-primary">BK Store</div>
-                            <div className="text-[9px] font-bold uppercase tracking-[0.3em] text-btn-primary">Luxury Collection</div>
+                            <div className="font-serif text-base font-bold text-black">BK Store</div>
+                            <div className="text-[9px] font-bold uppercase tracking-[0.3em] text-neutral-500">Luxury Collection</div>
                         </div>
                     </div>
 
                     <div className="mb-8">
-                        <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-text-primary">Welcome Back</h1>
-                        <p className="mt-2 text-sm text-text-secondary">Sign in to your BK Store account</p>
+                        <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-black">Welcome Back</h1>
+                        <p className="mt-2 text-sm text-neutral-600 font-medium">Sign in to your BK Store account</p>
                     </div>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                         <div className="space-y-2">
-                            <Label htmlFor="email" className="text-sm font-semibold text-text-primary">Email Address</Label>
+                            <Label htmlFor="email" className="text-sm font-bold text-black">Email Address</Label>
                             <Input
                                 id="email"
                                 type="email"
                                 autoComplete="email"
                                 placeholder="you@example.com"
-                                className="h-12 rounded-xl border-border/60 bg-bg-secondary/60 text-sm focus:border-btn-primary focus:ring-1 focus:ring-btn-primary/30"
+                                className="h-12 rounded-xl border border-neutral-300 bg-white text-black text-sm placeholder:text-neutral-400 focus:border-black focus:ring-1 focus:ring-black"
                                 {...register("email")}
                                 aria-invalid={!!errors.email}
                             />
@@ -130,8 +130,8 @@ export default function LoginPage() {
 
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                                <Label htmlFor="password" className="text-sm font-semibold text-text-primary">Password</Label>
-                                <Link to="/forgot-password" className="text-xs font-medium text-btn-primary hover:underline">
+                                <Label htmlFor="password" className="text-sm font-bold text-black">Password</Label>
+                                <Link to="/forgot-password" className="text-xs font-bold text-black hover:underline">
                                     Forgot password?
                                 </Link>
                             </div>
@@ -141,14 +141,14 @@ export default function LoginPage() {
                                     type={showPass ? "text" : "password"}
                                     autoComplete="current-password"
                                     placeholder="••••••••"
-                                    className="h-12 rounded-xl border-border/60 bg-bg-secondary/60 text-sm pr-12 focus:border-btn-primary focus:ring-1 focus:ring-btn-primary/30"
+                                    className="h-12 rounded-xl border border-neutral-300 bg-white text-black text-sm pr-12 placeholder:text-neutral-400 focus:border-black focus:ring-1 focus:ring-black"
                                     {...register("password")}
                                     aria-invalid={!!errors.password}
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPass((v) => !v)}
-                                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary transition-colors"
+                                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-black transition-colors"
                                 >
                                     {showPass ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
                                 </button>
@@ -160,7 +160,7 @@ export default function LoginPage() {
                             type="submit"
                             size="lg"
                             disabled={isSubmitting}
-                            className="w-full h-13 rounded-xl bg-btn-primary text-white font-bold text-base shadow-lg hover:bg-btn-primary-hover hover:shadow-xl transition-all"
+                            className="w-full h-13 rounded-xl bg-black text-white font-extrabold text-base shadow-lg hover:bg-neutral-800 transition-all"
                         >
                             {isSubmitting ? (
                                 <span className="flex items-center gap-2">
@@ -178,10 +178,10 @@ export default function LoginPage() {
                         </Button>
                     </form>
 
-                    <div className="mt-8 pt-6 border-t border-border/50 text-center">
-                        <p className="text-sm text-text-secondary">
+                    <div className="mt-8 pt-6 border-t border-neutral-200 text-center">
+                        <p className="text-sm text-neutral-600 font-medium">
                             New to BK Store?{" "}
-                            <Link to="/register" className="font-bold text-btn-primary hover:underline inline-flex items-center gap-1">
+                            <Link to="/register" className="font-bold text-black hover:underline inline-flex items-center gap-1">
                                 Create an account <ArrowRight className="h-3.5 w-3.5" />
                             </Link>
                         </p>

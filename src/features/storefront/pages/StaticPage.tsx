@@ -235,9 +235,9 @@ const CONTENT: Record<string, { title: string; body: React.ReactNode }> = {
                                     href="https://tiktok.com/@bkstore.hub"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="group flex items-center gap-3.5 rounded-2xl border border-border bg-bg-primary p-3.5 transition-all hover:border-black dark:hover:border-white hover:bg-black/5 dark:hover:bg-white/5 hover:shadow-md"
+                                    className="group flex items-center gap-3.5 rounded-2xl border border-neutral-200 bg-white p-3.5 transition-all hover:border-black hover:shadow-md"
                                 >
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black text-white dark:bg-white dark:text-black shadow-sm transition-transform group-hover:scale-105">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black text-white shadow-sm transition-transform group-hover:scale-105">
                                         <TikTokIcon className="h-5 w-5" />
                                     </div>
                                     <div className="overflow-hidden flex-1">

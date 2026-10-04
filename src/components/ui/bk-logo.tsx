@@ -31,10 +31,10 @@ export function BkLogo({ variant = "full", size = "md", className }: BkLogoProps
             />
             {variant === "full" && (
                 <div className="flex flex-col">
-                    <span className="font-serif font-extrabold tracking-tight text-[#01411C] text-base lg:text-lg leading-none">
+                    <span className="font-serif font-extrabold tracking-tight text-text-primary text-base lg:text-lg leading-none">
                         BK STORE
                     </span>
-                    <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400 mt-0.5">
+                    <span className="text-[8px] font-bold uppercase tracking-[0.22em] text-neutral-500 mt-0.5">
                         Luxury Collection
                     </span>
                 </div>

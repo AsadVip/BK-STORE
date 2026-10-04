@@ -61,24 +61,26 @@ export function truncate(text: string, max: number): string {
  * Handles both explicit compare_at_price and global flash sale percentage seamlessly without double discounting.
  */
 export function computeSalePrice(
-    basePrice: number,
-    compareAtPrice?: number | null,
+    basePrice: number | string,
+    compareAtPrice?: number | string | null,
     flashSaleConfig?: { is_active?: boolean; discount_percentage?: number } | null,
 ): { isOnSale: boolean; salePrice: number; compareAt: number | null; discountPercent: number } {
-    let effectiveCompareAt = compareAtPrice && compareAtPrice > basePrice ? compareAtPrice : null;
-    let salePrice = basePrice;
+    const safeBasePrice = Math.max(0, Number(basePrice) || 0);
+    const numCompareAt = compareAtPrice !== undefined && compareAtPrice !== null ? Number(compareAtPrice) : null;
+    let effectiveCompareAt = numCompareAt && numCompareAt > safeBasePrice ? numCompareAt : null;
+    let salePrice = safeBasePrice;
 
-    const flashActive = Boolean(flashSaleConfig?.is_active) && (flashSaleConfig?.discount_percentage ?? 0) > 0;
-    const flashPct = flashActive ? (flashSaleConfig?.discount_percentage ?? 0) : 0;
+    const flashActive = Boolean(flashSaleConfig?.is_active) && (Number(flashSaleConfig?.discount_percentage) || 0) > 0;
+    const flashPct = flashActive ? (Number(flashSaleConfig?.discount_percentage) || 0) : 0;
 
     if (flashActive && flashPct > 0) {
-        const original = effectiveCompareAt ?? basePrice;
+        const original = effectiveCompareAt ?? safeBasePrice;
         const calculatedFlashPrice = Math.round(original * ((100 - flashPct) / 100));
-        salePrice = Math.min(basePrice, calculatedFlashPrice);
+        salePrice = Math.max(0, Math.min(safeBasePrice, calculatedFlashPrice));
         effectiveCompareAt = original;
     }
 
-    if (effectiveCompareAt && effectiveCompareAt > salePrice) {
+    if (effectiveCompareAt && effectiveCompareAt > salePrice && effectiveCompareAt > 0) {
         const discountPercent = Math.round(((effectiveCompareAt - salePrice) / effectiveCompareAt) * 100);
         return {
             isOnSale: true,
@@ -90,7 +92,7 @@ export function computeSalePrice(
 
     return {
         isOnSale: false,
-        salePrice: basePrice,
+        salePrice: safeBasePrice,
         compareAt: effectiveCompareAt,
         discountPercent: 0,
     };

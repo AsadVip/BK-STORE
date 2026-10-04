@@ -360,16 +360,16 @@ export default function ProductPage() {
 
                         {/* Price Display */}
                         <div className="mt-2.5 flex items-center gap-3 flex-wrap">
-                            <span className="font-sans text-xl sm:text-2xl font-extrabold text-[#01411C]">
+                            <span className="font-sans text-xl sm:text-2xl font-extrabold text-text-primary">
                                 {formatCurrency(salePrice)}
                             </span>
                             {compareAt && compareAt > salePrice && (
-                                <span className="font-sans text-sm text-gray-400 line-through font-normal">
+                                <span className="font-sans text-sm text-neutral-400 line-through font-normal">
                                     {formatCurrency(compareAt)}
                                 </span>
                             )}
                             {(compareAt && compareAt > salePrice) && (
-                                <span className="bg-[#01411C] text-[#D4AF37] text-[11px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wide border border-[#D4AF37]/40 flex items-center gap-1 shadow-xs">
+                                <span className="bg-black text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wide border border-neutral-700 flex items-center gap-1 shadow-xs">
                                     SAVE {formatCurrency(compareAt - salePrice)}
                                 </span>
                             )}
@@ -499,50 +499,50 @@ export default function ProductPage() {
                     </div>
 
                     {/* Fast 3-Day Delivery Process Section (Real-Time Calculated Dates) */}
-                    <div className="mt-8 pt-6 border-t border-gray-200/80 dark:border-zinc-800 space-y-4">
-                        <h3 className="text-xs font-bold text-center uppercase tracking-wider text-text-primary">
+                    <div className="mt-8 pt-6 border-t border-gray-200/80 space-y-4">
+                        <h3 className="text-xs font-bold text-center uppercase tracking-wider text-black">
                             Fast 3-Day Delivery Process
                         </h3>
                         <div className="flex items-center justify-center gap-2 sm:gap-4 max-w-sm mx-auto py-2">
                             {/* Order */}
                             <div className="flex flex-col items-center gap-1.5 text-center">
-                                <div className="w-10 h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center shadow-xs">
+                                <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center shadow-xs">
                                     <ShoppingBag className="w-4 h-4" />
                                 </div>
-                                <span className="text-[11px] text-gray-500 dark:text-gray-400 leading-tight font-medium">
+                                <span className="text-[11px] text-gray-500 leading-tight font-medium">
                                     {deliveryDates.order}
                                 </span>
-                                <span className="text-xs font-bold text-text-primary leading-none">
+                                <span className="text-xs font-bold text-black leading-none">
                                     Order
                                 </span>
                             </div>
 
-                            <div className="h-[1.5px] bg-gray-300 dark:bg-zinc-700 w-8 sm:w-12 mb-5 shrink-0" />
+                            <div className="h-[1.5px] bg-gray-300 w-8 sm:w-12 mb-5 shrink-0" />
 
                             {/* Dispatch */}
                             <div className="flex flex-col items-center gap-1.5 text-center">
-                                <div className="w-10 h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center shadow-xs">
+                                <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center shadow-xs">
                                     <Truck className="w-4 h-4" />
                                 </div>
-                                <span className="text-[11px] text-gray-500 dark:text-gray-400 leading-tight font-medium">
+                                <span className="text-[11px] text-gray-500 leading-tight font-medium">
                                     {deliveryDates.dispatch}
                                 </span>
-                                <span className="text-xs font-bold text-text-primary leading-none">
+                                <span className="text-xs font-bold text-black leading-none">
                                     Dispatch
                                 </span>
                             </div>
 
-                            <div className="h-[1.5px] bg-gray-300 dark:bg-zinc-700 w-8 sm:w-12 mb-5 shrink-0" />
+                            <div className="h-[1.5px] bg-gray-300 w-8 sm:w-12 mb-5 shrink-0" />
 
                             {/* Delivery */}
                             <div className="flex flex-col items-center gap-1.5 text-center">
-                                <div className="w-10 h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center shadow-xs">
+                                <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center shadow-xs">
                                     <MapPin className="w-4 h-4" />
                                 </div>
-                                <span className="text-[11px] text-gray-500 dark:text-gray-400 leading-tight font-medium">
+                                <span className="text-[11px] text-gray-500 leading-tight font-medium">
                                     {deliveryDates.delivery}
                                 </span>
-                                <span className="text-xs font-bold text-text-primary leading-none">
+                                <span className="text-xs font-bold text-black leading-none">
                                     Delivery
                                 </span>
                             </div>
@@ -601,58 +601,58 @@ export default function ProductPage() {
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.5 }}
             >
-                <div className="mx-auto max-w-3xl rounded-3xl border border-border/80 bg-bg-secondary/60 p-6 sm:p-10 shadow-sm text-center">
-                    <h2 className="font-serif text-xl sm:text-2xl font-extrabold uppercase tracking-wide text-text-primary">
+                <div className="mx-auto max-w-3xl rounded-3xl border border-neutral-200 bg-white p-6 sm:p-10 shadow-sm text-center">
+                    <h2 className="font-serif text-xl sm:text-2xl font-extrabold uppercase tracking-wide text-black">
                         CONTACT INFORMATION
                     </h2>
-                    <p className="mt-2 text-xs sm:text-sm text-text-secondary leading-relaxed max-w-xl mx-auto">
+                    <p className="mt-2 text-xs sm:text-sm text-neutral-600 leading-relaxed max-w-xl mx-auto font-medium">
                         We would love to hear from you regarding your order, support, or any questions. Please feel free to contact us using the details below.
                     </p>
 
                     <div className="mt-8 grid gap-4 text-left max-w-md mx-auto">
                         {/* Location */}
-                        <div className="flex items-center gap-3.5 rounded-xl border border-border/60 bg-bg-primary p-3.5 shadow-2xs">
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-500/10 text-red-500">
+                        <div className="flex items-center gap-3.5 rounded-xl border border-neutral-200 bg-neutral-50 p-3.5 shadow-xs">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-black text-white">
                                 <MapPin className="h-5 w-5" />
                             </div>
-                            <span className="text-xs sm:text-sm font-semibold text-text-primary leading-snug">
-                                Multan Garden Town, Pakistan
+                            <span className="text-xs sm:text-sm font-semibold text-black leading-snug">
+                                Al Quresh Phase 2, Sher Shah Road, Multan, Pakistan
                             </span>
                         </div>
 
                         {/* Phone */}
                         <a
                             href="tel:+923286870670"
-                            className="flex items-center gap-3.5 rounded-xl border border-border/60 bg-bg-primary p-3.5 shadow-2xs hover:border-btn-primary transition-colors group"
+                            className="flex items-center gap-3.5 rounded-xl border border-neutral-200 bg-neutral-50 p-3.5 shadow-xs hover:border-black transition-colors group"
                         >
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-btn-primary/10 text-btn-primary">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-black text-white">
                                 <Phone className="h-5 w-5" />
                             </div>
-                            <span className="text-xs sm:text-sm font-bold text-text-primary group-hover:text-btn-primary">
+                            <span className="text-xs sm:text-sm font-bold text-black group-hover:underline">
                                 +92 328 6870670
                             </span>
                         </a>
 
                         {/* Email */}
                         <a
-                            href="mailto:bkstore.watches@gmail.com"
-                            className="flex items-center gap-3.5 rounded-xl border border-border/60 bg-bg-primary p-3.5 shadow-2xs hover:border-btn-primary transition-colors group"
+                            href="mailto:support@bktajir.com"
+                            className="flex items-center gap-3.5 rounded-xl border border-neutral-200 bg-neutral-50 p-3.5 shadow-xs hover:border-black transition-colors group"
                         >
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-black text-white">
                                 <Mail className="h-5 w-5" />
                             </div>
-                            <span className="text-xs sm:text-sm font-semibold text-text-primary group-hover:text-btn-primary">
-                                bkstore.watches@gmail.com
+                            <span className="text-xs sm:text-sm font-semibold text-black group-hover:underline">
+                                support@bktajir.com
                             </span>
                         </a>
 
                         {/* Hours */}
-                        <div className="flex items-center gap-3.5 rounded-xl border border-border/60 bg-bg-primary p-3.5 shadow-2xs">
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
+                        <div className="flex items-center gap-3.5 rounded-xl border border-neutral-200 bg-neutral-50 p-3.5 shadow-xs">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-black text-white">
                                 <Clock className="h-5 w-5" />
                             </div>
-                            <span className="text-xs sm:text-sm font-semibold text-text-primary">
-                                Everyday 9:00 – 18:00
+                            <span className="text-xs sm:text-sm font-semibold text-black">
+                                Everyday 9:00 – 18:00 PKT
                             </span>
                         </div>
                     </div>
@@ -779,17 +779,17 @@ export default function ProductPage() {
                     <div className="space-y-4">
                         {reviews && reviews.length > 0 ? (
                             reviews.map((r) => (
-                                <div key={r.id} className="rounded-2xl border border-border/80 bg-bg-secondary/20 p-5 space-y-2.5">
+                                <div key={r.id} className="rounded-2xl border border-neutral-200 bg-white p-5 space-y-2.5 shadow-xs">
                                     <div className="flex items-center justify-between gap-2">
                                         <div className="flex items-center gap-2">
-                                            <span className="font-extrabold text-sm text-text-primary">
+                                            <span className="font-extrabold text-sm text-black">
                                                 {r.reviewer_name || r.name || r.author || "Verified Buyer"}
                                             </span>
-                                            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                                                 Verified Purchase
                                             </span>
                                         </div>
-                                        <span className="text-xs text-text-secondary">{formatDate(r.created_at)}</span>
+                                        <span className="text-xs text-neutral-500">{formatDate(r.created_at)}</span>
                                     </div>
                                     <div className="flex items-center gap-1 text-amber-400">
                                         {Array.from({ length: 5 }).map((_, i) => (
@@ -819,29 +819,29 @@ export default function ProductPage() {
                             Reviews for other products ({STORE_REVIEWS_MOCK.length})
                         </h3>
                         {STORE_REVIEWS_MOCK.map((sr) => (
-                            <div key={sr.id} className="rounded-2xl border border-border/60 bg-bg-primary p-5 space-y-3 shadow-2xs">
-                                <div className="flex items-center gap-1 text-amber-400">
+                            <div key={sr.id} className="rounded-2xl border border-neutral-200 bg-white p-5 space-y-3 shadow-xs">
+                                <div className="flex items-center gap-1 text-black">
                                     {Array.from({ length: 5 }).map((_, i) => (
-                                        <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                                        <Star key={i} className="h-4 w-4 fill-black text-black" />
                                     ))}
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-bg-secondary text-text-primary font-bold text-xs border border-border">
+                                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-100 text-black font-bold text-xs border border-neutral-200">
                                         {sr.author[0]}
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-sm text-text-primary">{sr.author}</h4>
-                                        <p className="text-[11px] text-text-secondary">{sr.date}</p>
+                                        <h4 className="font-bold text-sm text-black">{sr.author}</h4>
+                                        <p className="text-[11px] text-neutral-500">{sr.date}</p>
                                     </div>
                                 </div>
-                                <p className="text-sm text-text-secondary leading-relaxed">{sr.comment}</p>
-                                <div className="rounded-xl bg-lime-500/10 border border-lime-500/20 p-3 flex items-center gap-3">
-                                    <div className="h-10 w-10 shrink-0 rounded-lg bg-bg-secondary overflow-hidden border border-border">
+                                <p className="text-sm text-neutral-600 leading-relaxed">{sr.comment}</p>
+                                <div className="rounded-xl bg-neutral-50 border border-neutral-200 p-3 flex items-center gap-3">
+                                    <div className="h-10 w-10 shrink-0 rounded-lg bg-white overflow-hidden border border-neutral-200">
                                         <img src={displayImages[0]?.url || product.primary_image_url || undefined} alt="" className="h-full w-full object-cover" />
                                     </div>
                                     <div>
-                                        <span className="text-[11px] font-semibold text-text-secondary block">Review for</span>
-                                        <span className="text-xs font-bold text-text-primary underline cursor-pointer">{sr.productName}</span>
+                                        <span className="text-[11px] font-semibold text-neutral-500 block">Review for</span>
+                                        <span className="text-xs font-bold text-black underline cursor-pointer">{sr.productName}</span>
                                     </div>
                                 </div>
                             </div>
@@ -856,12 +856,12 @@ export default function ProductPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.5 }}
-                className="rounded-3xl border border-border/80 bg-bg-secondary/40 p-6 sm:p-12 text-center shadow-sm"
+                className="rounded-3xl border border-neutral-200 bg-neutral-50 p-6 sm:p-12 text-center shadow-xs"
             >
-                <h2 className="font-serif text-2xl sm:text-4xl font-extrabold text-text-primary tracking-tight">
+                <h2 className="font-serif text-2xl sm:text-4xl font-extrabold text-black tracking-tight">
                     Our Journey So Far
                 </h2>
-                <p className="text-xs sm:text-sm text-text-secondary mt-2">
+                <p className="text-xs sm:text-sm text-neutral-600 mt-2 font-medium">
                     Trusted by watch lovers across Pakistan
                 </p>
 
@@ -869,15 +869,15 @@ export default function ProductPage() {
                     <motion.div
                         whileHover={{ scale: 1.04, y: -4 }}
                         transition={{ duration: 0.2 }}
-                        className="flex flex-col items-center rounded-2xl border border-border/80 bg-bg-primary p-6 shadow-2xs transition-all hover:shadow-lg hover:border-text-primary/50"
+                        className="flex flex-col items-center rounded-2xl border border-neutral-200 bg-white p-6 shadow-xs transition-all hover:shadow-md hover:border-black"
                     >
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-btn-primary/10 text-btn-primary mb-3">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white mb-3 shadow-xs">
                             <ShoppingBag className="h-6 w-6" />
                         </div>
-                        <span className="font-serif text-2xl sm:text-4xl font-extrabold text-text-primary block tracking-tight">
+                        <span className="font-serif text-2xl sm:text-4xl font-extrabold text-black block tracking-tight">
                             <AnimatedCounter end={5000} suffix="+" />
                         </span>
-                        <span className="text-xs font-bold text-text-secondary mt-1.5 uppercase tracking-wider block">
+                        <span className="text-xs font-bold text-neutral-500 mt-1.5 uppercase tracking-wider block">
                             Watches Delivered
                         </span>
                     </motion.div>
@@ -885,15 +885,15 @@ export default function ProductPage() {
                     <motion.div
                         whileHover={{ scale: 1.04, y: -4 }}
                         transition={{ duration: 0.2 }}
-                        className="flex flex-col items-center rounded-2xl border border-border/80 bg-bg-primary p-6 shadow-2xs transition-all hover:shadow-lg hover:border-text-primary/50"
+                        className="flex flex-col items-center rounded-2xl border border-neutral-200 bg-white p-6 shadow-xs transition-all hover:shadow-md hover:border-black"
                     >
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-btn-primary/10 text-btn-primary mb-3">
-                            <Heart className="h-6 w-6 fill-btn-primary/20" />
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white mb-3 shadow-xs">
+                            <Heart className="h-6 w-6 fill-white" />
                         </div>
-                        <span className="font-serif text-2xl sm:text-4xl font-extrabold text-text-primary block tracking-tight">
+                        <span className="font-serif text-2xl sm:text-4xl font-extrabold text-black block tracking-tight">
                             <AnimatedCounter end={4000} suffix="+" />
                         </span>
-                        <span className="text-xs font-bold text-text-secondary mt-1.5 uppercase tracking-wider block">
+                        <span className="text-xs font-bold text-neutral-500 mt-1.5 uppercase tracking-wider block">
                             Happy Customers
                         </span>
                     </motion.div>
@@ -901,15 +901,15 @@ export default function ProductPage() {
                     <motion.div
                         whileHover={{ scale: 1.04, y: -4 }}
                         transition={{ duration: 0.2 }}
-                        className="flex flex-col items-center rounded-2xl border border-border/80 bg-bg-primary p-6 shadow-2xs transition-all hover:shadow-lg hover:border-text-primary/50"
+                        className="flex flex-col items-center rounded-2xl border border-neutral-200 bg-white p-6 shadow-xs transition-all hover:shadow-md hover:border-black"
                     >
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-btn-primary/10 text-btn-primary mb-3">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white mb-3 shadow-xs">
                             <Award className="h-6 w-6" />
                         </div>
-                        <span className="font-serif text-2xl sm:text-4xl font-extrabold text-text-primary block tracking-tight">
+                        <span className="font-serif text-2xl sm:text-4xl font-extrabold text-black block tracking-tight">
                             <AnimatedCounter end={350} suffix="+" />
                         </span>
-                        <span className="text-xs font-bold text-text-secondary mt-1.5 uppercase tracking-wider block">
+                        <span className="text-xs font-bold text-neutral-500 mt-1.5 uppercase tracking-wider block">
                             Watch Models
                         </span>
                     </motion.div>
@@ -917,15 +917,15 @@ export default function ProductPage() {
                     <motion.div
                         whileHover={{ scale: 1.04, y: -4 }}
                         transition={{ duration: 0.2 }}
-                        className="flex flex-col items-center rounded-2xl border border-border/80 bg-bg-primary p-6 shadow-2xs transition-all hover:shadow-lg hover:border-text-primary/50"
+                        className="flex flex-col items-center rounded-2xl border border-neutral-200 bg-white p-6 shadow-xs transition-all hover:shadow-md hover:border-black"
                     >
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-btn-primary/10 text-btn-primary mb-3">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white mb-3 shadow-xs">
                             <MapPin className="h-6 w-6" />
                         </div>
-                        <span className="font-serif text-2xl sm:text-4xl font-extrabold text-text-primary block tracking-tight">
+                        <span className="font-serif text-2xl sm:text-4xl font-extrabold text-black block tracking-tight">
                             <AnimatedCounter end={100} suffix="+" />
                         </span>
-                        <span className="text-xs font-bold text-text-secondary mt-1.5 uppercase tracking-wider block">
+                        <span className="text-xs font-bold text-neutral-500 mt-1.5 uppercase tracking-wider block">
                             Cities Served
                         </span>
                     </motion.div>
@@ -1068,7 +1068,7 @@ export default function ProductPage() {
                                 <Button
                                     size="sm"
                                     onClick={() => handleAddToCart(false)}
-                                    className="bg-black text-white dark:bg-white dark:text-black font-extrabold px-4 sm:px-6 h-10 rounded-xl shadow-md hover:scale-105 transition-transform"
+                                    className="bg-black text-white hover:bg-neutral-800 font-extrabold px-4 sm:px-6 h-10 rounded-xl shadow-md hover:scale-105 transition-transform"
                                 >
                                     <ShoppingCart className="h-4 w-4 mr-1.5" />
                                     <span className="hidden sm:inline">Add to cart</span>

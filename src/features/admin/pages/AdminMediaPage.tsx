@@ -1,16 +1,17 @@
 import { useRef, useState } from "react";
-import { Image as ImageIcon, Trash2, Upload } from "lucide-react";
-import { useAdminMedia, useDeleteMedia, useUploadMedia } from "@/features/admin/api";
+import { Image as ImageIcon, Trash2, Upload, Copy, Check, ExternalLink, RefreshCw } from "lucide-react";
+import { useSupabaseImages, useDeleteMedia, useUploadMedia } from "@/features/admin/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 
-function formatBytes(bytes: number | null): string {
+function formatBytes(bytes?: number | null): string {
     if (!bytes) return "—";
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -18,20 +19,34 @@ function formatBytes(bytes: number | null): string {
 }
 
 export default function AdminMediaPage() {
-    const { data: media, isLoading } = useAdminMedia();
+    const { data: media, isLoading, refetch, isRefetching } = useSupabaseImages();
     const deleteMedia = useDeleteMedia();
     const uploadMedia = useUploadMedia();
     const { toast } = useToast();
     const [search, setSearch] = useState("");
+    const [sourceFilter, setSourceFilter] = useState("all");
+    const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
     const [open, setOpen] = useState(false);
     const [altText, setAltText] = useState("");
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const filtered = (media ?? []).filter((m) =>
-        (m.file_name ?? "").toLowerCase().includes(search.toLowerCase()),
-    );
+    const filtered = (media ?? []).filter((m) => {
+        const matchesSearch =
+            !search.trim() ||
+            (m.fileName ?? "").toLowerCase().includes(search.toLowerCase()) ||
+            (m.url ?? "").toLowerCase().includes(search.toLowerCase());
+        const matchesSource = sourceFilter === "all" || m.source === sourceFilter;
+        return matchesSearch && matchesSource;
+    });
+
+    const handleCopy = (url: string) => {
+        navigator.clipboard.writeText(url);
+        setCopiedUrl(url);
+        toast({ title: "Image URL copied to clipboard", variant: "success" });
+        setTimeout(() => setCopiedUrl(null), 2000);
+    };
 
     const resetForm = () => {
         setAltText("");
@@ -75,29 +90,72 @@ export default function AdminMediaPage() {
 
     return (
         <div>
-            <div className="mb-6 flex items-center justify-between">
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="font-serif text-2xl font-semibold">Media Library</h1>
-                    <p className="text-sm text-text-secondary">Centralized asset management via Supabase Storage.</p>
+                    <h1 className="font-serif text-2xl font-semibold flex items-center gap-2">
+                        Media Library
+                        {media && (
+                            <Badge variant="secondary" className="font-mono text-xs">
+                                {media.length} Total Assets
+                            </Badge>
+                        )}
+                    </h1>
+                    <p className="text-sm text-text-secondary">Centralized asset management across Supabase Storage and database tables.</p>
                 </div>
-                <Button className="gap-2" onClick={openDialog}>
-                    <Upload className="h-4 w-4" />
-                    Upload
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => refetch()}
+                        disabled={isRefetching || isLoading}
+                        className="gap-1.5 text-xs h-9"
+                    >
+                        <RefreshCw className={`h-3.5 w-3.5 ${isRefetching ? "animate-spin" : ""}`} />
+                        Refresh
+                    </Button>
+                    <Button className="gap-2 h-9 text-xs" onClick={openDialog}>
+                        <Upload className="h-4 w-4" />
+                        Upload
+                    </Button>
+                </div>
             </div>
 
             <Card>
                 <CardContent className="p-6">
-                    <Input
-                        placeholder="Search by file name…"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="mb-4 max-w-sm"
-                    />
+                    <div className="mb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+                            {[
+                                { key: "all", label: "All Assets" },
+                                { key: "storage", label: "Storage Uploads" },
+                                { key: "product", label: "Products" },
+                                { key: "banner", label: "Banners" },
+                            ].map((tab) => (
+                                <button
+                                    key={tab.key}
+                                    type="button"
+                                    onClick={() => setSourceFilter(tab.key)}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+                                        sourceFilter === tab.key
+                                            ? "bg-btn-primary text-white shadow-xs"
+                                            : "bg-bg-secondary text-text-secondary hover:text-text-primary hover:bg-neutral-200/60 dark:hover:bg-neutral-800"
+                                    }`}
+                                >
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        <Input
+                            placeholder="Search by file name or URL…"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="max-w-xs h-9 text-xs"
+                        />
+                    </div>
 
                     {isLoading ? (
                         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                            {Array.from({ length: 10 }).map((_, i) => (
+                            {Array.from({ length: 15 }).map((_, i) => (
                                 <Skeleton key={i} className="aspect-square rounded-xl" />
                             ))}
                         </div>
@@ -105,37 +163,69 @@ export default function AdminMediaPage() {
                         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                             {filtered.map((m) => (
                                 <div
-                                    key={m.id}
-                                    className="group relative overflow-hidden rounded-xl border border-border bg-bg-secondary"
+                                    key={m.id + m.url}
+                                    className="group relative overflow-hidden rounded-xl border border-border bg-bg-secondary hover:shadow-md transition-shadow"
                                 >
-                                    <div className="aspect-square overflow-hidden bg-bg-tertiary">
+                                    <div className="aspect-square overflow-hidden bg-bg-tertiary relative">
                                         {m.url ? (
                                             <img
                                                 src={m.url}
-                                                alt={m.alt_text ?? m.file_name ?? "media"}
+                                                alt={m.fileName ?? "media"}
                                                 className="h-full w-full object-cover transition group-hover:scale-105"
+                                                loading="lazy"
                                             />
                                         ) : (
                                             <div className="flex h-full w-full items-center justify-center text-text-secondary">
                                                 <ImageIcon className="h-8 w-8" />
                                             </div>
                                         )}
+
+                                        {/* Source Badge */}
+                                        <div className="absolute top-2 left-2">
+                                            <span className="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-black/70 text-white backdrop-blur-xs shadow-xs">
+                                                {m.source}
+                                            </span>
+                                        </div>
+
+                                        {/* Quick Actions Overlay */}
+                                        <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Button
+                                                variant="secondary"
+                                                size="icon"
+                                                className="h-7 w-7 rounded-lg bg-bg-primary/90 text-text-primary hover:bg-bg-primary shadow-xs"
+                                                onClick={() => handleCopy(m.url)}
+                                                title="Copy public URL"
+                                            >
+                                                {copiedUrl === m.url ? (
+                                                    <Check className="h-3.5 w-3.5 text-emerald-600" />
+                                                ) : (
+                                                    <Copy className="h-3.5 w-3.5" />
+                                                )}
+                                            </Button>
+                                            <a
+                                                href={m.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="h-7 w-7 rounded-lg bg-bg-primary/90 text-text-primary hover:bg-bg-primary shadow-xs flex items-center justify-center"
+                                                title="View original"
+                                            >
+                                                <ExternalLink className="h-3.5 w-3.5" />
+                                            </a>
+                                        </div>
                                     </div>
                                     <div className="space-y-1 p-3">
-                                        <p className="truncate text-sm font-medium">{m.file_name ?? "Untitled"}</p>
-                                        <p className="text-xs text-text-secondary">{formatBytes(m.size_bytes)}</p>
+                                        <p className="truncate text-xs font-semibold text-text-primary" title={m.fileName}>
+                                            {m.fileName ?? "Untitled"}
+                                        </p>
+                                        <div className="flex items-center justify-between text-[11px] text-text-secondary">
+                                            <span>{formatBytes(m.sizeBytes)}</span>
+                                            {m.createdAt && (
+                                                <span className="text-[10px] font-mono">
+                                                    {new Date(m.createdAt).toLocaleDateString()}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="absolute right-2 top-2 h-8 w-8 bg-bg-primary/80 opacity-0 transition group-hover:opacity-100"
-                                        onClick={async () => {
-                                            await deleteMedia.mutateAsync({ id: m.id, storage_path: m.storage_path });
-                                            toast({ title: "Media deleted", variant: "success" });
-                                        }}
-                                    >
-                                        <Trash2 className="h-4 w-4 text-state-danger" />
-                                    </Button>
                                 </div>
                             ))}
                         </div>
@@ -143,7 +233,7 @@ export default function AdminMediaPage() {
                         <EmptyState
                             icon={ImageIcon}
                             title="No media found"
-                            description="Upload images to populate your media library."
+                            description={search ? `No images matching "${search}".` : "Upload images to populate your media library."}
                             action={
                                 <Button className="gap-2" onClick={openDialog}>
                                     <Upload className="h-4 w-4" />

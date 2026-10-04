@@ -1737,3 +1737,169 @@ export function useDeleteNotification() {
     });
 }
 
+export interface SupabaseImageItem {
+    id: string;
+    url: string;
+    fileName: string;
+    source: "storage" | "product" | "banner" | "media_asset";
+    createdAt?: string;
+    sizeBytes?: number;
+}
+
+/**
+ * Fetch and aggregate all uploaded images from Supabase:
+ * - Supabase Storage `media` bucket (`uploads/` & `misc/` folders)
+ * - `product_images` table
+ * - `media_assets` table
+ * - `banners` table
+ * Deduplicates by URL and orders newest first.
+ */
+export function useSupabaseImages() {
+    return useQuery<SupabaseImageItem[]>({
+        queryKey: ["admin-supabase-images"],
+        queryFn: async () => {
+            const seen = new Set<string>();
+            const results: SupabaseImageItem[] = [];
+
+            // 1. Supabase Storage `media` bucket (uploads folder)
+            try {
+                const { data: uploadFiles } = await supabase.storage.from("media").list("uploads", {
+                    limit: 150,
+                    sortBy: { column: "created_at", order: "desc" },
+                });
+                if (uploadFiles && uploadFiles.length > 0) {
+                    for (const f of uploadFiles) {
+                        if (!f.name || f.name === ".emptyFolderPlaceholder") continue;
+                        const { data } = supabase.storage.from("media").getPublicUrl(`uploads/${f.name}`);
+                        const url = data.publicUrl;
+                        if (url && !seen.has(url)) {
+                            seen.add(url);
+                            results.push({
+                                id: f.id || f.name,
+                                url,
+                                fileName: f.name,
+                                source: "storage",
+                                createdAt: f.created_at ?? undefined,
+                                sizeBytes: (f.metadata as any)?.size,
+                            });
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn("Storage uploads fetch notice:", e);
+            }
+
+            // 2. Supabase Storage `media` bucket (misc folder)
+            try {
+                const { data: miscFiles } = await supabase.storage.from("media").list("misc", {
+                    limit: 100,
+                    sortBy: { column: "created_at", order: "desc" },
+                });
+                if (miscFiles && miscFiles.length > 0) {
+                    for (const f of miscFiles) {
+                        if (!f.name || f.name === ".emptyFolderPlaceholder") continue;
+                        const { data } = supabase.storage.from("media").getPublicUrl(`misc/${f.name}`);
+                        const url = data.publicUrl;
+                        if (url && !seen.has(url)) {
+                            seen.add(url);
+                            results.push({
+                                id: f.id || f.name,
+                                url,
+                                fileName: f.name,
+                                source: "storage",
+                                createdAt: f.created_at ?? undefined,
+                                sizeBytes: (f.metadata as any)?.size,
+                            });
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn("Storage misc fetch notice:", e);
+            }
+
+            // 3. Product images table
+            try {
+                const { data: prods } = await (supabase.from("product_images" as never) as any)
+                    .select("id, url, created_at")
+                    .order("created_at", { ascending: false })
+                    .limit(150);
+                if (prods && prods.length > 0) {
+                    for (const p of (prods as any[])) {
+                        if (p.url && !seen.has(p.url)) {
+                            seen.add(p.url);
+                            const fileName = p.url.split("/").pop() || "product-image";
+                            results.push({
+                                id: p.id,
+                                url: p.url,
+                                fileName,
+                                source: "product",
+                                createdAt: p.created_at ?? undefined,
+                            });
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn("Product images fetch notice:", e);
+            }
+
+            // 4. Media assets table
+            try {
+                const { data: assets } = await (supabase.from("media_assets" as never) as any)
+                    .select("id, url, file_name, created_at, size_bytes")
+                    .order("created_at", { ascending: false })
+                    .limit(100);
+                if (assets && assets.length > 0) {
+                    for (const a of (assets as any[])) {
+                        if (a.url && !seen.has(a.url)) {
+                            seen.add(a.url);
+                            results.push({
+                                id: a.id,
+                                url: a.url,
+                                fileName: a.file_name || "media-asset",
+                                source: "media_asset",
+                                createdAt: a.created_at ?? undefined,
+                                sizeBytes: a.size_bytes ?? undefined,
+                            });
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn("Media assets fetch notice:", e);
+            }
+
+            // 5. Banners table
+            try {
+                const { data: banners } = await (supabase.from("banners" as never) as any)
+                    .select("id, image_url, title, created_at")
+                    .limit(50);
+                if (banners && banners.length > 0) {
+                    for (const b of (banners as any[])) {
+                        if (b.image_url && !seen.has(b.image_url)) {
+                            seen.add(b.image_url);
+                            results.push({
+                                id: b.id,
+                                url: b.image_url,
+                                fileName: b.title || b.image_url.split("/").pop() || "banner",
+                                source: "banner",
+                                createdAt: b.created_at ?? undefined,
+                            });
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn("Banners fetch notice:", e);
+            }
+
+            // Sort by newest createdAt first
+            results.sort((a, b) => {
+                const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                return timeB - timeA;
+            });
+
+            return results;
+        },
+        staleTime: 1000 * 60 * 2,
+    });
+}
+

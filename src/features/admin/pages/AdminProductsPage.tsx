@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Package, Star, ImagePlus, Layers, UploadCloud, Tag, GripVertical, LayoutList, ArrowUpDown } from "lucide-react";
+import { Plus, Pencil, Trash2, Package, Star, ImagePlus, Layers, UploadCloud, Tag, GripVertical, LayoutList, ArrowUpDown, Database } from "lucide-react";
 import { motion, Reorder } from "framer-motion";
 import { useAdminProducts, useDeleteProduct, useCreateProduct, useUpdateProduct, useUpdateProductOrder, useImageUpload } from "@/features/admin/api";
 import { useCategories } from "@/features/catalog/api";
+import { MediaLibraryDialog } from "@/components/admin/media-library-dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -78,6 +79,7 @@ export default function AdminProductsPage() {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState("general");
     const [manualImageUrl, setManualImageUrl] = useState("");
+    const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
 
     useEffect(() => {
         if (products) {
@@ -205,6 +207,23 @@ export default function AdminProductsPage() {
             };
         });
         setManualImageUrl("");
+    };
+
+    const handleAddImages = (urls: string[]) => {
+        if (!urls || urls.length === 0) return;
+        setForm((f) => {
+            let hasPrimary = f.images.some((img) => img.is_primary);
+            const newImgs = urls.map((url, i) => {
+                const isPrimary = !hasPrimary && i === 0;
+                if (isPrimary) hasPrimary = true;
+                return { url: url.trim(), is_primary: isPrimary };
+            });
+            return {
+                ...f,
+                images: [...f.images, ...newImgs],
+            };
+        });
+        toast({ title: `Added ${urls.length} image(s) from database`, variant: "success" });
     };
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -584,7 +603,7 @@ export default function AdminProductsPage() {
                                                 scale: 1.02,
                                                 boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)",
                                                 zIndex: 50,
-                                                borderColor: "#01411C"
+                                                borderColor: "#000000"
                                             }}
                                         >
                                             <div className="flex items-center gap-3 min-w-0">
@@ -861,23 +880,35 @@ export default function AdminProductsPage() {
                             <TabsContent value="gallery" className="space-y-4 pt-3">
                                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-dashed border-border bg-bg-secondary/50 p-4">
                                     <div>
-                                        <h4 className="text-sm font-semibold">Upload Product Images</h4>
-                                        <p className="text-xs text-text-secondary">Upload multiple photos. Click star to set primary image.</p>
+                                        <h4 className="text-sm font-semibold">Product Images</h4>
+                                        <p className="text-xs text-text-secondary">Upload new files or pick from images already in your Supabase database.</p>
                                     </div>
-                                    <label className="cursor-pointer">
-                                        <input
-                                            type="file"
-                                            multiple
-                                            accept="image/*"
-                                            onChange={handleFileUpload}
-                                            className="hidden"
-                                            disabled={uploadImage.isPending}
-                                        />
-                                        <div className="inline-flex items-center gap-2 rounded-lg bg-btn-primary px-3.5 py-2 text-xs font-bold text-white shadow hover:opacity-90 transition-opacity">
-                                            <UploadCloud className="h-4 w-4" />
-                                            {uploadImage.isPending ? "Uploading…" : "Upload Image Files"}
-                                        </div>
-                                    </label>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <label className="cursor-pointer">
+                                            <input
+                                                type="file"
+                                                multiple
+                                                accept="image/*"
+                                                onChange={handleFileUpload}
+                                                className="hidden"
+                                                disabled={uploadImage.isPending}
+                                            />
+                                            <div className="inline-flex items-center gap-2 rounded-lg bg-btn-primary px-3.5 py-2 text-xs font-bold text-white shadow hover:opacity-90 transition-opacity">
+                                                <UploadCloud className="h-4 w-4" />
+                                                {uploadImage.isPending ? "Uploading…" : "Upload Files"}
+                                            </div>
+                                        </label>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setMediaPickerOpen(true)}
+                                            className="gap-2 text-xs font-bold h-9 bg-bg-primary hover:bg-neutral-200/80 dark:hover:bg-neutral-800 border-border"
+                                        >
+                                            <Database className="h-4 w-4 text-text-primary" />
+                                            Select from Database
+                                        </Button>
+                                    </div>
                                 </div>
 
                                 <div className="flex items-center gap-2">
@@ -1087,6 +1118,16 @@ export default function AdminProductsPage() {
                     </form>
                 </DialogContent>
             </Dialog>
+
+            {/* Supabase Media Library Dialog for Multi-Selection */}
+            <MediaLibraryDialog
+                open={mediaPickerOpen}
+                onOpenChange={setMediaPickerOpen}
+                multiSelect={true}
+                onSelectMultiple={handleAddImages}
+                selectedUrls={form.images.map((img) => img.url)}
+                title="Select Product Images from Database"
+            />
         </div>
     );
 }

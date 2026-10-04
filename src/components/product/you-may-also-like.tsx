@@ -155,7 +155,7 @@ export function YouMayAlsoLike({ currentProductId, currentCategoryIds = [], bran
     }
 
     return (
-        <section className="py-12 sm:py-16 bg-bg-secondary/30 border-t border-border/60">
+        <section className="py-12 sm:py-16 bg-neutral-50 border-t border-neutral-200">
             <div className="container-bk px-4 sm:px-6">
                 {/* Header */}
                 <motion.div
@@ -166,15 +166,15 @@ export function YouMayAlsoLike({ currentProductId, currentCategoryIds = [], bran
                     className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 sm:mb-10 gap-3"
                 >
                     <div>
-                        <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-btn-primary mb-1">
+                        <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-black mb-1">
                             <Sparkles className="h-4 w-4" />
                             <span>RECOMMENDED FOR YOU</span>
                         </div>
-                        <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight">
+                        <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-black tracking-tight">
                             You May Also Like
                         </h2>
                     </div>
-                    <p className="text-xs sm:text-sm text-text-secondary max-w-xs">
+                    <p className="text-xs sm:text-sm text-neutral-600 max-w-xs font-medium">
                         Handpicked based on your past browsing history and favorite collections.
                     </p>
                 </motion.div>

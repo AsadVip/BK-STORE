@@ -8,4 +8,4 @@ Crawl-delay: 0
 User-agent: Bingbot
 Allow: /
 
-Sitemap: https://bkstore24.com/sitemap.xml
+Sitemap: https://bktajir.com/sitemap.xml

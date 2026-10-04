@@ -140,12 +140,13 @@ export default function OrderDetailPage() {
                     </tbody>
                 </table>
                 <div class="totals">
-                    <div class="totals-row"><span>Subtotal:</span> <span>PKR ${Number(order.subtotal || order.grand_total).toLocaleString()}</span></div>
-                    <div class="totals-row"><span>Shipping:</span> <span>PKR ${Number(order.shipping_total || 0).toLocaleString()}</span></div>
+                    <div class="totals-row"><span>Subtotal:</span> <span>PKR ${Number((order as any).subtotal_amount || order.subtotal || (Number(order.grand_total) + Number(order.discount_total || 0))).toLocaleString()}</span></div>
+                    ${Number(order.discount_total || 0) > 0 ? `<div class="totals-row" style="color: #10B981;"><span>Promo Discount:</span> <span>−PKR ${Number(order.discount_total).toLocaleString()}</span></div>` : ""}
+                    <div class="totals-row"><span>Shipping:</span> <span>${Number(order.shipping_total || 0) === 0 ? "FREE" : `PKR ${Number(order.shipping_total).toLocaleString()}`}</span></div>
                     <div class="totals-row grand-total"><span>Grand Total:</span> <span>PKR ${Number(order.grand_total).toLocaleString()}</span></div>
                 </div>
                 <div class="footer">
-                    Thank you for shopping with BK Store! For customer support, contact support@bkstore.com.
+                    Thank you for shopping with BK Store! For customer support, visit bktajir.com or contact support@bktajir.com.
                 </div>
                 <script>window.onload = function() { window.print(); }</script>
             </body>
@@ -268,7 +269,7 @@ export default function OrderDetailPage() {
                         <CardContent className="p-6">
                             <h2 className="mb-4 font-serif text-lg font-semibold">Summary</h2>
                             <div className="space-y-2 text-sm">
-                                <div className="flex justify-between"><span className="text-text-secondary">Subtotal</span><span>{formatCurrency(order.subtotal || order.grand_total)}</span></div>
+                                <div className="flex justify-between"><span className="text-text-secondary">Subtotal</span><span>{formatCurrency((order as any).subtotal_amount ?? order.subtotal ?? (Number(order.grand_total) + Number(order.discount_total || 0)))}</span></div>
                                 {order.discount_total > 0 && <div className="flex justify-between text-state-success"><span>Discount</span><span>−{formatCurrency(order.discount_total)}</span></div>}
                                 <div className="flex justify-between"><span className="text-text-secondary">Shipping</span><span>{formatCurrency(order.shipping_total || 0)}</span></div>
                                 <div className="flex justify-between"><span className="text-text-secondary">Tax</span><span>{formatCurrency(order.tax_total || 0)}</span></div>

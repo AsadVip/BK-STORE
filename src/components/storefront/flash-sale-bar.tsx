@@ -35,12 +35,12 @@ export function FlashSaleBar() {
         <aside
             role="region"
             aria-label="Flash Sale Announcement"
-            className="relative z-50 w-full overflow-hidden bg-gradient-to-r from-[#002610] via-[#01411C] to-[#002610] text-white shadow-md border-b border-[#D4AF37]/35 select-none"
+            className="relative z-50 w-full overflow-hidden bg-black text-white shadow-md border-b border-neutral-800 select-none"
         >
             <div className="container-bk flex h-11 items-center justify-between gap-1.5 sm:gap-2 text-xs font-semibold overflow-hidden min-w-0">
                 {/* Left claim (Desktop) */}
-                <div className="hidden lg:flex items-center gap-2 text-white/90">
-                    <span className="uppercase tracking-wider font-extrabold text-[11px] text-[#D4AF37]">
+                <div className="hidden lg:flex items-center gap-2 text-neutral-300">
+                    <span className="uppercase tracking-wider font-extrabold text-[11px] text-white">
                         LIMITED TIME FLASH SALE
                     </span>
                 </div>
@@ -48,44 +48,45 @@ export function FlashSaleBar() {
                 {/* Center Flash Sale & Timer (All Viewports) */}
                 <div className="flex flex-1 lg:flex-none items-center justify-center gap-1.5 sm:gap-3 mx-auto lg:mx-0 min-w-0 overflow-hidden">
                     <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                        <span className="font-extrabold uppercase tracking-widest text-[#D4AF37] flex items-center gap-1 truncate text-[10px] sm:text-xs">
-                            <Flame className="h-4 w-4 fill-[#D4AF37] text-[#D4AF37] animate-pulse" />
+                        <span className="font-extrabold uppercase tracking-widest text-white flex items-center gap-1 truncate text-[10px] sm:text-xs">
+                            <Flame className="h-4 w-4 fill-white text-white animate-pulse" />
                             {flashSale.sale_title || "LIMITED TIME FLASH SALE"}
                         </span>
 
                         {/* Live Countdown Clock */}
                         {timeLeft && (
-                            <div className="flex items-center gap-1 font-mono text-xs sm:text-sm font-bold text-white bg-black/40 px-2 py-0.5 rounded-md border border-[#D4AF37]/30 shadow-inner">
+                            <div className="flex items-center gap-1 font-mono text-xs sm:text-sm font-bold text-white bg-neutral-900 px-2.5 py-0.5 rounded-md border border-neutral-700 shadow-inner">
                                 <span className="w-4 sm:w-5 text-center">{pad(timeLeft.hours)}</span>
-                                <span className="animate-pulse text-[#D4AF37]">:</span>
+                                <span className="animate-pulse text-neutral-400">:</span>
                                 <span className="w-4 sm:w-5 text-center">{pad(timeLeft.minutes)}</span>
-                                <span className="animate-pulse text-[#D4AF37]">:</span>
+                                <span className="animate-pulse text-neutral-400">:</span>
                                 <span className="w-4 sm:w-5 text-center">{pad(timeLeft.seconds)}</span>
                             </div>
                         )}
 
-                        <span className="hidden sm:inline-block rounded-full bg-[#D4AF37] px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold uppercase text-[#01411C] tracking-wider shadow-xs">
+                        <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-red-600 px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold uppercase text-white tracking-wider shadow-xs">
+                            <span className="h-1.5 w-1.5 rounded-full bg-white animate-ping" />
                             LIVE
                         </span>
                     </div>
 
                     {/* Badge Pill */}
-                    <div className="rounded-full bg-[#D4AF37] px-2.5 sm:px-3 py-0.5 sm:py-1 text-[9px] sm:text-[11px] font-extrabold text-[#01411C] shadow-md uppercase tracking-wide transition-transform hover:scale-105 shrink-0 whitespace-nowrap border border-white/20">
+                    <div className="rounded-full bg-white px-2.5 sm:px-3 py-0.5 sm:py-1 text-[9px] sm:text-[11px] font-extrabold text-black shadow-md uppercase tracking-wide transition-transform hover:scale-105 shrink-0 whitespace-nowrap">
                         {flashSale.badge_text || `SPECIAL OFFER`}
                     </div>
                 </div>
 
                 {/* Right claim (Desktop) */}
                 <div className="hidden lg:flex items-center gap-3">
-                    <div className="flex items-center gap-1 text-[#D4AF37]">
+                    <div className="flex items-center gap-1 text-white">
                         {Array.from({ length: 5 }).map((_, i) => (
-                            <Star key={i} className="h-3 w-3 fill-[#D4AF37] text-[#D4AF37]" />
+                            <Star key={i} className="h-3 w-3 fill-white text-white" />
                         ))}
-                        <span className="text-[10px] text-white/90 font-medium ml-1">18M+ Happy Customers</span>
+                        <span className="text-[10px] text-neutral-300 font-medium ml-1">18M+ Happy Customers</span>
                     </div>
-                    <span className="text-[#D4AF37]/50">•</span>
-                    <div className="flex items-center gap-1.5 text-white/90">
-                        <Award className="h-3.5 w-3.5 text-[#D4AF37]" />
+                    <span className="text-neutral-600">•</span>
+                    <div className="flex items-center gap-1.5 text-neutral-300">
+                        <Award className="h-3.5 w-3.5 text-white" />
                         <span className="uppercase tracking-wider font-medium text-[11px]">FREE EXPRESS DELIVERY</span>
                     </div>
                 </div>

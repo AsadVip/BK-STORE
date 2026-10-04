@@ -50,38 +50,34 @@ export default function RegisterPage() {
     // Email confirmation screen
     if (emailSent) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-bg-primary p-6">
+            <div className="min-h-screen flex items-center justify-center bg-white p-6">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4 }}
-                    className="w-full max-w-md text-center"
+                    className="w-full max-w-md text-center p-8 rounded-3xl border border-neutral-200 bg-white shadow-xl"
                 >
-                    {/* Success icon with ring animation */}
-                    <div className="relative mx-auto mb-8 flex h-24 w-24 items-center justify-center">
-                        <div className="absolute inset-0 rounded-full bg-emerald-500/20 animate-ping" />
-                        <div className="absolute inset-2 rounded-full bg-emerald-500/10" />
-                        <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500 shadow-xl shadow-emerald-500/30">
-                            <CheckCircle2 className="h-10 w-10 text-white" />
-                        </div>
+                    {/* Success icon */}
+                    <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-black text-white shadow-md">
+                        <CheckCircle2 className="h-10 w-10 text-white" />
                     </div>
 
-                    <h1 className="font-serif text-3xl font-extrabold text-text-primary mb-3">
+                    <h1 className="font-serif text-3xl font-extrabold text-black mb-3">
                         Almost There! 🎉
                     </h1>
-                    <p className="text-text-secondary text-sm leading-relaxed mb-6">
+                    <p className="text-neutral-600 text-sm leading-relaxed mb-6 font-medium">
                         Your BK Store account has been created! We've sent a <strong>confirmation email</strong> to:
                     </p>
 
                     {/* Email pill */}
-                    <div className="inline-flex items-center gap-2 rounded-2xl bg-btn-primary/10 border border-btn-primary/20 px-5 py-3 mb-6">
-                        <Mail className="h-4.5 w-4.5 text-btn-primary" />
-                        <span className="font-bold text-btn-primary text-sm">{emailSent}</span>
+                    <div className="inline-flex items-center gap-2 rounded-2xl bg-neutral-100 border border-neutral-200 px-5 py-3 mb-6">
+                        <Mail className="h-4.5 w-4.5 text-black" />
+                        <span className="font-bold text-black text-sm">{emailSent}</span>
                     </div>
 
-                    <div className="rounded-2xl bg-amber-50 dark:bg-amber-900/10 border border-amber-200/50 p-4 text-left mb-8">
-                        <p className="text-xs font-bold text-amber-700 dark:text-amber-400 mb-2">📧 Next Steps:</p>
-                        <ol className="space-y-1.5 text-xs text-amber-700/80 dark:text-amber-300/70">
+                    <div className="rounded-2xl bg-neutral-50 border border-neutral-200 p-4 text-left mb-8">
+                        <p className="text-xs font-bold text-black mb-2">📧 Next Steps:</p>
+                        <ol className="space-y-1.5 text-xs text-neutral-600 font-medium">
                             <li>1. Check your email inbox (and spam folder)</li>
                             <li>2. Click the <strong>"Confirm Email"</strong> link</li>
                             <li>3. Come back and sign in to shop!</li>
@@ -91,17 +87,17 @@ export default function RegisterPage() {
                     <Button
                         asChild
                         size="lg"
-                        className="w-full h-13 rounded-xl bg-btn-primary text-white font-bold shadow-lg hover:bg-btn-primary-hover"
+                        className="w-full h-13 rounded-xl bg-black text-white font-extrabold shadow-lg hover:bg-neutral-800"
                     >
                         <Link to="/login">Go to Sign In <ArrowRight className="h-4 w-4 ml-2" /></Link>
                     </Button>
 
-                    <p className="mt-4 text-xs text-text-secondary">
+                    <p className="mt-4 text-xs text-neutral-500 font-medium">
                         Didn't receive the email?{" "}
                         <button
                             type="button"
                             onClick={() => setEmailSent(null)}
-                            className="text-btn-primary font-medium hover:underline"
+                            className="text-black font-bold hover:underline"
                         >
                             Try again
                         </button>
@@ -120,27 +116,27 @@ export default function RegisterPage() {
                     alt="BK Store"
                     className="absolute inset-0 h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 bg-black/70" />
-                <div className="absolute inset-0 bg-gradient-to-br from-[#5C3D2E]/60 via-transparent to-black/60" />
+                <div className="absolute inset-0 bg-black/75" />
+                <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/50 to-black/90" />
 
                 {/* Logo */}
                 <div className="relative z-10 flex items-center gap-3">
                     <img src="/logo.png" alt="BK Store" className="h-10 w-10 rounded-xl object-contain" />
                     <div>
                         <div className="font-serif text-lg font-bold text-white">BK Store</div>
-                        <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-400">Luxury Collection</div>
+                        <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-300">Luxury Collection</div>
                     </div>
                 </div>
 
                 {/* Center content */}
                 <div className="relative z-10">
-                    <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-300 border border-amber-400/30 mb-5">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white border border-white/20 mb-5">
                         <Sparkles className="h-3 w-3" /> Join the Inner Circle
                     </span>
                     <h2 className="font-serif text-3xl font-extrabold text-white leading-tight">
                         Become a BK<br />Store Member
                     </h2>
-                    <p className="mt-3 text-white/60 text-sm leading-relaxed max-w-xs">
+                    <p className="mt-3 text-white/70 text-sm leading-relaxed max-w-xs font-medium">
                         Get early access to new arrivals, members-only deals, and exclusive luxury collections.
                     </p>
                     <div className="mt-6 space-y-2.5">
@@ -150,9 +146,9 @@ export default function RegisterPage() {
                             "Order tracking & history",
                             "Wishlist & saved items",
                         ].map((benefit) => (
-                            <div key={benefit} className="flex items-center gap-2.5 text-sm text-white/70">
-                                <div className="h-4 w-4 rounded-full bg-emerald-500/30 flex items-center justify-center shrink-0">
-                                    <svg className="h-2.5 w-2.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <div key={benefit} className="flex items-center gap-2.5 text-sm text-white/80 font-medium">
+                                <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                                    <svg className="h-2.5 w-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                     </svg>
                                 </div>
@@ -162,14 +158,14 @@ export default function RegisterPage() {
                     </div>
                 </div>
 
-                <div className="relative z-10 flex items-center gap-2 text-white/50 text-xs">
+                <div className="relative z-10 flex items-center gap-2 text-white/70 text-xs font-medium">
                     <ShieldCheck className="h-4 w-4 text-emerald-400" />
                     Your data is encrypted & never shared
                 </div>
             </div>
 
             {/* Right Panel — Form */}
-            <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-10 bg-bg-primary overflow-y-auto">
+            <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-10 bg-white overflow-y-auto">
                 <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -180,38 +176,38 @@ export default function RegisterPage() {
                     <div className="lg:hidden flex items-center gap-2 mb-8">
                         <img src="/logo.png" alt="BK Store" className="h-9 w-9 rounded-xl object-contain" />
                         <div>
-                            <div className="font-serif text-base font-bold text-text-primary">BK Store</div>
-                            <div className="text-[9px] font-bold uppercase tracking-[0.3em] text-btn-primary">Luxury Collection</div>
+                            <div className="font-serif text-base font-bold text-black">BK Store</div>
+                            <div className="text-[9px] font-bold uppercase tracking-[0.3em] text-neutral-500">Luxury Collection</div>
                         </div>
                     </div>
 
                     <div className="mb-8">
-                        <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-text-primary">Create Account</h1>
-                        <p className="mt-2 text-sm text-text-secondary">Join the BK Store inner circle today</p>
+                        <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-black">Create Account</h1>
+                        <p className="mt-2 text-sm text-neutral-600 font-medium">Join the BK Store inner circle today</p>
                     </div>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         {/* Name Row */}
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-2">
-                                <Label htmlFor="first_name" className="text-sm font-semibold text-text-primary">First Name</Label>
+                                <Label htmlFor="first_name" className="text-sm font-bold text-black">First Name</Label>
                                 <Input
                                     id="first_name"
                                     autoComplete="given-name"
                                     placeholder="Ali"
-                                    className="h-12 rounded-xl border-border/60 bg-bg-secondary/60 text-sm focus:border-btn-primary focus:ring-1 focus:ring-btn-primary/30"
+                                    className="h-12 rounded-xl border border-neutral-300 bg-white text-black text-sm placeholder:text-neutral-400 focus:border-black focus:ring-1 focus:ring-black"
                                     {...register("first_name")}
                                     aria-invalid={!!errors.first_name}
                                 />
                                 {errors.first_name && <p className="text-xs text-red-500">{errors.first_name.message}</p>}
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="last_name" className="text-sm font-semibold text-text-primary">Last Name</Label>
+                                <Label htmlFor="last_name" className="text-sm font-bold text-black">Last Name</Label>
                                 <Input
                                     id="last_name"
                                     autoComplete="family-name"
                                     placeholder="Khan"
-                                    className="h-12 rounded-xl border-border/60 bg-bg-secondary/60 text-sm focus:border-btn-primary focus:ring-1 focus:ring-btn-primary/30"
+                                    className="h-12 rounded-xl border border-neutral-300 bg-white text-black text-sm placeholder:text-neutral-400 focus:border-black focus:ring-1 focus:ring-black"
                                     {...register("last_name")}
                                     aria-invalid={!!errors.last_name}
                                 />
@@ -221,13 +217,13 @@ export default function RegisterPage() {
 
                         {/* Email */}
                         <div className="space-y-2">
-                            <Label htmlFor="email" className="text-sm font-semibold text-text-primary">Email Address</Label>
+                            <Label htmlFor="email" className="text-sm font-bold text-black">Email Address</Label>
                             <Input
                                 id="email"
                                 type="email"
                                 autoComplete="email"
                                 placeholder="you@example.com"
-                                className="h-12 rounded-xl border-border/60 bg-bg-secondary/60 text-sm focus:border-btn-primary focus:ring-1 focus:ring-btn-primary/30"
+                                className="h-12 rounded-xl border border-neutral-300 bg-white text-black text-sm placeholder:text-neutral-400 focus:border-black focus:ring-1 focus:ring-black"
                                 {...register("email")}
                                 aria-invalid={!!errors.email}
                             />
@@ -236,46 +232,46 @@ export default function RegisterPage() {
 
                         {/* Password */}
                         <div className="space-y-2">
-                            <Label htmlFor="password" className="text-sm font-semibold text-text-primary">Password</Label>
+                            <Label htmlFor="password" className="text-sm font-bold text-black">Password</Label>
                             <div className="relative">
                                 <Input
                                     id="password"
                                     type={showPass ? "text" : "password"}
                                     autoComplete="new-password"
                                     placeholder="Min 8 characters"
-                                    className="h-12 rounded-xl border-border/60 bg-bg-secondary/60 text-sm pr-12 focus:border-btn-primary focus:ring-1 focus:ring-btn-primary/30"
+                                    className="h-12 rounded-xl border border-neutral-300 bg-white text-black text-sm pr-12 placeholder:text-neutral-400 focus:border-black focus:ring-1 focus:ring-black"
                                     {...register("password")}
                                     aria-invalid={!!errors.password}
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPass((v) => !v)}
-                                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary transition-colors"
+                                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-black transition-colors"
                                 >
                                     {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                 </button>
                             </div>
                             {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
-                            <p className="text-xs text-text-secondary">Min 8 characters, with at least one letter and number.</p>
+                            <p className="text-xs text-neutral-500 font-medium">Min 8 characters, with at least one letter and number.</p>
                         </div>
 
                         {/* Confirm Password */}
                         <div className="space-y-2">
-                            <Label htmlFor="confirm_password" className="text-sm font-semibold text-text-primary">Confirm Password</Label>
+                            <Label htmlFor="confirm_password" className="text-sm font-bold text-black">Confirm Password</Label>
                             <div className="relative">
                                 <Input
                                     id="confirm_password"
                                     type={showConfirm ? "text" : "password"}
                                     autoComplete="new-password"
                                     placeholder="Repeat password"
-                                    className="h-12 rounded-xl border-border/60 bg-bg-secondary/60 text-sm pr-12 focus:border-btn-primary focus:ring-1 focus:ring-btn-primary/30"
+                                    className="h-12 rounded-xl border border-neutral-300 bg-white text-black text-sm pr-12 placeholder:text-neutral-400 focus:border-black focus:ring-1 focus:ring-black"
                                     {...register("confirm_password")}
                                     aria-invalid={!!errors.confirm_password}
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowConfirm((v) => !v)}
-                                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary transition-colors"
+                                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-black transition-colors"
                                 >
                                     {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                 </button>
@@ -284,13 +280,13 @@ export default function RegisterPage() {
                         </div>
 
                         {/* Terms notice */}
-                        <p className="text-xs text-text-secondary leading-relaxed">
+                        <p className="text-xs text-neutral-500 leading-relaxed font-medium">
                             By creating an account, you agree to our{" "}
-                            <Link to="/terms" target="_blank" className="font-medium text-btn-primary hover:underline">
+                            <Link to="/terms" target="_blank" className="font-bold text-black hover:underline">
                                 Terms of Service
                             </Link>{" "}
                             and{" "}
-                            <Link to="/privacy-policy" target="_blank" className="font-medium text-btn-primary hover:underline">
+                            <Link to="/privacy-policy" target="_blank" className="font-bold text-black hover:underline">
                                 Privacy Policy
                             </Link>.
                         </p>
@@ -299,7 +295,7 @@ export default function RegisterPage() {
                             type="submit"
                             size="lg"
                             disabled={isSubmitting}
-                            className="w-full h-13 rounded-xl bg-btn-primary text-white font-bold text-base shadow-lg hover:bg-btn-primary-hover hover:shadow-xl transition-all"
+                            className="w-full h-13 rounded-xl bg-black text-white font-extrabold text-base shadow-lg hover:bg-neutral-800 transition-all"
                         >
                             {isSubmitting ? (
                                 <span className="flex items-center gap-2">
@@ -317,10 +313,10 @@ export default function RegisterPage() {
                         </Button>
                     </form>
 
-                    <div className="mt-6 pt-6 border-t border-border/50 text-center">
-                        <p className="text-sm text-text-secondary">
+                    <div className="mt-6 pt-6 border-t border-neutral-200 text-center">
+                        <p className="text-sm text-neutral-600 font-medium">
                             Already have an account?{" "}
-                            <Link to="/login" className="font-bold text-btn-primary hover:underline inline-flex items-center gap-1">
+                            <Link to="/login" className="font-bold text-black hover:underline inline-flex items-center gap-1">
                                 Sign in <ArrowRight className="h-3.5 w-3.5" />
                             </Link>
                         </p>

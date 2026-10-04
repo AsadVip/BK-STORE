@@ -29,15 +29,16 @@ export function PromoBanner({ banner, variant = "default", className = "" }: Pro
             ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-btn-primary/20 via-bg-secondary to-bg-primary" />
             )}
-            <div className="absolute inset-0 bg-black/30" />
-            <div className="container-bk relative flex h-full flex-col items-center justify-center text-center">
+            <div className="absolute inset-0 bg-black/60" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/70" />
+            <div className="container-bk relative flex h-full flex-col items-center justify-center text-center z-10 p-6">
                 {banner.text_overlay && (
-                    <h3 className="max-w-2xl font-serif text-2xl font-semibold text-white sm:text-3xl">
+                    <h3 className="max-w-2xl font-serif text-2xl font-extrabold text-white sm:text-3xl drop-shadow-lg">
                         {banner.text_overlay}
                     </h3>
                 )}
                 {banner.cta_label && (
-                    <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-text-primary shadow-lg transition-transform hover:scale-105">
+                    <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-extrabold text-black shadow-xl transition-all hover:bg-neutral-200 hover:scale-105 active:scale-95">
                         {banner.cta_label} <ArrowRight className="h-4 w-4" />
                     </span>
                 )}

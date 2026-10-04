@@ -49,7 +49,7 @@ export function generateInvoicePDF(order: OrderPDFData, filenamePrefix = "Invoic
 
     doc.setFontSize(9);
     doc.setFont("Helvetica", "normal");
-    doc.text("Modern Premium eCommerce Platform", 14, 25);
+    doc.text("Luxury Watches & Footwear • bktajir.com", 14, 25);
 
     // Document Title
     doc.setFontSize(20);
@@ -163,10 +163,11 @@ export function generateInvoicePDF(order: OrderPDFData, filenamePrefix = "Invoic
 
     // Summary Box
     const finalY = (doc as any).lastAutoTable.finalY + 8;
-    const subtotal = Number(order.subtotal || order.grand_total || order.total_amount || 0);
+    const discount = Number(order.discount_total || 0);
+    const grandTotal = Number(order.grand_total || order.total_amount || 0);
     const shipping = Number(order.shipping_total || 0);
     const tax = Number(order.tax_total || 0);
-    const grandTotal = Number(order.grand_total || order.total_amount || 0);
+    const subtotal = Number((order as any).subtotal_amount ?? order.subtotal ?? (grandTotal + discount - shipping - tax));
 
     const summaryX = 120;
     let sumY = finalY;
@@ -178,6 +179,12 @@ export function generateInvoicePDF(order: OrderPDFData, filenamePrefix = "Invoic
     doc.text("Subtotal:", summaryX, sumY);
     doc.text(`PKR ${subtotal.toLocaleString()}`, 196, sumY, { align: "right" });
     sumY += 5.5;
+
+    if (discount > 0) {
+        doc.text("Promo Discount:", summaryX, sumY);
+        doc.text(`-PKR ${discount.toLocaleString()}`, 196, sumY, { align: "right" });
+        sumY += 5.5;
+    }
 
     doc.text("Shipping Fee:", summaryX, sumY);
     doc.text(`PKR ${shipping.toLocaleString()}`, 196, sumY, { align: "right" });
@@ -209,7 +216,7 @@ export function generateInvoicePDF(order: OrderPDFData, filenamePrefix = "Invoic
         doc.setTextColor(150, 150, 150);
 
         doc.line(14, 280, 196, 280);
-        doc.text("Thank you for shopping with BK Store. Support: support@bkstore.com", 14, 285);
+        doc.text("Thank you for shopping with BK Store. Support: support@bktajir.com | bktajir.com", 14, 285);
         doc.text(`Page ${i} of ${pageCount}`, 196, 285, { align: "right" });
     }
 

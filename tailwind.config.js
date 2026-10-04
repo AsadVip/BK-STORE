@@ -17,39 +17,42 @@ export default {
         },
         extend: {
             colors: {
-                // BK Store palette tokens — LUXURY PAKISTAN INDEPENDENCE DAY PALETTE
+                // BK Tajir palette tokens — TIMELESS LUXURY BLACK & WHITE PALETTE
                 bg: {
                     primary: "#FFFFFF",
-                    secondary: "#F5F5F7",
+                    secondary: "#F6F6F6",
                     light: "#FAFAFA",
+                    surface: "#111111",
                 },
                 accent: {
-                    brown: "#171717",
-                    dark: "#0D0D0D",
-                    gold: "#D4AF37",
+                    black: "#000000",
+                    noir: "#0D0D0D",
+                    charcoal: "#1F1F1F",
+                    silver: "#E5E7EB",
+                    platinum: "#F3F4F6",
                 },
                 pak: {
-                    green: "#01411C",
-                    emerald: "#064E3B",
-                    gold: "#D4AF37",
-                    "gold-hover": "#E5C158",
+                    green: "#000000",
+                    emerald: "#171717",
+                    gold: "#262626",
+                    "gold-hover": "#000000",
                 },
                 btn: {
-                    primary: "#01411C",
-                    "primary-hover": "#D4AF37",
+                    primary: "#000000",
+                    "primary-hover": "#262626",
                 },
                 text: {
-                    primary: "#0D0D0D",
+                    primary: "#0A0A0A",
                     secondary: "#525252",
                     // Derived for dark surfaces (AA contrast)
                     dark: "#0D0D0D",
                     muted: "#737373",
-                    pak: "#01411C",
+                    pak: "#0A0A0A",
                 },
                 state: {
-                    success: "#01411C",
-                    danger: "#C62828",
-                    warning: "#FF9800",
+                    success: "#10B981",
+                    danger: "#DC2626",
+                    warning: "#F59E0B",
                 },
                 // shadcn/ui semantic tokens mapped to BK palette
                 border: "hsl(var(--border))",

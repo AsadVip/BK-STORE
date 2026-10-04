@@ -95,28 +95,28 @@ export function CustomerReviews() {
     };
 
     return (
-        <section className="py-20 bg-bg-secondary/60 border-y border-border/60">
+        <section className="py-20 bg-neutral-50/80 border-y border-neutral-200">
             <div className="container-bk">
                 {/* Header */}
                 <div className="flex flex-col items-center text-center max-w-2xl mx-auto mb-12">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-btn-primary/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-btn-primary mb-3">
-                        <Sparkles className="h-3.5 w-3.5" /> Verified Customer Feedback
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-black text-white px-4 py-1.5 text-xs font-bold uppercase tracking-wider mb-3 shadow-xs">
+                        <Sparkles className="h-3.5 w-3.5 text-white" /> Verified Customer Feedback
                     </span>
-                    <h2 className="font-serif text-3xl font-extrabold sm:text-4xl text-text-primary tracking-tight">
+                    <h2 className="font-serif text-3xl font-extrabold sm:text-4xl text-black tracking-tight">
                         Loved by Watch Enthusiasts & Sneakerheads
                     </h2>
-                    <p className="mt-3 text-text-secondary text-sm sm:text-base">
-                        Over 4,800+ 5-star reviews from verified buyers across the globe.
+                    <p className="mt-3 text-neutral-600 text-sm sm:text-base font-medium">
+                        Over 4,800+ 5-star reviews from verified buyers across Pakistan.
                     </p>
 
                     {/* Filters */}
-                    <div className="mt-6 flex items-center gap-2 p-1.5 rounded-full bg-bg-primary border border-border shadow-sm flex-wrap justify-center sm:flex-nowrap">
+                    <div className="mt-6 flex items-center gap-2 p-1.5 rounded-full bg-white border border-neutral-200 shadow-xs flex-wrap justify-center sm:flex-nowrap">
                         <button
                             onClick={() => setFilter("all")}
                             className={`rounded-full px-5 py-2 text-xs font-bold transition-all ${
                                 filter === "all"
-                                    ? "bg-btn-primary text-white shadow-md"
-                                    : "text-text-secondary hover:text-text-primary"
+                                    ? "bg-black text-white shadow-md"
+                                    : "text-neutral-600 hover:text-black hover:bg-neutral-100"
                             }`}
                         >
                             All Reviews ({REVIEWS_DATA.length})
@@ -125,8 +125,8 @@ export function CustomerReviews() {
                             onClick={() => setFilter("watch")}
                             className={`rounded-full px-5 py-2 text-xs font-bold transition-all ${
                                 filter === "watch"
-                                    ? "bg-btn-primary text-white shadow-md"
-                                    : "text-text-secondary hover:text-text-primary"
+                                    ? "bg-black text-white shadow-md"
+                                    : "text-neutral-600 hover:text-black hover:bg-neutral-100"
                             }`}
                         >
                             Luxury Watches ⌚
@@ -135,8 +135,8 @@ export function CustomerReviews() {
                             onClick={() => setFilter("sneaker")}
                             className={`rounded-full px-5 py-2 text-xs font-bold transition-all ${
                                 filter === "sneaker"
-                                    ? "bg-btn-primary text-white shadow-md"
-                                    : "text-text-secondary hover:text-text-primary"
+                                    ? "bg-black text-white shadow-md"
+                                    : "text-neutral-600 hover:text-black hover:bg-neutral-100"
                             }`}
                         >
                             Premium Shoes 👟
@@ -155,7 +155,7 @@ export function CustomerReviews() {
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.96 }}
                                 transition={{ duration: 0.3 }}
-                                className="flex flex-col justify-between rounded-3xl border border-border/80 bg-bg-primary p-6 shadow-sm hover:shadow-md transition-all"
+                                className="flex flex-col justify-between rounded-3xl border border-neutral-200 bg-white p-6 sm:p-7 shadow-xs hover:shadow-xl hover:border-black transition-all duration-300"
                             >
                                 <div>
                                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
@@ -163,49 +163,49 @@ export function CustomerReviews() {
                                             <img
                                                 src={rev.avatar}
                                                 alt={rev.author}
-                                                className="h-12 w-12 rounded-full object-cover ring-2 ring-btn-primary/20"
+                                                className="h-12 w-12 rounded-full object-cover ring-2 ring-neutral-200"
                                             />
                                             <div>
                                                 <div className="flex items-center gap-1.5">
-                                                    <h4 className="font-sans font-bold text-text-primary text-base">
+                                                    <h4 className="font-sans font-bold text-black text-base">
                                                         {rev.author}
                                                     </h4>
                                                     {rev.verified && (
-                                                        <span className="flex items-center text-[10px] font-bold text-state-success gap-0.5">
-                                                            <CheckCircle className="h-3 w-3 fill-state-success text-white" /> Verified
+                                                        <span className="flex items-center text-[10px] font-bold text-emerald-600 gap-0.5">
+                                                            <CheckCircle className="h-3 w-3 fill-emerald-600 text-white" /> Verified
                                                         </span>
                                                     )}
                                                 </div>
-                                                <p className="text-xs text-text-secondary">{rev.location} • {rev.date}</p>
+                                                <p className="text-xs text-neutral-500">{rev.location} • {rev.date}</p>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-0.5 text-amber-500">
+                                        <div className="flex items-center gap-0.5 text-black">
                                             {Array.from({ length: rev.rating }).map((_, i) => (
-                                                <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                                                <Star key={i} className="h-4 w-4 fill-black text-black" />
                                             ))}
                                         </div>
                                     </div>
 
-                                    <Badge className="mb-3 bg-bg-secondary text-btn-primary hover:bg-bg-secondary border-0 font-medium">
+                                    <Badge className="mb-3 bg-neutral-100 text-black border border-neutral-200 font-bold text-xs hover:bg-neutral-100">
                                         {rev.productName}
                                     </Badge>
 
-                                    <h5 className="font-serif font-bold text-lg text-text-primary mb-2">
+                                    <h5 className="font-serif font-bold text-lg text-black mb-2">
                                         "{rev.title}"
                                     </h5>
-                                    <p className="text-sm leading-relaxed text-text-secondary font-normal">
+                                    <p className="text-sm leading-relaxed text-neutral-600 font-medium">
                                         {rev.content}
                                     </p>
                                 </div>
 
-                                <div className="mt-6 flex items-center justify-between border-t border-border/50 pt-4">
-                                    <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                        <Quote className="h-3.5 w-3.5 text-btn-primary" /> Verified Purchase
+                                <div className="mt-6 flex items-center justify-between border-t border-neutral-100 pt-4">
+                                    <span className="text-xs text-neutral-500 flex items-center gap-1 font-medium">
+                                        <Quote className="h-3.5 w-3.5 text-black" /> Verified Purchase
                                     </span>
                                     <button
                                         onClick={() => handleLike(rev.id, rev.likes)}
-                                        className="flex items-center gap-1.5 text-xs text-text-secondary hover:text-btn-primary transition-colors"
+                                        className="flex items-center gap-1.5 text-xs text-neutral-600 hover:text-black transition-colors font-semibold"
                                     >
                                         <ThumbsUp className="h-3.5 w-3.5" />
                                         <span>Helpful ({likesMap[rev.id] ?? rev.likes})</span>

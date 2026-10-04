@@ -64,10 +64,10 @@ export default function ShopPage() {
         <div className="container-bk py-10 animate-page-fade">
             {/* Header */}
             <div className="mb-8 space-y-2">
-                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-[#01411C] bg-[#01411C]/10 border border-[#01411C]/20 px-3.5 py-1 rounded-full">
-                    🇵🇰 14th August Azadi Collection
+                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-neutral-600 bg-neutral-100 border border-neutral-200 px-3.5 py-1 rounded-full">
+                    BK STORE COLLECTION
                 </span>
-                <h1 className="font-serif text-3xl sm:text-5xl font-extrabold text-[#01411C]">
+                <h1 className="font-serif text-3xl sm:text-5xl font-extrabold text-black">
                     {activeCategory ? activeCategory.name : "All Timepieces & Products"}
                 </h1>
                 {activeCategory?.description && (
@@ -85,31 +85,33 @@ export default function ShopPage() {
             <div className="flex gap-8">
                 {/* Filter sidebar (desktop) */}
                 <aside className="hidden w-64 shrink-0 lg:block">
-                    <FilterPanel
-                        categories={categories}
-                        brands={brands}
-                        activeCategorySlug={categorySlug}
-                        selectedBrand={selectedBrand}
-                        onSelectBrand={setSelectedBrand}
-                        maxPrice={maxPrice}
-                        onMaxPrice={setMaxPrice}
-                    />
+                    <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-xs sticky top-24">
+                        <FilterPanel
+                            categories={categories}
+                            brands={brands}
+                            activeCategorySlug={categorySlug}
+                            selectedBrand={selectedBrand}
+                            onSelectBrand={setSelectedBrand}
+                            maxPrice={maxPrice}
+                            onMaxPrice={setMaxPrice}
+                        />
+                    </div>
                 </aside>
 
                 {/* Main */}
                 <div className="min-w-0 flex-1">
                     {/* Toolbar */}
                     <div className="mb-6 flex items-center justify-between gap-2 sm:gap-4 min-w-0">
-                        <p className="text-sm text-text-secondary">
-                            {data ? `${data.total} products` : "Loading…"}
+                        <p className="text-sm text-neutral-600 font-medium">
+                            {data ? `${data.total} products available` : "Loading…"}
                         </p>
                         <div className="flex items-center gap-2">
-                            <Button variant="secondary" size="sm" className="lg:hidden" onClick={() => setFilterOpen(true)}>
-                                <SlidersHorizontal className="h-4 w-4" /> Filters
+                            <Button variant="outline" size="sm" className="lg:hidden border-neutral-300 bg-white text-black hover:bg-neutral-100" onClick={() => setFilterOpen(true)}>
+                                <SlidersHorizontal className="h-4 w-4 mr-1.5" /> Filters
                             </Button>
                             <Select value={sort} onValueChange={(v) => setSort(v as ShopFilters["sort"])}>
-                                <SelectTrigger className="w-44"><SelectValue placeholder="Sort by" /></SelectTrigger>
-                                <SelectContent>
+                                <SelectTrigger className="w-44 bg-white border-neutral-300 text-black font-medium"><SelectValue placeholder="Sort by" /></SelectTrigger>
+                                <SelectContent className="bg-white border-neutral-200 text-black">
                                     {SORT_OPTIONS.map((o) => (
                                         <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
                                     ))}
@@ -132,7 +134,7 @@ export default function ShopPage() {
                             icon={SlidersHorizontal}
                             title="No products found"
                             description="Try adjusting your filters or search terms."
-                            action={<Button asChild><Link to="/shop">Clear filters</Link></Button>}
+                            action={<Button asChild className="bg-black text-white hover:bg-neutral-800"><Link to="/shop">Clear filters</Link></Button>}
                         />
                     )}
 
@@ -140,21 +142,23 @@ export default function ShopPage() {
                     {data && data.pages > 1 && (
                         <div className="mt-10 flex items-center justify-center gap-2">
                             <Button
-                                variant="secondary"
+                                variant="outline"
                                 size="sm"
                                 disabled={page === 1}
                                 onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                className="border-neutral-300 text-black hover:bg-neutral-100"
                             >
                                 Previous
                             </Button>
-                            <span className="text-sm text-text-secondary">
+                            <span className="text-sm text-neutral-600 font-semibold px-2">
                                 Page {page} of {data.pages}
                             </span>
                             <Button
-                                variant="secondary"
+                                variant="outline"
                                 size="sm"
                                 disabled={page === data.pages}
                                 onClick={() => setPage((p) => Math.min(data.pages, p + 1))}
+                                className="border-neutral-300 text-black hover:bg-neutral-100"
                             >
                                 Next
                             </Button>
@@ -167,10 +171,10 @@ export default function ShopPage() {
             {filterOpen && (
                 <div className="fixed inset-0 z-50 lg:hidden">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setFilterOpen(false)} />
-                    <div className="absolute right-0 top-0 h-full w-80 max-w-[85%] overflow-y-auto bg-bg-primary p-6 shadow-xl">
-                        <div className="mb-6 flex items-center justify-between">
-                            <h2 className="font-serif text-xl font-semibold">Filters</h2>
-                            <button onClick={() => setFilterOpen(false)} aria-label="Close filters">
+                    <div className="absolute right-0 top-0 h-full w-80 max-w-[85%] overflow-y-auto bg-white p-6 shadow-2xl border-l border-neutral-200">
+                        <div className="mb-6 flex items-center justify-between border-b border-neutral-200 pb-4">
+                            <h2 className="font-serif text-xl font-bold text-black">Filters</h2>
+                            <button onClick={() => setFilterOpen(false)} aria-label="Close filters" className="p-1 rounded-lg text-neutral-600 hover:text-black hover:bg-neutral-100">
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
@@ -204,15 +208,15 @@ function FilterPanel({ categories, brands, activeCategorySlug, selectedBrand, on
     return (
         <div className="space-y-8">
             <div>
-                <h3 className="mb-3 font-sans text-xs font-bold uppercase tracking-wider text-text-secondary">Categories</h3>
+                <h3 className="mb-3 font-sans text-xs font-bold uppercase tracking-wider text-black">Categories</h3>
                 {categories ? (
                     <ul className="space-y-1.5">
                         <li>
                             <Link
                                 to="/shop"
                                 className={cn(
-                                    "flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-bg-secondary hover:text-text-primary",
-                                    !activeCategorySlug ? "bg-bg-secondary text-btn-primary font-semibold" : "text-text-secondary"
+                                    "flex items-center justify-between rounded-xl px-3 py-2 text-sm font-semibold transition-colors",
+                                    !activeCategorySlug ? "bg-black text-white" : "text-neutral-600 hover:bg-neutral-100 hover:text-black"
                                 )}
                             >
                                 All Products
@@ -225,8 +229,8 @@ function FilterPanel({ categories, brands, activeCategorySlug, selectedBrand, on
                                     <Link
                                         to={`/shop/${c.slug}`}
                                         className={cn(
-                                            "flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-bg-secondary hover:text-text-primary",
-                                            isActive ? "bg-bg-secondary text-btn-primary font-semibold" : "text-text-secondary"
+                                            "flex items-center justify-between rounded-xl px-3 py-2 text-sm font-semibold transition-colors",
+                                            isActive ? "bg-black text-white" : "text-neutral-600 hover:bg-neutral-100 hover:text-black"
                                         )}
                                     >
                                         <span>{c.name}</span>
@@ -241,12 +245,15 @@ function FilterPanel({ categories, brands, activeCategorySlug, selectedBrand, on
             </div>
 
             <div>
-                <h3 className="mb-3 font-sans text-sm font-semibold uppercase tracking-wide text-text-secondary">Brand</h3>
+                <h3 className="mb-3 font-sans text-xs font-bold uppercase tracking-wider text-black">Brand</h3>
                 {brands ? (
                     <ul className="space-y-1.5">
                         <li>
                             <button
-                                className={cn("text-sm hover:text-text-primary", !selectedBrand ? "text-text-primary font-medium" : "text-text-secondary")}
+                                className={cn(
+                                    "w-full text-left rounded-xl px-3 py-1.5 text-sm font-semibold transition-colors",
+                                    !selectedBrand ? "bg-neutral-100 text-black font-bold" : "text-neutral-600 hover:text-black hover:bg-neutral-50"
+                                )}
                                 onClick={() => onSelectBrand(undefined)}
                             >
                                 All Brands
@@ -255,7 +262,10 @@ function FilterPanel({ categories, brands, activeCategorySlug, selectedBrand, on
                         {brands.map((b) => (
                             <li key={b.id}>
                                 <button
-                                    className={cn("text-sm hover:text-text-primary", selectedBrand === b.id ? "text-text-primary font-medium" : "text-text-secondary")}
+                                    className={cn(
+                                        "w-full text-left rounded-xl px-3 py-1.5 text-sm font-semibold transition-colors",
+                                        selectedBrand === b.id ? "bg-neutral-100 text-black font-bold" : "text-neutral-600 hover:text-black hover:bg-neutral-50"
+                                    )}
                                     onClick={() => onSelectBrand(b.id)}
                                 >
                                     {b.name}
@@ -269,18 +279,18 @@ function FilterPanel({ categories, brands, activeCategorySlug, selectedBrand, on
             </div>
 
             <div>
-                <h3 className="mb-3 font-sans text-sm font-semibold uppercase tracking-wide text-text-secondary">Max Price</h3>
+                <h3 className="mb-3 font-sans text-xs font-bold uppercase tracking-wider text-black">Max Price</h3>
                 <input
                     type="range"
                     min={0}
-                    max={1000}
-                    step={50}
-                    value={maxPrice ?? 1000}
+                    max={100000}
+                    step={1000}
+                    value={maxPrice ?? 100000}
                     onChange={(e) => onMaxPrice(Number(e.target.value))}
-                    className="w-full accent-btn-primary"
+                    className="w-full accent-black cursor-pointer"
                 />
-                <p className="mt-1 text-sm text-text-secondary">
-                    Up to {formatCurrency(maxPrice ?? 1000)}
+                <p className="mt-1.5 text-xs text-neutral-600 font-semibold">
+                    Up to {formatCurrency(maxPrice ?? 100000)}
                 </p>
             </div>
         </div>

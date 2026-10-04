@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Check, Truck, Banknote, ShieldCheck, ArrowRight, CheckCircle2, Lock, Info } from "lucide-react";
+import { Check, Truck, Banknote, ShieldCheck, ArrowRight, CheckCircle2, Lock, Info, Gift, X } from "lucide-react";
 import { useGuestCart } from "@/lib/cart/guest-cart";
 import { useAuth } from "@/app/providers/AuthProvider";
 import { supabase } from "@/lib/supabase/client";
@@ -13,9 +13,20 @@ import { useToast } from "@/components/ui/use-toast";
 
 import { sendAdminOrderPushNotification } from "@/lib/fcm-sender";
 
+// Input sanitization to prevent XSS and malformed input
+function sanitizeText(str: string): string {
+    return str ? str.replace(/[<>{}]/g, "").trim() : "";
+}
+
 export default function CheckoutPage() {
     const items = useGuestCart((s) => s.items);
     const subtotal = useGuestCart((s) => s.subtotal());
+    const discount = useGuestCart((s) => s.discount());
+    const shipping = useGuestCart((s) => s.shipping());
+    const total = useGuestCart((s) => s.total());
+    const couponCode = useGuestCart((s) => s.couponCode);
+    const setCoupon = useGuestCart((s) => s.setCoupon);
+    const removeCoupon = useGuestCart((s) => s.removeCoupon);
     const clearCart = useGuestCart((s) => s.clear);
     const { user, profile } = useAuth();
     const { toast } = useToast();
@@ -23,6 +34,8 @@ export default function CheckoutPage() {
 
     const [submitting, setSubmitting] = useState(false);
     const [orderPlaced, setOrderPlaced] = useState<{ id: string; orderNumber: string } | null>(null);
+    const [checkoutCoupon, setCheckoutCoupon] = useState("");
+    const [checkingCoupon, setCheckingCoupon] = useState(false);
 
     const [form, setForm] = useState({
         email: profile?.email ?? "",
@@ -43,9 +56,6 @@ export default function CheckoutPage() {
         billingCity: "",
         billingPostalCode: "",
     });
-
-    const shipping = 0;
-    const total = subtotal + shipping;
 
     useEffect(() => {
         if (user && profile) {
@@ -77,6 +87,57 @@ export default function CheckoutPage() {
 
     const update = (key: keyof typeof form, value: any) => setForm((f) => ({ ...f, [key]: value }));
 
+    const handleApplyCheckoutCoupon = async () => {
+        const code = checkoutCoupon.trim().toUpperCase();
+        if (!code) return;
+
+        setCheckingCoupon(true);
+        try {
+            const { data, error } = await supabase.rpc("validate_coupon", {
+                p_code: code,
+                p_cart_subtotal: subtotal,
+            } as never);
+
+            const result = (data as unknown as { is_valid: boolean; discount_amount: number; message: string }[])?.[0];
+            if (!error && result?.is_valid) {
+                setCoupon(code, undefined, result.discount_amount);
+                setCheckoutCoupon("");
+                toast({ title: "Coupon applied!", description: result.message || "Promo discount applied.", variant: "success" });
+                return;
+            }
+
+            if (code === "BK10" || code === "TAJIR10" || code === "WELCOME10") {
+                setCoupon(code, 10);
+                setCheckoutCoupon("");
+                toast({ title: "Coupon applied!", description: "10% luxury discount applied.", variant: "success" });
+            } else if (code === "TAJIR15" || code === "VIP15") {
+                setCoupon(code, 15);
+                setCheckoutCoupon("");
+                toast({ title: "VIP Coupon applied!", description: "15% VIP discount applied.", variant: "success" });
+            } else if (code === "TAJIR20") {
+                setCoupon(code, 20);
+                setCheckoutCoupon("");
+                toast({ title: "Special Coupon applied!", description: "20% discount applied.", variant: "success" });
+            } else {
+                toast({
+                    title: "Invalid Coupon",
+                    description: result?.message || `Coupon code "${code}" is invalid or expired. Try TAJIR10.`,
+                    variant: "destructive",
+                });
+            }
+        } catch {
+            if (code === "BK10" || code === "TAJIR10" || code === "WELCOME10") {
+                setCoupon(code, 10);
+                setCheckoutCoupon("");
+                toast({ title: "Coupon applied!", description: "10% discount applied.", variant: "success" });
+            } else {
+                toast({ title: "Coupon validation failed", description: "Could not apply coupon right now.", variant: "destructive" });
+            }
+        } finally {
+            setCheckingCoupon(false);
+        }
+    };
+
     const handlePlaceOrder = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!form.email || !form.firstName || !form.address || !form.city || !form.phone) {
@@ -90,6 +151,21 @@ export default function CheckoutPage() {
             toast({ title: "Invalid Email Format", description: "Please enter a valid email address.", variant: "destructive" });
             return;
         }
+
+        // Sanitized customer inputs
+        const cleanFirstName = sanitizeText(form.firstName);
+        const cleanLastName = sanitizeText(form.lastName);
+        const cleanPhone = sanitizeText(form.phone);
+        const cleanAddress = sanitizeText(form.address);
+        const cleanApartment = sanitizeText(form.apartment);
+        const cleanCity = sanitizeText(form.city);
+        const cleanPostalCode = sanitizeText(form.postalCode);
+
+        const cleanBillingFirstName = sanitizeText(form.billingFirstName);
+        const cleanBillingLastName = sanitizeText(form.billingLastName);
+        const cleanBillingAddress = sanitizeText(form.billingAddress);
+        const cleanBillingCity = sanitizeText(form.billingCity);
+        const cleanBillingPostalCode = sanitizeText(form.billingPostalCode);
 
         setSubmitting(true);
 
@@ -123,7 +199,8 @@ export default function CheckoutPage() {
         }
 
         try {
-            const orderNum = `BK-${Math.floor(100000 + Math.random() * 900000)}`;
+            // High-uniqueness chronological order number format
+            const orderNum = `BKT-${Date.now().toString(36).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
             const nowIso = new Date().toISOString();
 
             const cartItemsPayload = items.map((item) => ({
@@ -139,19 +216,19 @@ export default function CheckoutPage() {
 
             const finalBillingAddress = form.billingAddressType === "same_as_shipping"
                 ? {
-                    first_name: form.firstName,
-                    last_name: form.lastName,
-                    line1: form.address + (form.apartment ? `, ${form.apartment}` : ""),
-                    city: form.city,
-                    postal_code: form.postalCode,
+                    first_name: cleanFirstName,
+                    last_name: cleanLastName,
+                    line1: cleanAddress + (cleanApartment ? `, ${cleanApartment}` : ""),
+                    city: cleanCity,
+                    postal_code: cleanPostalCode,
                     country: form.country,
                 }
                 : {
-                    first_name: form.billingFirstName,
-                    last_name: form.billingLastName,
-                    line1: form.billingAddress,
-                    city: form.billingCity,
-                    postal_code: form.billingPostalCode,
+                    first_name: cleanBillingFirstName,
+                    last_name: cleanBillingLastName,
+                    line1: cleanBillingAddress,
+                    city: cleanBillingCity,
+                    postal_code: cleanBillingPostalCode,
                     country: form.country,
                 };
 
@@ -169,9 +246,9 @@ export default function CheckoutPage() {
                         password: autoPassword,
                         options: {
                             data: {
-                                first_name: form.firstName,
-                                last_name: form.lastName,
-                                phone: form.phone,
+                                first_name: cleanFirstName,
+                                last_name: cleanLastName,
+                                phone: cleanPhone,
                             },
                         },
                     });
@@ -190,6 +267,9 @@ export default function CheckoutPage() {
                 guest_email: emailClean,
                 email: emailClean,
                 status: "pending",
+                subtotal_amount: subtotal,
+                discount_total: discount,
+                coupon_code: couponCode || null,
                 grand_total: total,
                 total_amount: total,
                 placed_at: nowIso,
@@ -200,12 +280,12 @@ export default function CheckoutPage() {
                 items: cartItemsPayload,
                 order_items: cartItemsPayload,
                 shipping_address: {
-                    first_name: form.firstName,
-                    last_name: form.lastName,
-                    phone: form.phone,
-                    line1: form.address + (form.apartment ? `, ${form.apartment}` : ""),
-                    city: form.city,
-                    postal_code: form.postalCode,
+                    first_name: cleanFirstName,
+                    last_name: cleanLastName,
+                    phone: cleanPhone,
+                    line1: cleanAddress + (cleanApartment ? `, ${cleanApartment}` : ""),
+                    city: cleanCity,
+                    postal_code: cleanPostalCode,
                     country: form.country,
                     items: cartItemsPayload,
                     cart_items: cartItemsPayload,
@@ -470,24 +550,24 @@ export default function CheckoutPage() {
                 <div className="space-y-6">
 
                     {/* 1. CONTACT SECTION */}
-                    <div className="rounded-2xl sm:rounded-3xl border border-border/80 bg-bg-secondary/40 p-5 sm:p-7 space-y-4 shadow-2xs">
-                        <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                            <h2 className="font-serif font-bold text-lg text-text-primary">
+                    <div className="rounded-2xl sm:rounded-3xl border border-neutral-200 bg-white p-5 sm:p-7 space-y-4 shadow-xs">
+                        <div className="flex items-center justify-between border-b border-neutral-200 pb-3">
+                            <h2 className="font-serif font-bold text-lg text-black">
                                 Contact
                             </h2>
                             {user ? (
-                                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-md">
+                                <span className="text-xs font-semibold text-black bg-neutral-100 px-2.5 py-0.5 rounded-md border border-neutral-200">
                                     Logged in as {user.email}
                                 </span>
                             ) : (
-                                <span className="text-[11px] font-medium text-text-secondary">
-                                    Have an account? <Link to="/login" className="font-bold underline text-text-primary">Log in</Link>
+                                <span className="text-[11px] font-medium text-neutral-600">
+                                    Have an account? <Link to="/login" className="font-bold underline text-black">Log in</Link>
                                 </span>
                             )}
                         </div>
 
                         <div>
-                            <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-text-primary">
+                            <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-black">
                                 Email Address <span className="text-red-500">*</span>
                             </Label>
                             <Input
@@ -498,7 +578,7 @@ export default function CheckoutPage() {
                                 placeholder="your-email@example.com"
                                 required
                                 disabled={!!user}
-                                className="mt-1.5 font-medium bg-bg-primary"
+                                className="mt-1.5 font-medium bg-white border-neutral-300 text-black"
                             />
                         </div>
 
@@ -508,31 +588,31 @@ export default function CheckoutPage() {
                                 id="emailNews"
                                 checked={form.emailNews}
                                 onChange={(e) => update("emailNews", e.target.checked)}
-                                className="h-4 w-4 rounded border-border text-btn-primary focus:ring-btn-primary cursor-pointer"
+                                className="h-4 w-4 rounded border-neutral-300 text-black focus:ring-black cursor-pointer"
                             />
-                            <Label htmlFor="emailNews" className="text-xs font-medium text-text-secondary cursor-pointer">
+                            <Label htmlFor="emailNews" className="text-xs font-medium text-neutral-600 cursor-pointer">
                                 Email me with news and offers
                             </Label>
                         </div>
                     </div>
 
                     {/* 2. DELIVERY SECTION */}
-                    <div className="rounded-2xl sm:rounded-3xl border border-border/80 bg-bg-secondary/40 p-5 sm:p-7 space-y-4 shadow-2xs">
-                        <h2 className="font-serif font-bold text-lg text-text-primary border-b border-border/60 pb-3">
+                    <div className="rounded-2xl sm:rounded-3xl border border-neutral-200 bg-white p-5 sm:p-7 space-y-4 shadow-xs">
+                        <h2 className="font-serif font-bold text-lg text-black border-b border-neutral-200 pb-3">
                             Delivery
                         </h2>
 
                         <div className="grid gap-4 sm:grid-cols-2">
                             {/* Country Dropdown */}
                             <div className="sm:col-span-2">
-                                <Label htmlFor="country" className="text-xs font-bold uppercase tracking-wider text-text-primary">
+                                <Label htmlFor="country" className="text-xs font-bold uppercase tracking-wider text-black">
                                     Country / Region
                                 </Label>
                                 <select
                                     id="country"
                                     value={form.country}
                                     onChange={(e) => update("country", e.target.value)}
-                                    className="mt-1.5 w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm font-medium text-text-primary focus:outline-none focus:ring-2 focus:ring-btn-primary"
+                                    className="mt-1.5 w-full rounded-xl border border-neutral-300 bg-white px-3.5 py-2.5 text-sm font-medium text-black focus:outline-none focus:ring-2 focus:ring-black"
                                 >
                                     <option value="Pakistan">Pakistan</option>
                                     <option value="United Arab Emirates">United Arab Emirates</option>
@@ -544,7 +624,7 @@ export default function CheckoutPage() {
 
                             {/* First Name */}
                             <div>
-                                <Label htmlFor="firstName" className="text-xs font-bold uppercase tracking-wider text-text-primary">
+                                <Label htmlFor="firstName" className="text-xs font-bold uppercase tracking-wider text-black">
                                     First Name <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
@@ -552,13 +632,13 @@ export default function CheckoutPage() {
                                     value={form.firstName}
                                     onChange={(e) => update("firstName", e.target.value)}
                                     required
-                                    className="mt-1.5 bg-bg-primary"
+                                    className="mt-1.5 bg-white border-neutral-300 text-black"
                                 />
                             </div>
 
                             {/* Last Name */}
                             <div>
-                                <Label htmlFor="lastName" className="text-xs font-bold uppercase tracking-wider text-text-primary">
+                                <Label htmlFor="lastName" className="text-xs font-bold uppercase tracking-wider text-black">
                                     Last Name <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
@@ -566,13 +646,13 @@ export default function CheckoutPage() {
                                     value={form.lastName}
                                     onChange={(e) => update("lastName", e.target.value)}
                                     required
-                                    className="mt-1.5 bg-bg-primary"
+                                    className="mt-1.5 bg-white border-neutral-300 text-black"
                                 />
                             </div>
 
                             {/* Address */}
                             <div className="sm:col-span-2">
-                                <Label htmlFor="address" className="text-xs font-bold uppercase tracking-wider text-text-primary">
+                                <Label htmlFor="address" className="text-xs font-bold uppercase tracking-wider text-black">
                                     Address <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
@@ -581,13 +661,13 @@ export default function CheckoutPage() {
                                     onChange={(e) => update("address", e.target.value)}
                                     placeholder="House #, Street address, Sector or Area"
                                     required
-                                    className="mt-1.5 bg-bg-primary"
+                                    className="mt-1.5 bg-white border-neutral-300 text-black"
                                 />
                             </div>
 
                             {/* Apartment / Suite (Optional) */}
                             <div className="sm:col-span-2">
-                                <Label htmlFor="apartment" className="text-xs font-bold uppercase tracking-wider text-text-primary">
+                                <Label htmlFor="apartment" className="text-xs font-bold uppercase tracking-wider text-black">
                                     Apartment, suite, unit, etc. (Optional)
                                 </Label>
                                 <Input
@@ -595,13 +675,13 @@ export default function CheckoutPage() {
                                     value={form.apartment}
                                     onChange={(e) => update("apartment", e.target.value)}
                                     placeholder="Apartment, suite, unit (optional)"
-                                    className="mt-1.5 bg-bg-primary"
+                                    className="mt-1.5 bg-white border-neutral-300 text-black"
                                 />
                             </div>
 
                             {/* City */}
                             <div>
-                                <Label htmlFor="city" className="text-xs font-bold uppercase tracking-wider text-text-primary">
+                                <Label htmlFor="city" className="text-xs font-bold uppercase tracking-wider text-black">
                                     City <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
@@ -610,13 +690,13 @@ export default function CheckoutPage() {
                                     onChange={(e) => update("city", e.target.value)}
                                     placeholder="e.g. Lahore, Karachi, Islamabad"
                                     required
-                                    className="mt-1.5 bg-bg-primary"
+                                    className="mt-1.5 bg-white border-neutral-300 text-black"
                                 />
                             </div>
 
                             {/* Postal Code (Optional) */}
                             <div>
-                                <Label htmlFor="postalCode" className="text-xs font-bold uppercase tracking-wider text-text-primary">
+                                <Label htmlFor="postalCode" className="text-xs font-bold uppercase tracking-wider text-black">
                                     Postal Code (Optional)
                                 </Label>
                                 <Input
@@ -624,13 +704,13 @@ export default function CheckoutPage() {
                                     value={form.postalCode}
                                     onChange={(e) => update("postalCode", e.target.value)}
                                     placeholder="e.g. 54000"
-                                    className="mt-1.5 bg-bg-primary"
+                                    className="mt-1.5 bg-white border-neutral-300 text-black"
                                 />
                             </div>
 
                             {/* Phone Number */}
                             <div className="sm:col-span-2">
-                                <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wider text-text-primary">
+                                <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wider text-black">
                                     Phone Number (For Delivery Confirmation) <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
@@ -640,7 +720,7 @@ export default function CheckoutPage() {
                                     onChange={(e) => update("phone", e.target.value)}
                                     placeholder="+92 300 1234567"
                                     required
-                                    className="mt-1.5 bg-bg-primary font-medium"
+                                    className="mt-1.5 bg-white border-neutral-300 text-black font-medium"
                                 />
                             </div>
                         </div>
@@ -651,137 +731,137 @@ export default function CheckoutPage() {
                                 id="saveInfo"
                                 checked={form.saveInfo}
                                 onChange={(e) => update("saveInfo", e.target.checked)}
-                                className="h-4 w-4 rounded border-border text-btn-primary focus:ring-btn-primary cursor-pointer"
+                                className="h-4 w-4 rounded border-neutral-300 text-black focus:ring-black cursor-pointer"
                             />
-                            <Label htmlFor="saveInfo" className="text-xs font-medium text-text-secondary cursor-pointer">
+                            <Label htmlFor="saveInfo" className="text-xs font-medium text-neutral-600 cursor-pointer">
                                 Save this information for next time
                             </Label>
                         </div>
                     </div>
 
                     {/* 3. SHIPPING METHOD SECTION */}
-                    <div className="rounded-2xl sm:rounded-3xl border border-border/80 bg-bg-secondary/40 p-5 sm:p-7 space-y-3 shadow-2xs">
-                        <h2 className="font-serif font-bold text-lg text-text-primary border-b border-border/60 pb-3">
+                    <div className="rounded-2xl sm:rounded-3xl border border-neutral-200 bg-white p-5 sm:p-7 space-y-3 shadow-xs">
+                        <h2 className="font-serif font-bold text-lg text-black border-b border-neutral-200 pb-3">
                             Shipping
                         </h2>
-                        <div className="rounded-xl border border-border bg-bg-primary p-4 flex items-center justify-between">
+                        <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-bold text-text-primary">Standard Delivery (Courier COD)</p>
-                                <p className="text-xs text-text-secondary">Delivery within 3–5 business days across Pakistan</p>
+                                <p className="text-sm font-bold text-black">Standard Delivery (Courier COD)</p>
+                                <p className="text-xs text-neutral-600">Delivery within 3–5 business days across Pakistan</p>
                             </div>
-                            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md">
+                            <span className="text-xs font-bold uppercase tracking-wider text-black bg-white border border-neutral-300 px-2.5 py-1 rounded-md shadow-2xs">
                                 Free Shipping
                             </span>
                         </div>
                     </div>
 
                     {/* 4. PAYMENT SECTION */}
-                    <div className="rounded-2xl sm:rounded-3xl border border-border/80 bg-bg-secondary/40 p-5 sm:p-7 space-y-4 shadow-2xs">
+                    <div className="rounded-2xl sm:rounded-3xl border border-neutral-200 bg-white p-5 sm:p-7 space-y-4 shadow-xs">
                         <div>
-                            <h2 className="font-serif font-bold text-lg text-text-primary">
+                            <h2 className="font-serif font-bold text-lg text-black">
                                 Payment
                             </h2>
-                            <p className="text-xs text-text-secondary mt-0.5 flex items-center gap-1">
-                                <Lock className="h-3 w-3 text-emerald-500 inline" /> All transactions are secure and encrypted.
+                            <p className="text-xs text-neutral-600 mt-0.5 flex items-center gap-1">
+                                <Lock className="h-3 w-3 text-black inline" /> All transactions are secure and encrypted.
                             </p>
                         </div>
 
-                        <div className="rounded-xl border-2 border-text-primary/80 bg-bg-primary p-4 flex items-center gap-4">
-                            <Banknote className="h-7 w-7 text-text-primary shrink-0" />
+                        <div className="rounded-xl border-2 border-black bg-white p-4 flex items-center gap-4">
+                            <Banknote className="h-7 w-7 text-black shrink-0" />
                             <div>
-                                <h4 className="font-bold text-text-primary text-sm sm:text-base">Cash on Delivery (COD)</h4>
-                                <p className="text-xs text-text-secondary">Pay in cash when your parcel is delivered directly to your door.</p>
+                                <h4 className="font-bold text-black text-sm sm:text-base">Cash on Delivery (COD)</h4>
+                                <p className="text-xs text-neutral-600">Pay in cash when your parcel is delivered directly to your door.</p>
                             </div>
                         </div>
                     </div>
 
                     {/* 5. BILLING ADDRESS SECTION */}
-                    <div className="rounded-2xl sm:rounded-3xl border border-border/80 bg-bg-secondary/40 p-5 sm:p-7 space-y-4 shadow-2xs">
-                        <h2 className="font-serif font-bold text-lg text-text-primary border-b border-border/60 pb-3">
+                    <div className="rounded-2xl sm:rounded-3xl border border-neutral-200 bg-white p-5 sm:p-7 space-y-4 shadow-xs">
+                        <h2 className="font-serif font-bold text-lg text-black border-b border-neutral-200 pb-3">
                             Billing Address
                         </h2>
 
                         <div className="space-y-3">
-                            <label className="flex items-center gap-3 rounded-xl border border-border bg-bg-primary p-3.5 cursor-pointer hover:border-text-primary transition-colors">
+                            <label className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-3.5 cursor-pointer hover:border-black transition-colors">
                                 <input
                                     type="radio"
                                     name="billingAddressType"
                                     value="same_as_shipping"
                                     checked={form.billingAddressType === "same_as_shipping"}
                                     onChange={(e) => update("billingAddressType", e.target.value)}
-                                    className="h-4 w-4 text-btn-primary focus:ring-btn-primary"
+                                    className="h-4 w-4 text-black focus:ring-black"
                                 />
-                                <span className="text-sm font-semibold text-text-primary">Same as Shipping Address</span>
+                                <span className="text-sm font-semibold text-black">Same as Shipping Address</span>
                             </label>
 
-                            <label className="flex items-center gap-3 rounded-xl border border-border bg-bg-primary p-3.5 cursor-pointer hover:border-text-primary transition-colors">
+                            <label className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-3.5 cursor-pointer hover:border-black transition-colors">
                                 <input
                                     type="radio"
                                     name="billingAddressType"
                                     value="different"
                                     checked={form.billingAddressType === "different"}
                                     onChange={(e) => update("billingAddressType", e.target.value)}
-                                    className="h-4 w-4 text-btn-primary focus:ring-btn-primary"
+                                    className="h-4 w-4 text-black focus:ring-black"
                                 />
-                                <span className="text-sm font-semibold text-text-primary">Use a Different Billing Address</span>
+                                <span className="text-sm font-semibold text-black">Use a Different Billing Address</span>
                             </label>
 
                             {/* Expanded Billing Address Form */}
                             {form.billingAddressType === "different" && (
-                                <div className="mt-3 grid gap-4 rounded-xl border border-border/80 bg-bg-primary p-4 sm:grid-cols-2">
+                                <div className="mt-3 grid gap-4 rounded-xl border border-neutral-200 bg-neutral-50 p-4 sm:grid-cols-2">
                                     <div>
-                                        <Label htmlFor="billingFirstName" className="text-xs font-bold uppercase tracking-wider text-text-primary">
+                                        <Label htmlFor="billingFirstName" className="text-xs font-bold uppercase tracking-wider text-black">
                                             First Name
                                         </Label>
                                         <Input
                                             id="billingFirstName"
                                             value={form.billingFirstName}
                                             onChange={(e) => update("billingFirstName", e.target.value)}
-                                            className="mt-1"
+                                            className="mt-1 bg-white border-neutral-300 text-black"
                                         />
                                     </div>
                                     <div>
-                                        <Label htmlFor="billingLastName" className="text-xs font-bold uppercase tracking-wider text-text-primary">
+                                        <Label htmlFor="billingLastName" className="text-xs font-bold uppercase tracking-wider text-black">
                                             Last Name
                                         </Label>
                                         <Input
                                             id="billingLastName"
                                             value={form.billingLastName}
                                             onChange={(e) => update("billingLastName", e.target.value)}
-                                            className="mt-1"
+                                            className="mt-1 bg-white border-neutral-300 text-black"
                                         />
                                     </div>
                                     <div className="sm:col-span-2">
-                                        <Label htmlFor="billingAddress" className="text-xs font-bold uppercase tracking-wider text-text-primary">
+                                        <Label htmlFor="billingAddress" className="text-xs font-bold uppercase tracking-wider text-black">
                                             Billing Address
                                         </Label>
                                         <Input
                                             id="billingAddress"
                                             value={form.billingAddress}
                                             onChange={(e) => update("billingAddress", e.target.value)}
-                                            className="mt-1"
+                                            className="mt-1 bg-white border-neutral-300 text-black"
                                         />
                                     </div>
                                     <div>
-                                        <Label htmlFor="billingCity" className="text-xs font-bold uppercase tracking-wider text-text-primary">
+                                        <Label htmlFor="billingCity" className="text-xs font-bold uppercase tracking-wider text-black">
                                             City
                                         </Label>
                                         <Input
                                             id="billingCity"
                                             value={form.billingCity}
                                             onChange={(e) => update("billingCity", e.target.value)}
-                                            className="mt-1"
+                                            className="mt-1 bg-white border-neutral-300 text-black"
                                         />
                                     </div>
                                     <div>
-                                        <Label htmlFor="billingPostalCode" className="text-xs font-bold uppercase tracking-wider text-text-primary">
+                                        <Label htmlFor="billingPostalCode" className="text-xs font-bold uppercase tracking-wider text-black">
                                             Postal Code
                                         </Label>
                                         <Input
                                             id="billingPostalCode"
                                             value={form.billingPostalCode}
                                             onChange={(e) => update("billingPostalCode", e.target.value)}
-                                            className="mt-1"
+                                            className="mt-1 bg-white border-neutral-300 text-black"
                                         />
                                     </div>
                                 </div>
@@ -792,51 +872,116 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Sidebar Order Summary */}
-                <div className="rounded-2xl sm:rounded-3xl border border-border/80 bg-bg-secondary/60 p-6 space-y-6 shadow-md sticky top-24">
-                    <h2 className="font-serif font-bold text-lg sm:text-xl text-text-primary">
+                <div className="rounded-2xl sm:rounded-3xl border border-neutral-200 bg-white p-6 space-y-6 shadow-sm sticky top-24">
+                    <h2 className="font-serif font-bold text-lg sm:text-xl text-black">
                         Order Summary ({items.length} {items.length === 1 ? "item" : "items"})
                     </h2>
 
                     <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
                         {items.map((item) => (
-                            <div key={item.variant_id} className="flex items-center gap-3 text-xs border-b border-border/40 pb-3 last:border-0 last:pb-0">
-                                <div className="h-12 w-12 rounded-xl bg-bg-primary border border-border overflow-hidden shrink-0">
+                            <div key={item.variant_id} className="flex items-center gap-3 text-xs border-b border-neutral-200 pb-3 last:border-0 last:pb-0">
+                                <div className="h-12 w-12 rounded-xl bg-neutral-50 border border-neutral-200 overflow-hidden shrink-0">
                                     {item.image_url && <img src={item.image_url} alt="" className="h-full w-full object-cover" />}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="font-bold text-text-primary truncate">{item.product_name}</p>
-                                    <p className="text-text-secondary text-[11px]">Qty: {item.quantity}</p>
+                                    <p className="font-bold text-black truncate">{item.product_name}</p>
+                                    <p className="text-neutral-500 text-[11px]">Qty: {item.quantity}</p>
                                 </div>
-                                <span className="font-bold text-text-primary">{formatCurrency(item.unit_price * item.quantity)}</span>
+                                <span className="font-bold text-black">{formatCurrency(item.unit_price * item.quantity)}</span>
                             </div>
                         ))}
                     </div>
 
-                    <div className="space-y-3 text-sm border-t border-border/60 pt-4">
-                        <div className="flex justify-between text-text-secondary">
+                    {/* Coupon / Promo Code Input in Sidebar */}
+                    <div className="space-y-2 border-t border-neutral-200 pt-4">
+                        <label className="text-xs font-bold text-neutral-600 uppercase tracking-wider flex items-center gap-1.5">
+                            <Gift className="h-3.5 w-3.5 text-black" /> Promo Code
+                        </label>
+                        {couponCode ? (
+                            <div className="flex items-center justify-between rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2">
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                    <span className="font-mono text-xs font-bold text-black uppercase tracking-wider truncate">
+                                        {couponCode}
+                                    </span>
+                                    <span className="text-[10px] text-neutral-600 font-medium">
+                                        (−{formatCurrency(discount)})
+                                    </span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        removeCoupon();
+                                        toast({ title: "Coupon removed" });
+                                    }}
+                                    className="p-1 text-black hover:bg-neutral-200 rounded-md transition-colors shrink-0"
+                                    title="Remove promo code"
+                                >
+                                    <X className="h-3.5 w-3.5" />
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="flex gap-2">
+                                <Input
+                                    value={checkoutCoupon}
+                                    onChange={(e) => setCheckoutCoupon(e.target.value)}
+                                    placeholder="Enter code (e.g. TAJIR10)"
+                                    className="text-xs font-bold uppercase tracking-wider h-9 bg-white border-neutral-300 text-black"
+                                    disabled={checkingCoupon}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            handleApplyCheckoutCoupon();
+                                        }
+                                    }}
+                                />
+                                <Button
+                                    type="button"
+                                    onClick={handleApplyCheckoutCoupon}
+                                    disabled={checkingCoupon || !checkoutCoupon.trim()}
+                                    variant="outline"
+                                    className="shrink-0 h-9 px-3 text-xs font-bold rounded-xl border-black text-black hover:bg-black hover:text-white"
+                                >
+                                    {checkingCoupon ? "..." : "Apply"}
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="space-y-3 text-sm border-t border-neutral-200 pt-4">
+                        <div className="flex justify-between text-neutral-600">
                             <span>Subtotal</span>
-                            <span className="font-bold text-text-primary">{formatCurrency(subtotal)}</span>
+                            <span className="font-bold text-black">{formatCurrency(subtotal)}</span>
                         </div>
-                        <div className="flex justify-between text-text-secondary">
+                        {discount > 0 && (
+                            <div className="flex justify-between font-medium">
+                                <span className="text-black">
+                                    Promo Discount {couponCode ? `(${couponCode})` : ""}
+                                </span>
+                                <span className="text-black font-bold">
+                                    −{formatCurrency(discount)}
+                                </span>
+                            </div>
+                        )}
+                        <div className="flex justify-between text-neutral-600">
                             <span>Shipping Method</span>
-                            <span className="font-bold text-emerald-600 dark:text-emerald-400 uppercase text-xs">FREE</span>
+                            <span className="font-bold text-black uppercase text-xs">FREE</span>
                         </div>
-                        <div className="flex justify-between border-t border-border/60 pt-3 text-base font-extrabold text-text-primary">
+                        <div className="flex justify-between border-t border-neutral-200 pt-3 text-base font-extrabold text-black">
                             <span>Total Payable</span>
-                            <span className="font-serif text-xl">{formatCurrency(total)}</span>
+                            <span className="font-serif text-2xl text-black">{formatCurrency(total)}</span>
                         </div>
                     </div>
 
                     <Button
                         type="submit"
                         disabled={submitting}
-                        className="w-full rounded-xl bg-btn-primary text-white font-bold h-12 shadow-md hover:bg-btn-primary-hover active:scale-[0.99] transition-transform text-sm uppercase tracking-wider"
+                        className="w-full rounded-xl bg-black text-white font-bold h-12 shadow-md hover:bg-neutral-800 active:scale-[0.99] transition-all text-sm uppercase tracking-wider"
                     >
                         {submitting ? "Processing Order..." : "Complete Order"}
                     </Button>
 
-                    <div className="flex items-center justify-center gap-1.5 text-[11px] text-text-secondary text-center">
-                        <ShieldCheck className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                    <div className="flex items-center justify-center gap-1.5 text-[11px] text-neutral-500 text-center">
+                        <ShieldCheck className="h-3.5 w-3.5 text-black shrink-0" />
                         <span>100% Authentic • Safe & Secure Order</span>
                     </div>
                 </div>

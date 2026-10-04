@@ -21,40 +21,44 @@ export default function SearchPage() {
     return (
         <div className="container-bk py-12 animate-page-fade">
             <div className="mb-8">
-                <p className="eyebrow mb-2">Search Results</p>
-                <h1 className="font-serif text-3xl font-semibold">
+                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-neutral-600 bg-neutral-100 border border-neutral-200 px-3.5 py-1 rounded-full mb-2">
+                    Search Results
+                </span>
+                <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-black">
                     {q ? <>Showing results for "{q}"</> : "Search"}
                 </h1>
-                {data && <p className="mt-2 text-sm text-text-secondary">{data.total} products found</p>}
+                {data && <p className="mt-2 text-sm text-neutral-600 font-medium">{data.total} products found</p>}
             </div>
 
             {isLoading ? (
                 <ProductGridSkeleton count={8} />
             ) : data && data.items.length > 0 ? (
                 <>
-                    <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
                         {data.items.map((p) => <ProductCard key={p.id} product={p} />)}
                     </div>
 
                     {/* Pagination */}
                     {data.pages > 1 && (
-                        <div className="mt-10 flex items-center justify-center gap-2">
+                        <div className="mt-12 flex items-center justify-center gap-2">
                             <Button
-                                variant="secondary"
+                                variant="outline"
                                 size="sm"
                                 disabled={page === 1}
                                 onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                className="rounded-xl border border-neutral-300 bg-white text-black font-bold hover:bg-black hover:text-white transition-all disabled:opacity-40"
                             >
                                 Previous
                             </Button>
-                            <span className="text-sm text-text-secondary">
+                            <span className="text-xs font-bold text-neutral-600 px-3">
                                 Page {page} of {data.pages}
                             </span>
                             <Button
-                                variant="secondary"
+                                variant="outline"
                                 size="sm"
                                 disabled={page === data.pages}
                                 onClick={() => setPage((p) => Math.min(data.pages, p + 1))}
+                                className="rounded-xl border border-neutral-300 bg-white text-black font-bold hover:bg-black hover:text-white transition-all disabled:opacity-40"
                             >
                                 Next
                             </Button>

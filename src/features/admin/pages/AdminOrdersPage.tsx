@@ -368,13 +368,14 @@ export default function AdminOrdersPage() {
                 </table>
                 ${docType !== "packing_slip" ? `
                     <div class="totals">
-                        <div class="totals-row"><span>Subtotal:</span> <span>PKR ${Number(orderObj.subtotal || orderObj.grand_total).toLocaleString()}</span></div>
-                        <div class="totals-row"><span>Shipping:</span> <span>PKR ${Number(orderObj.shipping_total || 0).toLocaleString()}</span></div>
+                        <div class="totals-row"><span>Subtotal:</span> <span>PKR ${Number((orderObj as any).subtotal_amount || orderObj.subtotal || (Number(orderObj.grand_total) + Number(orderObj.discount_total || 0))).toLocaleString()}</span></div>
+                        ${Number(orderObj.discount_total || 0) > 0 ? `<div class="totals-row" style="color: #10B981;"><span>Promo Discount:</span> <span>−PKR ${Number(orderObj.discount_total).toLocaleString()}</span></div>` : ""}
+                        <div class="totals-row"><span>Shipping:</span> <span>${Number(orderObj.shipping_total || 0) === 0 ? "FREE" : `PKR ${Number(orderObj.shipping_total).toLocaleString()}`}</span></div>
                         <div class="totals-row grand"><span>Total:</span> <span>PKR ${Number(orderObj.grand_total).toLocaleString()}</span></div>
                     </div>
                 ` : ""}
                 <div class="footer">
-                    Thank you for choosing BK Store. For assistance, reach out at support@bkstore.com
+                    Thank you for choosing BK Store. For assistance, reach out at support@bktajir.com | bktajir.com
                 </div>
                 <script>window.onload = function() { window.print(); }</script>
             </body>

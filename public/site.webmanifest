@@ -1,6 +1,6 @@
 {
-  "name": "BKStore24 — BK Store 24",
-  "short_name": "BKStore24",
+  "name": "BK Store — Luxury Collection (BK Tajir)",
+  "short_name": "BK Store",
   "icons": [
     {
       "src": "/favicon-16x16.png",
@@ -23,13 +23,8 @@
       "type": "image/png"
     },
     {
-      "src": "/favicon-128x128.png",
-      "sizes": "128x128",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicon-144x144.png",
-      "sizes": "144x144",
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
       "type": "image/png"
     },
     {

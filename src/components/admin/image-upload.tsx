@@ -1,8 +1,9 @@
 import { useRef, useState } from "react";
-import { ImagePlus, Loader2, X } from "lucide-react";
+import { ImagePlus, Loader2, X, Database } from "lucide-react";
 import { useImageUpload } from "@/features/admin/api";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { MediaLibraryDialog } from "@/components/admin/media-library-dialog";
 
 interface ImageUploadProps {
     /** Current image URL value (controlled). */
@@ -17,16 +18,15 @@ interface ImageUploadProps {
 
 /**
  * Reusable image upload field.
- * - User selects a file from their local machine.
- * - The file is uploaded to the Supabase `media` storage bucket.
- * - The resulting public URL is passed to `onChange`.
- * - Shows a live preview and a remove button.
+ * - User can select a file from their local machine OR select from already uploaded images in Supabase database.
+ * - Shows a live preview, replace/upload button, select from DB button, and remove button.
  */
 export function ImageUpload({ value, onChange, label, aspectClassName = "aspect-video" }: ImageUploadProps) {
     const uploadImage = useImageUpload();
     const { toast } = useToast();
     const inputRef = useRef<HTMLInputElement>(null);
     const [localPreview, setLocalPreview] = useState<string | null>(null);
+    const [pickerOpen, setPickerOpen] = useState(false);
 
     const displayUrl = value || localPreview;
 
@@ -72,9 +72,9 @@ export function ImageUpload({ value, onChange, label, aspectClassName = "aspect-
             {label && (
                 <label className="text-sm font-medium leading-none text-text-primary">{label}</label>
             )}
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-3 flex-wrap sm:flex-nowrap">
                 <div
-                    className={`relative ${aspectClassName} w-full max-w-[240px] overflow-hidden rounded-lg border border-border bg-bg-secondary`}
+                    className={`relative ${aspectClassName} w-full max-w-[240px] shrink-0 overflow-hidden rounded-xl border border-border bg-bg-secondary shadow-2xs`}
                 >
                     {displayUrl ? (
                         <>
@@ -86,7 +86,7 @@ export function ImageUpload({ value, onChange, label, aspectClassName = "aspect-
                             <button
                                 type="button"
                                 onClick={handleRemove}
-                                className="absolute right-1.5 top-1.5 rounded-full bg-bg-primary/80 p-1 text-state-danger hover:bg-bg-primary"
+                                className="absolute right-1.5 top-1.5 rounded-full bg-black/70 p-1 text-white hover:bg-black transition-colors"
                                 aria-label="Remove image"
                             >
                                 <X className="h-3.5 w-3.5" />
@@ -99,7 +99,7 @@ export function ImageUpload({ value, onChange, label, aspectClassName = "aspect-
                         </div>
                     )}
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 min-w-0">
                     <input
                         ref={inputRef}
                         type="file"
@@ -108,33 +108,56 @@ export function ImageUpload({ value, onChange, label, aspectClassName = "aspect-
                         className="hidden"
                         id="image-upload-input"
                     />
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="gap-2"
-                        disabled={uploadImage.isPending}
-                        onClick={() => inputRef.current?.click()}
-                    >
-                        {uploadImage.isPending ? (
-                            <>
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                Uploading…
-                            </>
-                        ) : (
-                            <>
-                                <ImagePlus className="h-4 w-4" />
-                                {value ? "Replace" : "Upload Image"}
-                            </>
-                        )}
-                    </Button>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="gap-2 text-xs"
+                            disabled={uploadImage.isPending}
+                            onClick={() => inputRef.current?.click()}
+                        >
+                            {uploadImage.isPending ? (
+                                <>
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                    Uploading…
+                                </>
+                            ) : (
+                                <>
+                                    <ImagePlus className="h-3.5 w-3.5" />
+                                    {value ? "Replace" : "Upload File"}
+                                </>
+                            )}
+                        </Button>
+
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            className="gap-2 text-xs border border-border bg-bg-secondary hover:bg-neutral-200/80 dark:hover:bg-neutral-800"
+                            onClick={() => setPickerOpen(true)}
+                        >
+                            <Database className="h-3.5 w-3.5 text-text-primary" />
+                            Select from Database
+                        </Button>
+                    </div>
+
                     {value && (
-                        <p className="max-w-[200px] truncate text-[11px] text-text-secondary" title={value}>
+                        <p className="max-w-[240px] truncate text-[11px] text-text-secondary font-mono" title={value}>
                             {value}
                         </p>
                     )}
                 </div>
             </div>
+
+            {/* Supabase Media Library Dialog */}
+            <MediaLibraryDialog
+                open={pickerOpen}
+                onOpenChange={setPickerOpen}
+                onSelect={(url) => onChange(url)}
+                selectedUrls={value ? [value] : []}
+                title="Select Image from Database"
+            />
         </div>
     );
 }

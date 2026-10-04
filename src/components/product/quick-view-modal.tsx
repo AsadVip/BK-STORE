@@ -118,13 +118,13 @@ export function QuickViewModal() {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                        className="relative z-10 w-full max-w-3xl overflow-hidden rounded-3xl border border-border/80 bg-bg-primary shadow-2xl"
+                        className="relative z-10 w-full max-w-3xl overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-2xl"
                     >
                         {/* Close button */}
                         <button
                             type="button"
                             onClick={closeQuickView}
-                            className="absolute right-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all hover:bg-black hover:scale-110 active:scale-95 shadow-md"
+                            className="absolute right-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition-all hover:bg-neutral-800 hover:scale-110 active:scale-95 shadow-md border border-neutral-800"
                             aria-label="Close modal"
                         >
                             <X className="h-5 w-5" />
@@ -132,7 +132,7 @@ export function QuickViewModal() {
 
                         <div className="grid md:grid-cols-2 gap-6 p-6 sm:p-8">
                             {/* Product Image */}
-                            <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-bg-secondary border border-border/60 shadow-inner">
+                            <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-neutral-50 border border-neutral-200 shadow-inner">
                                 {activeImage ? (
                                     <img
                                         src={activeImage}
@@ -140,19 +140,19 @@ export function QuickViewModal() {
                                         className="h-full w-full object-cover object-center transition-all duration-300"
                                     />
                                 ) : (
-                                    <div className="flex h-full w-full items-center justify-center font-serif text-2xl text-text-secondary">
+                                    <div className="flex h-full w-full items-center justify-center font-serif text-2xl text-black font-bold">
                                         BK STORE
                                     </div>
                                 )}
 
                                 {discountPercent > 0 && !outOfStock && (
-                                    <span className="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-md">
+                                    <span className="absolute top-3 left-3 bg-black text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-md border border-black">
                                         −{discountPercent}% OFF
                                     </span>
                                 )}
 
                                 {outOfStock && (
-                                    <span className="absolute top-3 left-3 bg-black/80 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-md">
+                                    <span className="absolute top-3 left-3 bg-neutral-900 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-md">
                                         Out of Stock
                                     </span>
                                 )}
@@ -161,39 +161,39 @@ export function QuickViewModal() {
                             {/* Product Details & Actions */}
                             <div className="flex flex-col justify-between space-y-4">
                                 <div>
-                                    <span className="text-[11px] font-bold uppercase tracking-wider text-text-secondary">
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-500">
                                         {product.brand_name || "LUXURY EDITION"}
                                     </span>
-                                    <h2 className="font-serif text-xl sm:text-2xl font-bold text-text-primary mt-0.5 leading-snug">
+                                    <h2 className="font-serif text-xl sm:text-2xl font-bold text-black mt-0.5 leading-snug">
                                         {product.name}
                                     </h2>
 
                                     {/* Price Display */}
                                     <div className="mt-2.5 flex items-baseline gap-2">
-                                        <span className="font-sans text-xl sm:text-2xl font-extrabold text-text-primary">
+                                        <span className="font-sans text-xl sm:text-2xl font-extrabold text-black">
                                             {formatCurrency(salePrice)}
                                         </span>
                                         {isOnSale && compareAt && compareAt > salePrice && (
-                                            <span className="text-sm font-medium text-text-secondary line-through">
+                                            <span className="text-sm font-medium text-neutral-400 line-through">
                                                 {formatCurrency(compareAt)}
                                             </span>
                                         )}
                                     </div>
 
                                     {/* Product Description */}
-                                    <p className="mt-3 text-xs sm:text-sm text-text-secondary leading-relaxed line-clamp-3">
+                                    <p className="mt-3 text-xs sm:text-sm text-neutral-600 leading-relaxed line-clamp-3 font-medium">
                                         {displayDescription}
                                     </p>
 
-                                    {/* Dynamic Product Variants (Rendered ONLY if product has variants created in Admin) */}
+                                    {/* Dynamic Product Variants */}
                                     {dbVariants && dbVariants.length > 0 && (
                                         <div className="mt-4 space-y-2">
                                             <div className="flex items-center justify-between">
-                                                <label className="text-xs font-bold uppercase tracking-wider text-text-primary">
+                                                <label className="text-xs font-bold uppercase tracking-wider text-black">
                                                     Available Variants ({dbVariants.length})
                                                 </label>
                                                 {activeVariant && (
-                                                    <span className="text-[11px] font-mono text-text-secondary">
+                                                    <span className="text-[11px] font-mono text-neutral-500">
                                                         SKU: {activeSku}
                                                     </span>
                                                 )}
@@ -212,13 +212,13 @@ export function QuickViewModal() {
                                                             onClick={() => setSelectedVariantId(variant.id)}
                                                             className={`group relative h-11 px-4 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 flex items-center justify-center gap-2 border ${
                                                                 isSelected
-                                                                    ? "bg-black text-white border-black shadow-md shadow-black/20 scale-[1.02]"
-                                                                    : "bg-white text-black border-black/20 hover:border-black hover:scale-[1.02] shadow-2xs"
+                                                                    ? "bg-black text-white border-black shadow-md scale-[1.02]"
+                                                                    : "bg-white text-black border-neutral-300 hover:border-black hover:scale-[1.02] shadow-2xs"
                                                             } ${isVarOutOfStock ? "opacity-60" : ""}`}
                                                         >
                                                             <span>{variantLabel}</span>
                                                             {variant.price && variant.price !== product.base_price && (
-                                                                <span className={`text-[10px] ${isSelected ? "text-white/80" : "text-text-secondary"}`}>
+                                                                <span className={`text-[10px] ${isSelected ? "text-neutral-300" : "text-neutral-500"}`}>
                                                                     ({formatCurrency(variant.price)})
                                                                 </span>
                                                             )}
@@ -234,25 +234,25 @@ export function QuickViewModal() {
 
                                     {/* Quantity Selector */}
                                     <div className="mt-4 flex items-center gap-4">
-                                        <label className="text-xs font-bold uppercase tracking-wider text-text-primary">
+                                        <label className="text-xs font-bold uppercase tracking-wider text-black">
                                             Quantity:
                                         </label>
-                                        <div className="flex items-center rounded-xl border border-border/80 bg-bg-secondary shadow-2xs">
+                                        <div className="flex items-center rounded-xl border border-neutral-200 bg-white shadow-2xs">
                                             <button
                                                 type="button"
                                                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                                className="flex h-9 w-9 items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
+                                                className="flex h-9 w-9 items-center justify-center text-neutral-600 hover:bg-neutral-100 hover:text-black transition-colors"
                                                 aria-label="Decrease quantity"
                                             >
                                                 <Minus className="h-4 w-4" />
                                             </button>
-                                            <span className="w-8 text-center font-mono text-sm font-bold text-text-primary">
+                                            <span className="w-8 text-center font-mono text-sm font-bold text-black">
                                                 {quantity}
                                             </span>
                                             <button
                                                 type="button"
                                                 onClick={() => setQuantity(quantity + 1)}
-                                                className="flex h-9 w-9 items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
+                                                className="flex h-9 w-9 items-center justify-center text-neutral-600 hover:bg-neutral-100 hover:text-black transition-colors"
                                                 aria-label="Increase quantity"
                                             >
                                                 <Plus className="h-4 w-4" />
@@ -262,12 +262,12 @@ export function QuickViewModal() {
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div className="space-y-2.5 pt-4 border-t border-border/60">
+                                <div className="space-y-2.5 pt-4 border-t border-neutral-200">
                                     <div className="grid grid-cols-2 gap-2.5">
                                         <Button
                                             onClick={handleAddToCart}
                                             disabled={outOfStock}
-                                            className="w-full rounded-xl bg-black font-bold text-white shadow-md hover:bg-black/90 h-12 text-xs sm:text-sm active:scale-95 transition-transform uppercase tracking-wider"
+                                            className="w-full rounded-xl bg-black font-extrabold text-white shadow-md hover:bg-neutral-800 h-12 text-xs sm:text-sm active:scale-95 transition-all uppercase tracking-wider"
                                         >
                                             <ShoppingBag className="h-4 w-4 mr-1.5" /> Add to Cart
                                         </Button>
@@ -275,7 +275,7 @@ export function QuickViewModal() {
                                             onClick={handleBuyNow}
                                             disabled={outOfStock}
                                             variant="outline"
-                                            className="w-full rounded-xl border-black bg-white text-black font-bold shadow-md hover:bg-black hover:text-white h-12 text-xs sm:text-sm active:scale-95 transition-all uppercase tracking-wider"
+                                            className="w-full rounded-xl border-2 border-black bg-white text-black font-extrabold shadow-md hover:bg-black hover:text-white h-12 text-xs sm:text-sm active:scale-95 transition-all uppercase tracking-wider"
                                         >
                                             Buy Now
                                         </Button>
