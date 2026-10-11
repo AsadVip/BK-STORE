@@ -1,3 +1,9 @@
+# --- Canonical Domain 301 Redirects (Force www to apex bktajir.com) ---
+https://www.bktajir.com/*    https://bktajir.com/:splat    301!
+http://www.bktajir.com/*     https://bktajir.com/:splat    301!
+http://bktajir.com/*         https://bktajir.com/:splat    301!
+
+# --- Static SEO & Favicon assets ---
 /favicon.ico              /favicon.ico              200!
 /favicon-*.png            /:splat                   200!
 /icon-*.png               /:splat                   200!
@@ -12,5 +18,6 @@
 /sitemap.xml              /sitemap.xml              200!
 /google*.html             /:splat                   200!
 /firebase-messaging-sw.js /firebase-messaging-sw.js 200!
-/*                        /index.html               200
 
+# --- SPA Catch-all ---
+/*                        /index.html               200
