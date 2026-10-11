@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useSEO } from "@/lib/seo";
 import {
     Heart,
     Minus,
@@ -114,6 +115,50 @@ export default function ProductPage() {
     const { slug } = useParams();
     const navigate = useNavigate();
     const { data: product, isLoading } = useProduct(slug);
+
+    const productSchema = useMemo(() => {
+        if (!product) return null;
+        const imageUrls = product.images?.length
+            ? product.images.map((img) => img.url)
+            : product.primary_image_url
+            ? [product.primary_image_url]
+            : ["https://bktajir.com/logo.png"];
+
+        return {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: product.name,
+            image: imageUrls,
+            description: product.description || `Buy ${product.name} at BK Store (bktajir.com). Authentic with Cash on Delivery in Pakistan.`,
+            brand: {
+                "@type": "Brand",
+                name: product.brand?.name || "BK Store",
+            },
+            offers: {
+                "@type": "Offer",
+                url: `https://bktajir.com/product/${product.slug || slug}`,
+                priceCurrency: "PKR",
+                price: product.base_price,
+                availability: product.in_stock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+                itemCondition: "https://schema.org/NewCondition",
+                seller: {
+                    "@type": "Organization",
+                    name: "BK Store — BK Tajir",
+                    url: "https://bktajir.com",
+                },
+            },
+        };
+    }, [product, slug]);
+
+    useSEO({
+        title: product ? `${product.name} — Buy Online in Pakistan | BK Store — BK Tajir` : "Luxury Timepiece | BK Store — BK Tajir",
+        description: product ? `${product.description?.slice(0, 150) || `Buy ${product.name} online in Pakistan at BK Store (BK Tajir / bktajir.com)`}. 100% authentic with Cash on Delivery nationwide.` : undefined,
+        canonicalPath: `/product/${slug}`,
+        image: product?.primary_image_url || product?.images?.[0]?.url || undefined,
+        type: "product",
+        schema: productSchema,
+    });
+
     const { data: reviews, refetch: refetchReviews } = useProductReviews(product?.id);
     const { data: flashSale } = useFlashSaleSetting();
     const { user } = useAuth();

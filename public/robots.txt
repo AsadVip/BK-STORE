@@ -1,11 +1,29 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /checkout
+Disallow: /cart
+Disallow: /order-success
+Disallow: /reset-password
+Disallow: /forgot-password
 
 User-agent: Googlebot
 Allow: /
-Crawl-delay: 0
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /checkout
+Disallow: /cart
+Disallow: /order-success
+Disallow: /reset-password
+Disallow: /forgot-password
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /checkout
+Disallow: /cart
+Disallow: /order-success
 
 Sitemap: https://bktajir.com/sitemap.xml

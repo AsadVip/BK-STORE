@@ -10,8 +10,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import { useSEO } from "@/lib/seo";
 
 export default function RegisterPage() {
+    useSEO({
+        title: "Create an Account | BK Store — BK Tajir",
+        description: "Join BK Store (bktajir.com) Inner Circle. Enjoy VIP access, fast order tracking, and exclusive discounts on luxury watches & shoes.",
+        canonicalPath: "/register",
+    });
+
     const { signUp } = useAuth();
     const { toast } = useToast();
     const navigate = useNavigate();

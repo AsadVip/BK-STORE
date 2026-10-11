@@ -67,7 +67,7 @@ export function Footer() {
                             <BkLogo size="md" variant="full" />
                         </Link>
                         <p className="text-sm leading-relaxed text-neutral-600">
-                            Pakistan's premier destination for authentic luxury timepieces, footwear, and boutique lifestyle products.
+                            Pakistan's premier destination for authentic luxury timepieces, footwear, and lifestyle products. Official online store of BK Store &amp; BK Tajir (bktajir.com).
                         </p>
 
                         {/* Social Media Links */}
@@ -186,7 +186,7 @@ export function Footer() {
 
                 <div className="mt-14 flex flex-col items-center justify-center gap-4 border-t border-neutral-200 pt-8 sm:flex-row sm:justify-between flex-wrap">
                     <div className="flex items-center gap-3 text-xs text-neutral-600 text-center font-medium">
-                        <span>© {new Date().getFullYear()} BK Store (bktajir.com). All rights reserved.</span>
+                        <span>© {new Date().getFullYear()} BK Store — BK Tajir (bktajir.com). All rights reserved.</span>
                     </div>
                     <div className="flex items-center gap-3 sm:gap-5 text-neutral-600 text-xs flex-wrap justify-center font-medium">
                         <span className="flex items-center gap-1.5"><Banknote className="h-4 w-4 text-black shrink-0" /> Cash on Delivery</span>

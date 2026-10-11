@@ -2,9 +2,15 @@ import { Link, useParams } from "react-router-dom";
 import { CheckCircle2, Package } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { useSEO } from "@/lib/seo";
 
 export default function OrderSuccessPage() {
     const { orderNumber } = useParams();
+
+    useSEO({
+        title: "Order Confirmed | BK Store — BK Tajir",
+        description: "Your BK Store (bktajir.com) order has been confirmed successfully.",
+    });
 
     return (
         <div className="container-bk flex min-h-[70vh] items-center justify-center py-16">

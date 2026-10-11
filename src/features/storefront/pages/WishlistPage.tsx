@@ -7,8 +7,15 @@ import { ProductCard, type ProductCardData } from "@/components/product/product-
 import { ProductGridSkeleton } from "@/components/product/product-card-skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
+import { useSEO } from "@/lib/seo";
 
 export default function WishlistPage() {
+    useSEO({
+        title: "Your Wishlist | BK Store — BK Tajir",
+        description: "View saved items in your BK Store (BK Tajir) wishlist at bktajir.com.",
+        canonicalPath: "/wishlist",
+    });
+
     const guestIds = useGuestWishlist((s) => s.productIds);
     const toggle = useGuestWishlist((s) => s.toggle);
 

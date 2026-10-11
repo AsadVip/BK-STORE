@@ -10,8 +10,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/use-toast";
+import { useSEO } from "@/lib/seo";
 
 export default function CartPage() {
+    useSEO({
+        title: "Shopping Cart | BK Store — BK Tajir",
+        description: "Review items in your BK Store (bktajir.com) cart. Free express shipping and Cash on Delivery available across Pakistan.",
+        canonicalPath: "/cart",
+    });
+
     const items = useGuestCart((s) => s.items);
     const updateQuantity = useGuestCart((s) => s.updateQuantity);
     const removeItem = useGuestCart((s) => s.removeItem);

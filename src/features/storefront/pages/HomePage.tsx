@@ -12,6 +12,7 @@ import { HearFromCustomers } from "@/components/storefront/hear-from-customers";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { useSEO } from "@/lib/seo";
 
 const VALUE_PROPS = [
     { icon: Truck, title: "Express Free Shipping", desc: "Express delivery across Pakistan" },
@@ -21,6 +22,12 @@ const VALUE_PROPS = [
 ];
 
 export default function HomePage() {
+    useSEO({
+        title: "BK Store — BK Tajir (bktajir.com) | Buy Original Luxury Watches & Shoes Pakistan",
+        description: "BK Store (Official BK Tajir at bktajir.com) — Pakistan's #1 online luxury store for original luxury watches, wireless earbuds & premium shoes. Cash on Delivery nationwide. Fast shipping across Pakistan.",
+        canonicalPath: "/",
+    });
+
     const { data: categories } = useCategories();
     const { data: newArrivals, isLoading: loadingNewArrivals } = useProducts({ placement: "new_arrival", pageSize: 8 });
     const { data: allProducts, isLoading: loadingAllProducts } = useProducts({ pageSize: 8 });

@@ -4,6 +4,7 @@ import { Search, Package, Truck, CheckCircle2, Clock, MapPin, ShieldCheck, Spark
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase/client";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { useSEO } from "@/lib/seo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -46,6 +47,12 @@ const STEPS = [
 ];
 
 export default function TrackOrderPage() {
+    useSEO({
+        title: "Track Your Order Live | BK Store — BK Tajir",
+        description: "Track your BK Store order live at bktajir.com. Enter your order number to view real-time courier status, dispatch details, and delivery date across Pakistan.",
+        canonicalPath: "/track-order",
+    });
+
     const [searchParams] = useSearchParams();
     const initialQuery = searchParams.get("q") || "";
 

@@ -75,7 +75,7 @@ export function Header() {
                     </button>
 
                     {/* Logo */}
-                    <Link to="/" className="shrink-0 min-w-0">
+                    <Link to="/" className="shrink-0 min-w-0" title="BK Store — BK Tajir (bktajir.com)" aria-label="BK Store — BK Tajir Home">
                         <BkLogo size="sm" variant="full" className="sm:hidden" />
                         <BkLogo size="md" variant="full" className="hidden sm:inline-flex" />
                     </Link>

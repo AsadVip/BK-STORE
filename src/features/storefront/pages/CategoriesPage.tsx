@@ -3,8 +3,15 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCategories } from "@/features/catalog/api";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSEO } from "@/lib/seo";
 
 export default function CategoriesPage() {
+    useSEO({
+        title: "All Categories & Collections | BK Store — BK Tajir",
+        description: "Browse all product categories at BK Store (BK Tajir at bktajir.com). Luxury watches, footwear, wireless earbuds & accessories with Cash on Delivery in Pakistan.",
+        canonicalPath: "/categories",
+    });
+
     const { data: categories, isLoading } = useCategories();
 
     return (

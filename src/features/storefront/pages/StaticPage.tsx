@@ -3,6 +3,7 @@ import { Mail, MapPin, Phone, ExternalLink, Facebook, Instagram, Clock, ShieldCh
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useSEO } from "@/lib/seo";
 
 function TikTokIcon({ className }: { className?: string }) {
     return (
@@ -84,12 +85,12 @@ interface StaticPageProps {
 
 const CONTENT: Record<string, { title: string; body: React.ReactNode }> = {
     about: {
-        title: "About BK Store",
+        title: "About BK Store — BK Tajir",
         body: (
             <>
-                <p>BK Store was founded on a simple belief: everyday objects should be beautiful, durable, and thoughtfully made. We curate a premium selection across categories — from apparel to home goods — with an uncompromising standard for quality.</p>
-                <p>Every product in our collection is chosen for its craftsmanship, design integrity, and the story behind it. We partner with makers and brands who share our commitment to excellence.</p>
-                <p>Our mission is to deliver a boutique-grade shopping experience that feels personal, trustworthy, and effortless — wherever you are.</p>
+                <p>BK Store (officially BK Tajir at bktajir.com) was founded on a simple belief: everyday luxury objects should be authentic, durable, and thoughtfully made. As Pakistan's premier online store for authentic luxury timepieces, wireless audio, and designer footwear, we uphold an uncompromising standard for quality and trust.</p>
+                <p>Whether you search for BK Store, BK Tajir, or bktajir.com, you are shopping at Pakistan's authentic luxury destination. Every product in our collection is strictly verified for craftsmanship, original design integrity, and durability. We partner directly with genuine suppliers to bring you world-class luxury at honest prices.</p>
+                <p>Our mission is to deliver a boutique-grade shopping experience that feels personal, trustworthy, and effortless — complete with Cash on Delivery (COD) across Pakistan, direct WhatsApp customer support, and fast nationwide delivery.</p>
             </>
         ),
     },
@@ -280,27 +281,37 @@ const CONTENT: Record<string, { title: string; body: React.ReactNode }> = {
         body: (
             <div className="space-y-6">
                 {[
-                    { q: "How long does shipping take in Pakistan?", a: "Standard delivery takes 3–5 business days across Pakistan. Urgent delivery is available for Multan & major cities." },
-                    { q: "What is your return policy?", a: "We accept returns within 7 days of delivery, provided items are in original condition." },
+                    { q: "What is BK Store and BK Tajir?", a: "BK Store (bktajir.com), officially registered as BK Tajir, is Pakistan's premier online boutique for 100% authentic luxury watches, premium footwear, and wireless earbuds with Cash on Delivery nationwide." },
+                    { q: "What is the official website for BK Store?", a: "The official, authentic website for BK Store and BK Tajir is https://bktajir.com. All official orders and inquiries are handled exclusively through bktajir.com." },
+                    { q: "Are products at BK Store authentic?", a: "Yes, 100%. All luxury timepieces, footwear, and accessories are thoroughly inspected for original quality craftsmanship before dispatch." },
+                    { q: "How long does shipping take in Pakistan?", a: "Standard delivery takes 2–4 business days across Pakistan. Express delivery is available for Multan, Lahore, Karachi, Islamabad, and other major cities." },
+                    { q: "What is your return policy?", a: "We accept returns within 7 days of delivery, provided items are in original condition with tags and packaging intact." },
                     { q: "Do you offer Cash on Delivery (COD)?", a: "Yes! Cash on Delivery is available for all orders across Pakistan." },
-                    { q: "How can I track my order?", a: "Once your order ships, you will receive a tracking number via SMS/WhatsApp or you can check on our Track Order page." },
+                    { q: "How can I track my order?", a: "Once your order is placed, you can track it live using your order number on our Track Order page at bktajir.com/track-order or via WhatsApp." },
                 ].map((f) => (
-                    <div key={f.q}>
-                        <h3 className="font-medium text-text-primary">{f.q}</h3>
-                        <p className="mt-1 text-text-secondary">{f.a}</p>
+                    <div key={f.q} className="rounded-xl border border-border bg-bg-secondary p-5">
+                        <h3 className="font-semibold text-text-primary text-base">{f.q}</h3>
+                        <p className="mt-2 text-sm text-text-secondary leading-relaxed">{f.a}</p>
                     </div>
                 ))}
             </div>
         ),
     },
-    "privacy-policy": { title: "Privacy Policy", body: <p>Your privacy matters to us. This policy explains how we collect, use, and protect your personal information when you use BK Store. We only collect data necessary to fulfill orders and improve your experience. We never sell your data.</p> },
-    terms: { title: "Terms & Conditions", body: <p>By using BK Store, you agree to these terms. All sales are subject to our store policies. Prices and availability are subject to change.</p> },
-    "shipping-policy": { title: "Shipping Policy", body: <p>We offer reliable shipping across Pakistan. Orders are processed within 1–2 business days. Express shipping and Cash on Delivery are available at checkout.</p> },
+    "privacy-policy": { title: "Privacy Policy", body: <p>Your privacy matters to us. This policy explains how we collect, use, and protect your personal information when you use BK Store (bktajir.com). We only collect data necessary to fulfill orders and improve your experience. We never sell your data.</p> },
+    terms: { title: "Terms & Conditions", body: <p>By using BK Store (bktajir.com), you agree to these terms. All sales are subject to our store policies. Prices and availability are subject to change.</p> },
+    "shipping-policy": { title: "Shipping Policy", body: <p>We offer reliable shipping across Pakistan. Orders are processed within 1–2 business days. Express shipping and Cash on Delivery are available at checkout across all cities.</p> },
     "return-policy": { title: "Return Policy", body: <p>Items can be returned within 7 days of delivery in original, unused condition. Contact our WhatsApp support at 0328 6870670 for assistance with returns or exchanges.</p> },
 };
 
 export default function StaticPage({ slug }: StaticPageProps) {
     const content = CONTENT[slug];
+
+    useSEO({
+        title: content ? `${content.title} | BK Store — BK Tajir` : "BK Store — BK Tajir",
+        description: content ? `${content.title} — BK Store (Official BK Tajir at bktajir.com). Pakistan's #1 luxury watches and shoes store.` : undefined,
+        canonicalPath: `/${slug}`,
+    });
+
     if (!content) {
         return (
             <div className="container-bk py-20 text-center">
@@ -311,7 +322,7 @@ export default function StaticPage({ slug }: StaticPageProps) {
     return (
         <div className="container-bk py-16">
             <div className="mx-auto max-w-5xl">
-                <p className="eyebrow mb-2">BK Store</p>
+                <p className="eyebrow mb-2">BK Store — BK Tajir</p>
                 <h1 className="mb-8 font-serif text-4xl font-semibold">{content.title}</h1>
                 <div className="prose prose-invert max-w-none space-y-4 text-text-secondary leading-relaxed">
                     {content.body}

@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/use-toast";
+import { useSEO } from "@/lib/seo";
 
 import { sendAdminOrderPushNotification } from "@/lib/fcm-sender";
 
@@ -19,6 +20,12 @@ function sanitizeText(str: string): string {
 }
 
 export default function CheckoutPage() {
+    useSEO({
+        title: "Secure Checkout | BK Store — BK Tajir",
+        description: "Complete your order with Cash on Delivery at BK Store (bktajir.com). Fast and reliable doorstep delivery nationwide across Pakistan.",
+        canonicalPath: "/checkout",
+    });
+
     const items = useGuestCart((s) => s.items);
     const subtotal = useGuestCart((s) => s.subtotal());
     const discount = useGuestCart((s) => s.discount());

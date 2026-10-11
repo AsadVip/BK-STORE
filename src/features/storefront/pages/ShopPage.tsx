@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn, formatCurrency } from "@/lib/utils";
+import { useSEO } from "@/lib/seo";
 
 const SORT_OPTIONS = [
     { value: "newest", label: "Newest" },
@@ -31,6 +32,16 @@ export default function ShopPage() {
         () => categories?.find((c) => c.slug === categorySlug),
         [categories, categorySlug],
     );
+
+    useSEO({
+        title: activeCategory
+            ? `${activeCategory.name} — Buy Online in Pakistan | BK Store — BK Tajir`
+            : "Shop Luxury Watches, Earbuds & Shoes | BK Store — BK Tajir",
+        description: activeCategory
+            ? `Shop authentic ${activeCategory.name} online in Pakistan at BK Store (BK Tajir / bktajir.com). Cash on Delivery nationwide and 100% genuine guarantee.`
+            : "Explore luxury watches, premium footwear & wireless earbuds at BK Store (BK Tajir at bktajir.com). Pakistan's top online destination with Cash on Delivery.",
+        canonicalPath: categorySlug ? `/shop/${categorySlug}` : "/shop",
+    });
 
     const [sort, setSort] = useState<ShopFilters["sort"]>("newest");
     const [page, setPage] = useState(1);

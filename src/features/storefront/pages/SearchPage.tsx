@@ -6,11 +6,18 @@ import { ProductCard } from "@/components/product/product-card";
 import { ProductGridSkeleton } from "@/components/product/product-card-skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
+import { useSEO } from "@/lib/seo";
 
 export default function SearchPage() {
     const [params] = useSearchParams();
     const q = params.get("q") ?? "";
     const [page, setPage] = useState(1);
+
+    useSEO({
+        title: q ? `Search: "${q}" | BK Store — BK Tajir` : "Search Products | BK Store — BK Tajir",
+        description: `Search luxury watches, earbuds, and premium footwear at BK Store (BK Tajir at bktajir.com). Cash on Delivery in Pakistan.`,
+        canonicalPath: q ? `/search?q=${encodeURIComponent(q)}` : "/search",
+    });
 
     useEffect(() => {
         setPage(1);

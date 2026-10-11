@@ -1,4 +1,5 @@
 import React from "react";
+import { useSEO } from "@/lib/seo";
 import {
     ShieldCheck,
     Database,
@@ -17,6 +18,12 @@ import {
 } from "lucide-react";
 
 export default function PrivacyPolicyPage() {
+    useSEO({
+        title: "Privacy Policy | BK Store — BK Tajir",
+        description: "Official Privacy Policy of BK Store & BK Tajir (bktajir.com). Understand how we safeguard your personal data, transactions, and privacy in Pakistan.",
+        canonicalPath: "/privacy-policy",
+    });
+
     const scrollToSection = (id: string) => {
         const element = document.getElementById(id);
         if (element) {

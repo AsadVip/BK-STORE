@@ -10,8 +10,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import { useSEO } from "@/lib/seo";
 
 export default function LoginPage() {
+    useSEO({
+        title: "Sign In to Your Account | BK Store — BK Tajir",
+        description: "Log in to your BK Store (bktajir.com) account to track orders, manage addresses, and view your luxury wishlist.",
+        canonicalPath: "/login",
+    });
+
     const { signIn } = useAuth();
     const { toast } = useToast();
     const navigate = useNavigate();
